@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="dotNet-testRunner">
+  <test name="dotNet-testRunner">
+    <classes>
+      <class name="jetbrains.buildServer.runAs.agent.SettingsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.SettingsPublisherTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.RunAsSetupBuilderTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>
+    </classes>
+  </test>
+</suite>

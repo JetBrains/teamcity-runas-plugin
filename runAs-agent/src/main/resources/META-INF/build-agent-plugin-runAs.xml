@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="constructor">
+
+  <bean class="jetbrains.buildServer.runAs.agent.CommandLineExecutorImpl"/>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
+  <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
+  <bean class="jetbrains.buildServer.runAs.agent.SettingsGenerator" id="settingsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
+    <constructor-arg ref="settingsPublisher"/>
+    <constructor-arg ref="settingsGenerator"/>
+  </bean>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
+    <constructor-arg ref="runAsSetupBuilder"/>
+  </bean>
+
+</beans>
