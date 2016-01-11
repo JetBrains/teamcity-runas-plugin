@@ -17,7 +17,8 @@ That's it! Once the build is run, the plugin runs all commands under the specifi
 
 ## Install ##
 
-To install the plugin, put the [zip archive](https://teamcity.jetbrains.com/httpAuth/app/rest/builds/buildType:TeamCityPluginsByJetBrains_RunAs_Build,pinned:true,status:SUCCESS,tags:deploy/artifacts/content/runAs.zip) to 'plugins' direrctory under TeamCity data directory. Restart the server.
+To install the plugin, put the [zip archive](https://cloud.mail.ru/public/3AwZ/DnD49rkpB) to 'plugins' direrctory under TeamCity data directory. Restart the server.
+<!--https://teamcity.jetbrains.com/httpAuth/app/rest/builds/buildType:TeamCityPluginsByJetBrains_RunAs_Build,pinned:true,status:SUCCESS,tags:deploy/artifacts/content/runAs.zip-->
 
 ## Implemention ##
 
