@@ -1,32 +1,36 @@
 #include "stdafx.h"
 #include <iostream>
 #include "CommanLineParser.h"
-#include "Process.h"
+#include "ServiceProcess.h"
 #include "Settings.h"
 #include "HelpUtilities.h"
+#include "ProcessInfoProvider.h"
+#include "ProcessWithLogon.h"
 
-class Process;
+class ProcessInfoProvider;
+class ServiceProcess;
 
 int main(int argc, char *argv[]) {
 	HelpUtilities::ShowHeader();
 
-	const auto errorExitCode = -1;
 	Settings settings;
 	CommanLineParser commanLineParser;
-	if(!commanLineParser.TryParse(argc, argv, settings))
+	if (!commanLineParser.TryParse(argc, argv, settings))
 	{
 		HelpUtilities::ShowHelp();
-		return errorExitCode;
+		return IProcess::ErrorExitCode;
 	}
 
-	std::wcout << "Starting: " << settings.GetCommandLine() << std::endl;	
+	std::wcout << "Starting: " << settings.GetCommandLine() << std::endl;
 	std::wcout << "in directory: " << settings.GetWorkingDirectory() << std::endl;
 
-	Process process(settings);
-	if(!process.IsCreated())
+	ProcessInfoProvider processInfoProvider;
+	if (processInfoProvider.IsServiceProcess())
 	{
-		return errorExitCode;
+		ServiceProcess process;
+		return process.Run(settings);
 	}
-
-	return process.GetExitCode();
+	
+	ProcessWithLogon process;
+	return process.Run(settings);
 }

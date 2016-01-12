@@ -5,3 +5,5 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <windows.h>
+#include <Userenv.h>
+#pragma comment(lib, "Userenv.lib")

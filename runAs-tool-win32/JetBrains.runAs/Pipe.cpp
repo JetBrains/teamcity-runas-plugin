@@ -12,7 +12,7 @@ Pipe::Pipe(std::wstring name):
 
 void Pipe::Initialize(SECURITY_ATTRIBUTES& securityAttributes)
 {
-	if (!CreatePipe(&_readHandle.GetHandle(), &_writeHandle.GetHandle(), &securityAttributes, 0))
+	if (!CreatePipe(&_readHandle.Value(), &_writeHandle.Value(), &securityAttributes, 0))
 	{
 		std::wcerr << ErrorUtilities::GetLastErrorMessage(ErrorUtilities::GetActionName(L"CreatePipe", _name));
 	}	

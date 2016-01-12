@@ -10,5 +10,6 @@ public:
 	explicit Handle(std::wstring name);
 	~Handle();
 
-	HANDLE& GetHandle();	
+	HANDLE& Value();
+	bool IsInvalid() const;
 };
