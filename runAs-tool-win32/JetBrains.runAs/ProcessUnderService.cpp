@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ServiceProcess.h"
+#include "ProcessUnderService.h"
 #include "Settings.h"
 #include <iostream>
 #include "ErrorUtilities.h"
@@ -8,17 +8,27 @@
 
 class ProcessTracker;
 
-int ServiceProcess::Run(Settings& settings) const
+int ProcessUnderService::Run(Settings& settings) const
 {
+	// Get current environment
+	auto currentSecurityTokenHandle = Handle(L"Current security token");
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &currentSecurityTokenHandle.Value()))
+	{
+		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken");
+		return ErrorExitCode;
+	}
+
+	Environment currentUserEnvironment(currentSecurityTokenHandle.Value(), true);
+
 	// Attempt to log a user on to the local computer
-	auto securityTokenHandle = Handle(L"Security Token");
+	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
 		settings.GetUserName().c_str(),
 		settings.GetDomain().c_str(),
 		settings.GetPassword().c_str(),
 		LOGON32_LOGON_NETWORK,
 		LOGON32_PROVIDER_DEFAULT,
-		&securityTokenHandle.Value()))
+		&newUserSecurityTokenHandle.Value()))
 	{
 		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"LogonUser");
 		return ErrorExitCode;
@@ -28,7 +38,7 @@ int ServiceProcess::Run(Settings& settings) const
 	PROFILEINFO profileInfo = {};
 	profileInfo.dwSize = sizeof(PROFILEINFO);
 	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
-	if (!LoadUserProfile(securityTokenHandle.Value(), &profileInfo))
+	if (!LoadUserProfile(newUserSecurityTokenHandle.Value(), &profileInfo))
 	{
 		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile");
 		return ErrorExitCode;
@@ -55,18 +65,18 @@ int ServiceProcess::Run(Settings& settings) const
 	}
 
 	// Creates a new access token that duplicates an existing token
-	auto primarySecurityTokenHandle = Handle(L"Primary Security Token");
+	auto primaryNewUserSecurityTokenHandle = Handle(L"Primary new user security token");
 	SECURITY_ATTRIBUTES processSecAttributes = {};
 	processSecAttributes.lpSecurityDescriptor = &securityDescriptor;
 	processSecAttributes.nLength = sizeof(SECURITY_DESCRIPTOR);
 	processSecAttributes.bInheritHandle = true;
 	if (!DuplicateTokenEx(
-		securityTokenHandle.Value(),
+		newUserSecurityTokenHandle.Value(),
 		0,
 		&processSecAttributes,
 		SecurityImpersonation,
 		TokenPrimary,
-		&primarySecurityTokenHandle.Value()))
+		&primaryNewUserSecurityTokenHandle.Value()))
 	{
 		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx");
 		return ErrorExitCode;
@@ -82,18 +92,20 @@ int ServiceProcess::Run(Settings& settings) const
 	ProcessTracker processTracker(processSecAttributes, startupInfo);
 
 	// Get current environment
-	Environment environment;
+	Environment newUserEnvironment(primaryNewUserSecurityTokenHandle.Value(), false);
+	Environment mergedEnvironment;
+	Environment::Merge(currentUserEnvironment, newUserEnvironment, mergedEnvironment);
 
 	PROCESS_INFORMATION processInformation = {};
 	if (!CreateProcessAsUser(
-		primarySecurityTokenHandle.Value(),
+		primaryNewUserSecurityTokenHandle.Value(),
 		nullptr,
 		const_cast<LPWSTR>(settings.GetCommandLine().c_str()),
 		&processSecAttributes,
 		&threadSecAttributes,
 		true,
 		CREATE_NO_WINDOW | INHERIT_PARENT_AFFINITY | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-		environment.GetEnvironment(),
+		mergedEnvironment.CreateEnvironment(),
 		const_cast<LPWSTR>(settings.GetWorkingDirectory().c_str()),
 		&startupInfo,
 		&processInformation))

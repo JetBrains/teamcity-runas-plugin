@@ -1,16 +1,16 @@
 #include "stdafx.h"
 #include <iostream>
 #include "CommanLineParser.h"
-#include "ServiceProcess.h"
+#include "ProcessUnderService.h"
 #include "Settings.h"
 #include "HelpUtilities.h"
 #include "ProcessInfoProvider.h"
 #include "ProcessWithLogon.h"
 
 class ProcessInfoProvider;
-class ServiceProcess;
+class ProcessUnderService;
 
-int main(int argc, char *argv[]) {
+int _tmain(int argc, _TCHAR *argv[]) {
 	HelpUtilities::ShowHeader();
 
 	Settings settings;
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	ProcessInfoProvider processInfoProvider;
 	if (processInfoProvider.IsServiceProcess())
 	{
-		ServiceProcess process;
+		ProcessUnderService process;
 		return process.Run(settings);
 	}
 	

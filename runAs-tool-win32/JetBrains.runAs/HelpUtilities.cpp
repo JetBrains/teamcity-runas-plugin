@@ -25,9 +25,8 @@ void HelpUtilities::ShowHelp()
 {	
 	std::cout << std::endl;
 	std::cout << std::endl << "Requirements:";
-	std::cout << std::endl << "\tTo run this tool the following requirements must be met:";
-	std::cout << std::endl << "\t\t- Log on as a service under the account using administrative privileges.";
-	std::cout << std::endl << "\t\t- This account has the privileges:";
+	std::cout << std::endl << "\tTo run this tool under Windows service the following requirements must be met:";
+	std::cout << std::endl << "\t\t- Use an account with administrative privileges. In addtion the account must have the privileges";
 	std::cout << std::endl << "\t\t\t- to act as part of the operating system";
 	std::cout << std::endl << "\t\t\t- to adjust memory quotas for a process";
 	std::cout << std::endl << "\t\t\t- to replace a process level token";

@@ -17,7 +17,32 @@ int ProcessWithLogon::Run(Settings& settings) const
 	ProcessTracker processTracker(securityAttributes, startupInfo);
 
 	// Get current environment
-	Environment environment;
+	auto currentSecurityTokenHandle = Handle(L"Current security token");
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &currentSecurityTokenHandle.Value()))
+	{
+		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken");
+		return ErrorExitCode;
+	}
+
+	Environment currentUserEnvironment(currentSecurityTokenHandle.Value(), true);
+
+	// Attempt to log a user on to the local computer
+	auto newUserSecurityTokenHandle = Handle(L"New user security token");
+	if (!LogonUser(
+		settings.GetUserName().c_str(),
+		settings.GetDomain().c_str(),
+		settings.GetPassword().c_str(),
+		LOGON32_LOGON_NETWORK,
+		LOGON32_PROVIDER_DEFAULT,
+		&newUserSecurityTokenHandle.Value()))
+	{
+		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"LogonUser");
+		return ErrorExitCode;
+	}
+
+	Environment newUserEnvironment(newUserSecurityTokenHandle.Value(), false);
+	Environment mergedEnvironment;
+	Environment::Merge(currentUserEnvironment, newUserEnvironment, mergedEnvironment);
 
 	if (!CreateProcessWithLogonW(
 		const_cast<LPWSTR>(settings.GetUserName().c_str()),
@@ -27,7 +52,7 @@ int ProcessWithLogon::Run(Settings& settings) const
 		nullptr,
 		const_cast<LPWSTR>(settings.GetCommandLine().c_str()),
 		CREATE_NO_WINDOW | INHERIT_PARENT_AFFINITY | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-		environment.GetEnvironment(),
+		mergedEnvironment.CreateEnvironment(),
 		const_cast<LPWSTR>(settings.GetWorkingDirectory().c_str()),
 		&startupInfo,
 		&processInformation))

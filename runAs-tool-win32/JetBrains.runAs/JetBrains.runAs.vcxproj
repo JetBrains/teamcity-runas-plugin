@@ -173,7 +173,7 @@
     <ClInclude Include="Pipe.h" />
     <ClInclude Include="ProcessTracker.h" />
     <ClInclude Include="ProcessWithLogon.h" />
-    <ClInclude Include="ServiceProcess.h" />
+    <ClInclude Include="ProcessUnderService.h" />
     <ClInclude Include="ProcessInfoProvider.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
@@ -189,7 +189,7 @@
     <ClCompile Include="Pipe.cpp" />
     <ClCompile Include="ProcessTracker.cpp" />
     <ClCompile Include="ProcessWithLogon.cpp" />
-    <ClCompile Include="ServiceProcess.cpp" />
+    <ClCompile Include="ProcessUnderService.cpp" />
     <ClCompile Include="ProcessInfoProvider.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="stdafx.cpp">

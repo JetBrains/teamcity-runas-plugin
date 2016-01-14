@@ -3,7 +3,8 @@
 #include <iostream>
 #include "ErrorUtilities.h"
 #include "IProcess.h"
-
+#include <thread>
+#include <chrono>
 
 ProcessTracker::ProcessTracker(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo)
 {
@@ -23,32 +24,25 @@ DWORD ProcessTracker::WaiteForExit(HANDLE processHandle)
 	DWORD exitCode;
 	auto hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	auto hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	bool hasData;
 	do
 	{
-		if (!RedirectStream(_stdOutPipe.GetReader().Value(), hStdOutput))
-		{
-			return IProcess::ErrorExitCode;
-		}
-
-		if (!RedirectStream(_stdErrorOutPipe.GetReader().Value(), hStdError))
-		{
-			return IProcess::ErrorExitCode;
-		}
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(0));
+		hasData = RedirectStream(_stdOutPipe.GetReader().Value(), hStdOutput) || RedirectStream(_stdErrorOutPipe.GetReader().Value(), hStdError);		
 		if (!GetExitCodeProcess(processHandle, &exitCode))
 		{
 			std::wcerr << ErrorUtilities::GetLastErrorMessage(L"GetExitCodeProcess");
 			return IProcess::ErrorExitCode;
 		}
 	}
-	while (exitCode == STILL_ACTIVE);
+	while (exitCode == STILL_ACTIVE || hasData);
 
 	return exitCode;
 }
 
 bool ProcessTracker::RedirectStream(HANDLE hPipeRead, HANDLE hOutput)
 {
-	CHAR buffer[256];
+	CHAR buffer[0xffff];
 	DWORD bytesReaded;
 	DWORD bytesWritten;
 	DWORD totalBytesAvail;
@@ -68,7 +62,7 @@ bool ProcessTracker::RedirectStream(HANDLE hPipeRead, HANDLE hOutput)
 
 	if (totalBytesAvail == 0)
 	{
-		return true;
+		return false;
 	}
 
 	if (!ReadFile(hPipeRead, buffer, bytesReaded, &bytesReaded, nullptr) || !bytesReaded)
@@ -76,7 +70,7 @@ bool ProcessTracker::RedirectStream(HANDLE hPipeRead, HANDLE hOutput)
 		if (GetLastError() == ERROR_BROKEN_PIPE)
 		{
 			// Pipe done - normal exit path.
-			return true;
+			return false;
 		}
 
 		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"ReadFile");

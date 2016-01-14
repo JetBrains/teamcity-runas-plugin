@@ -3,7 +3,7 @@
 #include "Settings.h"
 class Settings;
 
-class ServiceProcess: public IProcess
+class ProcessUnderService: public IProcess
 {	
 public:
 	virtual int Run(Settings& settings) const override;
