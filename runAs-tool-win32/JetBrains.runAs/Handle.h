@@ -8,8 +8,9 @@ class Handle
 
 public:
 	explicit Handle(std::wstring name);
-	~Handle();
-
-	HANDLE& Value();
+	~Handle();	
+	operator HANDLE() const;
+	Handle& operator = (const HANDLE handle);
+	PHANDLE operator &();
 	bool IsInvalid() const;
 };

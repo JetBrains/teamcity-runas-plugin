@@ -19,3 +19,5 @@ runAs-tool-win32/JetBrains.runAs/x64/
 runAs-tool-win32/temp/
 *.sdf
 runAs-tool-win32/ipch/
+runAs-tool-win32/packages/
+runAs-tool-win32/JetBrains.runAs.IntegrationTests/obj/

@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Pipe.h"
 #include "ErrorUtilities.h"
-#include <iostream>
+#include "ErrorCode.h"
+#include "Result.h"
 
 Pipe::Pipe(std::wstring name): 
 	_readHandle(L"Pipe \"" + name + L"\" handle for read"),
@@ -10,12 +11,14 @@ Pipe::Pipe(std::wstring name):
 	_name = name;
 }
 
-void Pipe::Initialize(SECURITY_ATTRIBUTES& securityAttributes)
+Result<bool> Pipe::Initialize(SECURITY_ATTRIBUTES& securityAttributes)
 {
-	if (!CreatePipe(&_readHandle.Value(), &_writeHandle.Value(), &securityAttributes, 0))
+	if (!CreatePipe(&_readHandle, &_writeHandle, &securityAttributes, 0))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(ErrorUtilities::GetActionName(L"CreatePipe", _name));
+		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetActionName(L"CreatePipe", _name));
 	}	
+
+	return Result<bool>(true);
 }
 
 Handle& Pipe::GetReader()

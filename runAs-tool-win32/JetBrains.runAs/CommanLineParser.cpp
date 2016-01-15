@@ -1,26 +1,23 @@
 #include "stdafx.h"
 #include "CommanLineParser.h"
-#include <iostream>
 #include <fstream>
+#include <sstream>
 #include <regex>
 #include "Settings.h"
 #include <list>
-#include <codecvt>
+#include "Result.h"
+#include "ErrorCode.h"
+#include "ExitCode.h"
 
-static const std::wregex ArgRegex = std::wregex(L"\\s*/\\s*(\\w)+\\s*:\\s*(.+)\\s*$");
+static const std::wregex ArgRegex = std::wregex(L"\\s*-\\s*(\\w+)\\s*:\\s*(.+)\\s*$");
 static const std::wregex UserRegex = std::wregex(L"^([^@\\\\]+)@([^@\\\\]+)$|^([^@\\\\]+)\\\\([^@\\\\]+)$|(^[^@\\\\]+$)");
 
 CommanLineParser::CommanLineParser()
 {
 }
 
-bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) const
+Result<bool> CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) const
 {	
-	if (argc < 2)
-	{
-		return false;
-	}	
-
 	std::list<std::wstring> args;
 
 	// Extract additional args from command line args
@@ -28,25 +25,44 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 	{
 		args.push_back(argv[argIndex]);
 	}
-
+	
 	std::wstring userName;
 	std::wstring domain;
 	std::wstring password;
 	std::wstring executable;
 	std::wstring workingDirectory;
-	std::list<std::wstring> commandLineArgs;
+	ExitCode exitCodeBase = DEFAULT_EXIT_CODE_BASE;
+	std::wstringstream commandLineArgs;
+	auto argsMode = 0; // 0 - get tool args, 1 - get executable, 2 - get cmd args
 	
 	while (args.size() > 0)
 	{
-		auto arg = *args.begin();
-		args.erase(args.begin());
+		auto arg = *args.begin();		
+
+		if (argsMode == 2)
+		{
+			commandLineArgs << " ";
+			commandLineArgs << NormalizeCmdArg(arg);
+			args.erase(args.begin());
+			continue;
+		}
+
+		if (argsMode == 1)
+		{
+			executable = arg;
+			argsMode = 2;
+			args.erase(args.begin());
+			continue;
+		}		
 
 		std::wsmatch matchResult;
 		if (!regex_search(arg, matchResult, ArgRegex))
 		{
-			std::wcerr << "Invalid argument \"" << arg << "\"";
-			return false;
+			argsMode = 1;
+			continue;
 		}
+
+		args.erase(args.begin());
 
 		auto argName = matchResult._At(1).str();
 		auto argValue = matchResult._At(2).str();
@@ -60,8 +76,7 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 		{
 			if (!regex_search(argValue, matchResult, UserRegex))
 			{
-				std::wcerr << "Invalid format of user name \"" << argValue << "\"";
-				return false;
+				return Result<bool>(ERROR_CODE_INVALID_USAGE, L"Invalid format of user name \"" + argValue + L"\"");
 			}
 
 			userName = matchResult._At(1).str();
@@ -81,6 +96,11 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 				domain = matchResult._At(3).str();
 			}
 
+			if (domain == L"")
+			{
+				domain = L".";
+			}
+
 			continue;
 		}
 
@@ -89,14 +109,7 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 		{
 			password = argValue;
 			continue;
-		}
-
-		// Executable file
-		if (argNameInLowCase == L"e")
-		{
-			executable = argValue;
-			continue;
-		}
+		}		
 
 		// Working directory
 		if (argNameInLowCase == L"w")
@@ -105,10 +118,18 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 			continue;
 		}
 
+		// Exit code base
+		if (argNameInLowCase == L"b")
+		{
+			exitCodeBase = stoi(argValue);
+			continue;
+		}
+
 		// Command line argument
 		if (argNameInLowCase == L"a")
 		{
-			commandLineArgs.push_back(argValue);
+			argsMode = true;
+			commandLineArgs << NormalizeCmdArg(argValue);
 			continue;
 		}
 
@@ -121,8 +142,7 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 			configFile.open(configFileName);
 			if (!configFile.is_open())
 			{
-				std::wcerr << std::endl << "Unable to open file: \"" << configFileName << "\"";
-				return false;
+				return Result<bool>(ERROR_CODE_INVALID_USAGE, L"Unable to open file: \"" + configFileName + L"\"");
 			}
 
 			std::wstring line;
@@ -137,8 +157,7 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 			continue;
 		}
 
-		std::wcerr << "Invalid argument \"" << argName << "\"";
-		return false;
+		return Result<bool>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
 	if (workingDirectory == L"")
@@ -148,12 +167,33 @@ bool CommanLineParser::TryParse(int argc, _TCHAR *argv[],  Settings& settings) c
 		workingDirectory = std::wstring(path);
 	}
 
-	settings = Settings(userName, domain, password, executable, workingDirectory, commandLineArgs);
-	return true;
+	std::wstringstream errors;
+	if (userName == L"")
+	{		
+		errors << "user_name";
+	}	
+
+	if (executable == L"")
+	{
+		errors << " executable";
+	}
+
+	auto errorsDetails = errors.str();
+	if (errorsDetails != L"")
+	{		
+		return Result<bool>(ERROR_CODE_INVALID_USAGE, L"The argument(s) " + errorsDetails + L" should be specified.");
+	}
+
+	settings = Settings(userName, domain, password, executable, workingDirectory, exitCodeBase, commandLineArgs.str());
+	return Result<bool>(true);
 }
 
-std::wstring CommanLineParser::ToWString(const std::string& text)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-	return converter.from_bytes(text);
+std::wstring CommanLineParser::NormalizeCmdArg(std::wstring cmdArg)
+{	
+	if(cmdArg.find(L' ') != std::string::npos && cmdArg.size() > 0 && !(cmdArg[0] == L'\"' && cmdArg[cmdArg.size() - 1] == L'\"'))
+	{		
+		return L'\"' + cmdArg + L'\"';
+	}
+
+	return cmdArg;
 }

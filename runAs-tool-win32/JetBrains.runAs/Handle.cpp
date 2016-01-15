@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "Handle.h"
-#include <iostream>
-#include "ErrorUtilities.h"
 
 Handle::Handle(std::wstring name)
 {
@@ -11,15 +9,26 @@ Handle::Handle(std::wstring name)
 
 Handle::~Handle()
 {
-	if (_handle != nullptr && !IsInvalid() && !CloseHandle(_handle))
+	if (_handle != nullptr && !IsInvalid())
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(ErrorUtilities::GetActionName(L"CloseHandle", _name));
+		CloseHandle(_handle);
 	}
 }
 
-HANDLE& Handle::Value()
+Handle::operator HANDLE() const
 {
 	return _handle;
+}
+
+Handle& Handle::operator=(const HANDLE handle)
+{
+	_handle = handle;
+	return *this;
+}
+
+PHANDLE Handle::operator&()
+{
+	return &_handle;
 }
 
 bool Handle::IsInvalid() const

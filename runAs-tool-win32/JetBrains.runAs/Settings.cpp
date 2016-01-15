@@ -1,20 +1,20 @@
 #include "stdafx.h"
 #include "Settings.h"
-#include <iterator>
-#include <sstream>
+#include "ExitCode.h"
 
-Settings::Settings()
+Settings::Settings(): _exitCodeBase(DEFAULT_EXIT_CODE_BASE)
 {
 }
 
-Settings::Settings(const std::wstring userName, const std::wstring domain, const std::wstring password, const std::wstring executable, const std::wstring workingDirectory, const std::list<std::wstring> args)
+Settings::Settings(const std::wstring userName, const std::wstring domain, const std::wstring password, const std::wstring executable, const std::wstring workingDirectory, int exitCodeBase, const std::wstring args)
 {
 	_userName = userName;
 	_domain = domain;
 	_password = password;
 	_executable = executable;
 	_workingDirectory = workingDirectory;
-	copy(args.begin(), args.end(), back_inserter(_args));	
+	_exitCodeBase = exitCodeBase;
+	_args = args;
 }
 
 std::wstring Settings::GetUserName() const
@@ -40,19 +40,16 @@ std::wstring Settings::GetExecutable() const
 
 std::wstring Settings::GetCommandLine() const
 {
-	std::wstringstream result;
-	result << _executable;
-	for (auto iterator = _args.begin(); iterator != _args.end(); ++iterator)
-	{
-		result << " ";
-		result << *iterator;
-	}
-
-	return result.str();
+	return _executable + L" " + _args;
 }
 
 
 std::wstring Settings::GetWorkingDirectory() const
 {
 	return _workingDirectory;
+}
+
+int Settings::GetExitCodeBase() const
+{
+	return _exitCodeBase;
 }

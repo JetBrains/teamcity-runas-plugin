@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "Environment.h"
-#include "ErrorUtilities.h"
-#include <iostream>
 #include <regex>
 #include <set>
 
@@ -18,61 +16,54 @@ static const std::set<std::wstring> Overrides = {
 	L"userprofile",
 };
 
-static const std::wregex EnvVarRegex = std::wregex(L"(.+)=(.*)$");
+static const std::wregex EnvVarRegex = std::wregex(L"(.+)=(.*)");
 
-Environment::Environment()
+Result<Environment> Environment::CreateForCurrentProcess()
 {
-}
-
-Environment::Environment(bool inherit)
-{
-	LPVOID environment;
-	if (!CreateEnvironmentBlock(&environment, nullptr, inherit))
-	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"CreateEnvironmentBlock");		
-	}
-
+	auto environment = GetEnvironmentStringsW();
+	Environment newEnvironment;
 	try
 	{
-		CreateVariableMap(environment);
+		newEnvironment.CreateVariableMap(environment);
 	}
 	catch(...)
-	{
-	}
+	{		
+	}	
 
-	if (!DestroyEnvironmentBlock(environment))
-	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"DestroyEnvironmentBlock");
-	}
+	FreeEnvironmentStringsW(environment);
+	return Result<Environment>(newEnvironment);
 }
 
-Environment::Environment(HANDLE token, bool inherit)
+Result<Environment> Environment::CreateFormString(std::wstring variables)
 {
-	LPVOID environment;
-	if (!CreateEnvironmentBlock(&environment, token, inherit))
+	std::vector<std::wstring> vars;
+	SplitString(variables, L"\n", vars);
+
+	Environment environment;
+	std::wsmatch matchResult;	
+	for (auto varsIterrator = vars.begin(); varsIterrator != vars.end(); ++varsIterrator)
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"CreateEnvironmentBlock");
+		if (!regex_search(*varsIterrator, matchResult, EnvVarRegex))
+		{			
+			continue;
+		}
+
+		auto envName = matchResult._At(1).str();
+		auto envValue = matchResult._At(2).str();
+		environment._vars[envName] = envValue;
+		environment._empty = false;
 	}
 
-	try
-	{
-		CreateVariableMap(environment);
-	}
-	catch (...)
-	{
-	}
-
-	if (!DestroyEnvironmentBlock(environment))
-	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"DestroyEnvironmentBlock");
-	}
+	return Result<Environment>(environment);
 }
 
-void Environment::Merge(Environment& baseEnvironment, Environment& mergingEnvironment, Environment& targetEnvironment)
+Environment Environment::Merge(Environment& baseEnvironment, Environment& mergingEnvironment)
 {
+	Environment targetEnvironment;
 	for (auto varsIterator = baseEnvironment._vars.begin(); varsIterator != baseEnvironment._vars.end(); ++varsIterator)
 	{
 		targetEnvironment._vars[varsIterator->first] = varsIterator->second;
+		targetEnvironment._empty = false;
 	}	
 
 	for (auto varsIterator = mergingEnvironment._vars.begin(); varsIterator != mergingEnvironment._vars.end(); ++varsIterator)
@@ -85,6 +76,8 @@ void Environment::Merge(Environment& baseEnvironment, Environment& mergingEnviro
 			targetEnvironment._vars[varsIterator->first] = varsIterator->second;
 		}
 	}
+
+	return targetEnvironment;
 }
 
 Environment::~Environment()
@@ -116,12 +109,13 @@ void Environment::CreateVariableMap(LPVOID environment)
 		std::wsmatch matchResult;
 		if (!regex_search(curVarValue, matchResult, EnvVarRegex))
 		{
-			std::wcerr << "Invalid format of environment variable \"" << curVarValue << "\"";
+			continue;
 		}
 
 		auto envName = matchResult._At(1).str();
 		auto envValue = matchResult._At(2).str();
 		_vars[envName] = envValue;
+		_empty = false;
 	} while (len > 0);	
 }
 
@@ -160,7 +154,48 @@ LPVOID* Environment::CreateEnvironmentFromMap()
 
 LPVOID* Environment::CreateEnvironment()
 {
+	if(_empty)
+	{
+		return nullptr;
+	}
+
 	auto environment = CreateEnvironmentFromMap();
 	_environmentBlocks.push_back(environment);
 	return environment;
+}
+
+std::wstring Environment::TryGetValue(std::wstring variableName)
+{
+	std::wstring curVarNameInLowCase;
+	curVarNameInLowCase.resize(variableName.size());
+	transform(variableName.begin(), variableName.end(), curVarNameInLowCase.begin(), tolower);
+
+	for (auto varsIterator = _vars.begin(); varsIterator != _vars.end(); ++varsIterator)
+	{
+		std::wstring varNameInLowCase;
+		varNameInLowCase.resize(varsIterator->first.size());
+		transform(varsIterator->first.begin(), varsIterator->first.end(), varNameInLowCase.begin(), tolower);
+		if (varNameInLowCase == curVarNameInLowCase)
+		{
+			return varsIterator->second;
+		}
+	}
+
+	return L"";
+}
+
+void Environment::SplitString(std::wstring &str, const std::wstring delim, std::vector<std::wstring>& strs)
+{
+	size_t i = 0;
+	auto pos = str.find(delim);
+	while (pos != std::wstring::npos) 
+	{
+		strs.push_back(str.substr(i, pos - i));
+		i = ++pos;
+		pos = str.find(delim, pos);
+		if (pos == std::string::npos)
+		{
+			strs.push_back(str.substr(i, str.length()));
+		}
+	}
 }

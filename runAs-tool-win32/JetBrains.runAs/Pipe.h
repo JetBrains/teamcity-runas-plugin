@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Handle.h"
+#include "Result.h"
 
 class Pipe
 {
@@ -10,7 +11,7 @@ class Pipe
 
 public:
 	explicit Pipe(std::wstring name);
-	void Initialize(SECURITY_ATTRIBUTES& securityAttributes);
+	Result<bool> Initialize(SECURITY_ATTRIBUTES& securityAttributes);
 	Handle& GetReader();
 	Handle& GetWriter();
 };

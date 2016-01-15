@@ -1,50 +1,78 @@
 #include "stdafx.h"
 #include "ProcessTracker.h"
-#include <iostream>
 #include "ErrorUtilities.h"
-#include "IProcess.h"
 #include <thread>
 #include <chrono>
+#include "Result.h"
+#include "ExitCode.h"
 
-ProcessTracker::ProcessTracker(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo)
-{
-	_stdOutPipe.Initialize(securityAttributes);
-	_stdErrorOutPipe.Initialize(securityAttributes);
-	_stdInPipe.Initialize(securityAttributes);
-
-	startupInfo.hStdOutput = _stdOutPipe.GetWriter().Value();
-	startupInfo.hStdError = _stdErrorOutPipe.GetWriter().Value();
-	startupInfo.hStdInput = _stdInPipe.GetReader().Value();
-	startupInfo.dwFlags |= STARTF_USESTDHANDLES;
-	
+ProcessTracker::ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& errorWriter)
+	: _outputWriter(outputWriter), _errorWriter(errorWriter)
+{	
 }
 
-DWORD ProcessTracker::WaiteForExit(HANDLE processHandle)
+Result<bool> ProcessTracker::Initialize(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo)
+{
+	auto error = _stdOutPipe.Initialize(securityAttributes);
+	if (error.HasError() || !error.GetResultValue())
+	{
+		return error;
+	}
+	
+	error = _stdErrorOutPipe.Initialize(securityAttributes);
+	if (error.HasError() || !error.GetResultValue())
+	{
+		return error;
+	}
+
+	error = _stdInPipe.Initialize(securityAttributes);
+	if (error.HasError() || !error.GetResultValue())
+	{
+		return error;
+	}
+
+	startupInfo.hStdOutput = _stdOutPipe.GetWriter();
+	startupInfo.hStdError = _stdErrorOutPipe.GetWriter();
+	startupInfo.hStdInput = _stdInPipe.GetReader();
+	startupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+	return Result<bool>(true);
+}
+
+Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
 {
 	DWORD exitCode;
-	auto hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	auto hStdError = GetStdHandle(STD_ERROR_HANDLE);
 	bool hasData;
 	do
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(0));
-		hasData = RedirectStream(_stdOutPipe.GetReader().Value(), hStdOutput) || RedirectStream(_stdErrorOutPipe.GetReader().Value(), hStdError);		
+		auto hasData1 = RedirectStream(_stdOutPipe.GetReader(), _outputWriter);
+		if(hasData1.HasError())
+		{
+			return Result<ExitCode>(hasData1.GetErrorCode(), hasData1.GetErrorDescription());
+		}
+
+		auto hasData2 = RedirectStream(_stdErrorOutPipe.GetReader(), _errorWriter);
+		if (hasData2.HasError())
+		{
+			return Result<ExitCode>(hasData2.GetErrorCode(), hasData2.GetErrorDescription());
+		}
+
+		hasData = hasData1.GetResultValue() | hasData2.GetResultValue();
 		if (!GetExitCodeProcess(processHandle, &exitCode))
 		{
-			std::wcerr << ErrorUtilities::GetLastErrorMessage(L"GetExitCodeProcess");
-			return IProcess::ErrorExitCode;
+			return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"GetExitCodeProcess"));
 		}
 	}
 	while (exitCode == STILL_ACTIVE || hasData);
 
-	return exitCode;
+	return Result<ExitCode>(exitCode);
 }
 
-bool ProcessTracker::RedirectStream(HANDLE hPipeRead, HANDLE hOutput)
+Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& writer)
 {
 	CHAR buffer[0xffff];
 	DWORD bytesReaded;
-	DWORD bytesWritten;
 	DWORD totalBytesAvail;
 	DWORD bytesLeftThisMessage;
 
@@ -53,16 +81,15 @@ bool ProcessTracker::RedirectStream(HANDLE hPipeRead, HANDLE hOutput)
 		if (GetLastError() == ERROR_BROKEN_PIPE)
 		{
 			// Pipe done - normal exit path.
-			return true;
+			return Result<bool>(true);
 		}
 
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"PeekNamedPipe");
-		return false;
+		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"PeekNamedPipe"));
 	}
 
 	if (totalBytesAvail == 0)
 	{
-		return false;
+		return Result<bool>(false);
 	}
 
 	if (!ReadFile(hPipeRead, buffer, bytesReaded, &bytesReaded, nullptr) || !bytesReaded)
@@ -70,19 +97,17 @@ bool ProcessTracker::RedirectStream(HANDLE hPipeRead, HANDLE hOutput)
 		if (GetLastError() == ERROR_BROKEN_PIPE)
 		{
 			// Pipe done - normal exit path.
-			return false;
+			return Result<bool>(false);
 		}
 
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"ReadFile");
-		return false;
+		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"ReadFile"));
 	}
 
-	if (!WriteFile(hOutput, buffer, bytesReaded, &bytesWritten, nullptr))
+	if (!writer.WriteFile(buffer, bytesReaded))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"WriteConsole");
-		return false;
+		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"WriteConsole"));
 	}
 
-	return true;
+	return Result<bool>(true);
 }
 

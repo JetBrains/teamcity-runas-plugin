@@ -1,25 +1,15 @@
 #include "stdafx.h"
 #include "ProcessUnderService.h"
 #include "Settings.h"
-#include <iostream>
 #include "ErrorUtilities.h"
 #include "ProcessTracker.h"
 #include "Environment.h"
-
+#include "Result.h"
+#include "ExitCode.h"
 class ProcessTracker;
 
-int ProcessUnderService::Run(Settings& settings) const
+Result<ExitCode> ProcessUnderService::Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const
 {
-	// Get current environment
-	auto currentSecurityTokenHandle = Handle(L"Current security token");
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &currentSecurityTokenHandle.Value()))
-	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken");
-		return ErrorExitCode;
-	}
-
-	Environment currentUserEnvironment(currentSecurityTokenHandle.Value(), true);
-
 	// Attempt to log a user on to the local computer
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
@@ -28,20 +18,18 @@ int ProcessUnderService::Run(Settings& settings) const
 		settings.GetPassword().c_str(),
 		LOGON32_LOGON_NETWORK,
 		LOGON32_PROVIDER_DEFAULT,
-		&newUserSecurityTokenHandle.Value()))
+		&newUserSecurityTokenHandle))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"LogonUser");
-		return ErrorExitCode;
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
 	}
 
 	// Load profile
 	PROFILEINFO profileInfo = {};
 	profileInfo.dwSize = sizeof(PROFILEINFO);
 	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
-	if (!LoadUserProfile(newUserSecurityTokenHandle.Value(), &profileInfo))
+	if (!LoadUserProfile(newUserSecurityTokenHandle, &profileInfo))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile");
-		return ErrorExitCode;
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
 	}
 
 	// Initialize a new security descriptor
@@ -50,8 +38,7 @@ int ProcessUnderService::Run(Settings& settings) const
 		&securityDescriptor,
 		SECURITY_DESCRIPTOR_REVISION))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"InitializeSecurityDescriptor");
-		return ErrorExitCode;
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"InitializeSecurityDescriptor"));
 	}
 
 	if (!SetSecurityDescriptorDacl(
@@ -60,8 +47,7 @@ int ProcessUnderService::Run(Settings& settings) const
 		nullptr,
 		false))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"SetSecurityDescriptorDacl");
-		return ErrorExitCode;
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"SetSecurityDescriptorDacl"));
 	}
 
 	// Creates a new access token that duplicates an existing token
@@ -71,15 +57,14 @@ int ProcessUnderService::Run(Settings& settings) const
 	processSecAttributes.nLength = sizeof(SECURITY_DESCRIPTOR);
 	processSecAttributes.bInheritHandle = true;
 	if (!DuplicateTokenEx(
-		newUserSecurityTokenHandle.Value(),
+		newUserSecurityTokenHandle,
 		0,
 		&processSecAttributes,
 		SecurityImpersonation,
 		TokenPrimary,
-		&primaryNewUserSecurityTokenHandle.Value()))
+		&primaryNewUserSecurityTokenHandle))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx");
-		return ErrorExitCode;
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
 	}
 
 	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
@@ -87,38 +72,36 @@ int ProcessUnderService::Run(Settings& settings) const
 	threadSecAttributes.lpSecurityDescriptor = nullptr;
 	threadSecAttributes.nLength = 0;
 	threadSecAttributes.bInheritHandle = false;	
+	STARTUPINFO startupInfo = {};	
 
-	STARTUPINFO startupInfo = {};
-	ProcessTracker processTracker(processSecAttributes, startupInfo);
-
-	// Get current environment
-	Environment newUserEnvironment(primaryNewUserSecurityTokenHandle.Value(), false);
-	Environment mergedEnvironment;
-	Environment::Merge(currentUserEnvironment, newUserEnvironment, mergedEnvironment);
+	auto error = processTracker.Initialize(processSecAttributes, startupInfo);
+	if(error.HasError())
+	{
+		return Result<ExitCode>(error.GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+	}
 
 	PROCESS_INFORMATION processInformation = {};
 	if (!CreateProcessAsUser(
-		primaryNewUserSecurityTokenHandle.Value(),
+		primaryNewUserSecurityTokenHandle,
 		nullptr,
 		const_cast<LPWSTR>(settings.GetCommandLine().c_str()),
 		&processSecAttributes,
 		&threadSecAttributes,
 		true,
-		CREATE_NO_WINDOW | INHERIT_PARENT_AFFINITY | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-		mergedEnvironment.CreateEnvironment(),
-		const_cast<LPWSTR>(settings.GetWorkingDirectory().c_str()),
+		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+		environment.CreateEnvironment(),
+		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
 		&processInformation))
 	{
-		std::wcerr << ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser");
-		return ErrorExitCode;
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser"));
 	}
 
 	auto processHandle = Handle(L"Service Process");
-	processHandle.Value() = processInformation.hProcess;
+	processHandle = processInformation.hProcess;
 	
 	auto threadHandle = Handle(L"Thread");
-	threadHandle.Value() = processInformation.hThread;	
+	threadHandle = processInformation.hThread;	
 
 	return processTracker.WaiteForExit(processInformation.hProcess);
 }

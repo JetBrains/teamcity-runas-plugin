@@ -33,7 +33,7 @@ public class SettingsGeneratorTest {
   @Test()
   public void shouldGenerateContent() {
     // Given
-    final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
+    final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 3", CommandLineArgument.Type.PARAMETER));
     final Settings settings = new Settings(
       new CommandLineSetup(
         "tool",
@@ -44,12 +44,47 @@ public class SettingsGeneratorTest {
       "wd"
     );
 
-    String expectedContent = "/u:nik" + ourlineSeparator +
-                             "/p:aa" + ourlineSeparator +
-                             "/w:wd" + ourlineSeparator +
-                             "/e:tool" + ourlineSeparator +
-                             "/a:arg1" + ourlineSeparator +
-                             "/a:arg2";
+    String expectedContent = "-u:nik" + ourlineSeparator +
+                             "-p:aa" + ourlineSeparator +
+                             "-w:wd" + ourlineSeparator +
+                             "tool" + ourlineSeparator +
+                             "arg1" + ourlineSeparator +
+                             "arg2" + ourlineSeparator +
+                             "arg 3";
+
+    myCtx.checking(new Expectations() {{
+      oneOf(myCommandLineArgumentsService).normalizeCommandLineArguments(settings.getSetup().getArgs());
+      will(returnValue(args));
+    }});
+
+    final SettingsGenerator instance = createInstance();
+
+    // When
+    final String content = instance.create(settings);
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(content.trim().replace("\n", "").replace("\r", "")).isEqualTo(expectedContent.trim().replace("\n", "").replace("\r", ""));
+  }
+
+  @Test()
+  public void shouldGenerateContentWhenEmptyArgs() {
+    // Given
+    final List<CommandLineArgument> args = Arrays.asList();
+    final Settings settings = new Settings(
+      new CommandLineSetup(
+        "tool",
+        args,
+        Arrays.asList(myCommandLineResource1, myCommandLineResource2)),
+      "nik",
+      "aa",
+      "wd"
+    );
+
+    String expectedContent = "-u:nik" + ourlineSeparator +
+                             "-p:aa" + ourlineSeparator +
+                             "-w:wd" + ourlineSeparator +
+                             "tool";
 
     myCtx.checking(new Expectations() {{
       oneOf(myCommandLineArgumentsService).normalizeCommandLineArguments(settings.getSetup().getArgs());

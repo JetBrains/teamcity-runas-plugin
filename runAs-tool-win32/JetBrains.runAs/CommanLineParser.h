@@ -1,12 +1,13 @@
 #pragma once
 #include <string>
+#include "Result.h"
 class Settings;
 
 class CommanLineParser
 {
-	static std::wstring ToWString(const std::string& text);
-
+	static std::wstring NormalizeCmdArg(std::wstring cmdArg);
+	
 public:
 	CommanLineParser();	
-	bool TryParse(int argc, _TCHAR *argv[], Settings& settings) const;
+	Result<bool> TryParse(int argc, _TCHAR *argv[], Settings& settings) const;
 };

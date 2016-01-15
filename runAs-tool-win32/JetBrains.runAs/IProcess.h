@@ -1,13 +1,15 @@
 #pragma once
+#include "Result.h"
+#include "Settings.h"
+#include "ExitCode.h"
 
-class Settings;
+class ProcessTracker;
+class Environment;
 
 class IProcess
 {
 public:
-	const static int ErrorExitCode = -1;
-
 	virtual ~IProcess()	{}
 
-	virtual int Run(Settings& settings) const = 0;
+	virtual Result<ExitCode> Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const = 0;
 };

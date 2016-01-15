@@ -3,15 +3,14 @@ package jetbrains.buildServer.runAs.agent;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Function;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
+import jetbrains.buildServer.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class SettingsGenerator implements ResourceGenerator<Settings> {
   private static final String ourLineSeparator = System.getProperty("line.separator");
-  private static final String USER_CMD_KEY = "/u:";
-  private static final String PASSWORD_CMD_KEY = "/p:";
-  private static final String WORKING_DIRECTORY_CMD_KEY = "/w:";
-  private static final String EXECUTABLE_CMD_KEY = "/e:";
-  private static final String ARG_CMD_KEY = "/a:";
+  private static final String USER_CMD_KEY = "-u:";
+  private static final String PASSWORD_CMD_KEY = "-p:";
+  private static final String WORKING_DIRECTORY_CMD_KEY = "-w:";
   private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public SettingsGenerator(
@@ -36,22 +35,12 @@ public class SettingsGenerator implements ResourceGenerator<Settings> {
     sb.append(settings.getWorkingDirectory());
     sb.append(ourLineSeparator);
 
-    sb.append(EXECUTABLE_CMD_KEY);
     sb.append(settings.getSetup().getToolPath());
-    if(settings.getSetup().getArgs().size() > 0) {
-      sb.append(ourLineSeparator);
-    }
 
-    sb.append(
-      StringUtil.join(
-        myCommandLineArgumentsService.normalizeCommandLineArguments(settings.getSetup().getArgs()),
-        new Function<CommandLineArgument, String>() {
-          @Override
-          public String fun(final CommandLineArgument commandLineArgument) {
-            return ARG_CMD_KEY + commandLineArgument.getValue();
-          }
-        },
-        ourLineSeparator));
+    for(CommandLineArgument cmdArg: myCommandLineArgumentsService.normalizeCommandLineArguments(settings.getSetup().getArgs())){
+      sb.append(ourLineSeparator);
+      sb.append(cmdArg.getValue());
+    }
 
     return sb.toString();
   }

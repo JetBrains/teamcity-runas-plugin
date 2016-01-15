@@ -1,14 +1,27 @@
 #include "stdafx.h"
 #include "ErrorUtilities.h"
-#include <string>
+#include <sstream>
+#include <iomanip>
+#include "ErrorCode.h"
 
 ErrorUtilities::ErrorUtilities()
 {
 }
 
+ErrorCode ErrorUtilities::GetErrorCode()
+{	
+	auto errorCode = GetLastError();
+	if (errorCode >= 0x0000052e && errorCode <= 0x00000532)
+	{
+		return ERROR_CODE_ACCESS;
+	}
+
+	return ERROR_WIN32;	
+}
+
 std::wstring ErrorUtilities::GetLastErrorMessage(std::wstring targetAction)
 {
-	auto errorCode = GetLastError();
+	auto errorCode = GetLastError();	
 	if (errorCode != 0)
 	{
 		LPVOID messageBuffer;
@@ -21,13 +34,17 @@ std::wstring ErrorUtilities::GetLastErrorMessage(std::wstring targetAction)
 			0,
 			nullptr);
 
-		if (bufferLength > 0)
+		if(bufferLength == 0)
 		{
-			auto message = static_cast<LPCWSTR>(messageBuffer);
-			std::wstring result(message);
-			LocalFree(messageBuffer);
-			return L"\"" + targetAction + L"\" causes the error " + std::to_wstring(errorCode) + L": " + result;
+			return L"";
 		}
+
+		auto message = static_cast<LPCWSTR>(messageBuffer);
+		std::wstring result(message);
+		LocalFree(messageBuffer);
+		std::wstringstream errorStream;
+		errorStream << L"" << targetAction << L" throws 0x" << std::hex << std::setw(8) << std::setfill(L'0') << errorCode << L" - " << result;
+		return errorStream.str();
 	}
 
 	return L"";

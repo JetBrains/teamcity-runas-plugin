@@ -1,10 +1,12 @@
 #pragma once
+#include <string>
+
 class HelpUtilities
 {
 	HelpUtilities();
 	
 public:	
-	static void ShowHeader();
-	static void ShowHelp();
+	static std::wstring GetHeader();
+	static std::wstring GetHelp();
 };
 

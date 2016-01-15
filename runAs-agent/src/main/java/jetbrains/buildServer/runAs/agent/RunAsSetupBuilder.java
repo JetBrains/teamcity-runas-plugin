@@ -79,6 +79,10 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     myLoggerService.onMessage(new Message(String.format(RUN_AS_WAS_NOT_USED_MESSAGE, reason), WARNING_STATUS, null));
   }
 
+  private void sendOutput(@NotNull final String text) {
+    myLoggerService.onStandardOutput(text);
+  }
+
   private File getTool() {
     final File path = new File(myParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME);
     myFileService.validatePath(path);

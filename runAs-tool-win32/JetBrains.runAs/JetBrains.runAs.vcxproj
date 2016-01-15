@@ -98,30 +98,38 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>true</TreatWarningAsError>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <ResourceCompile />
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>true</TreatWarningAsError>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <ResourceCompile />
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -130,7 +138,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -142,6 +150,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -150,7 +161,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -162,27 +173,43 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)_UNICODE;UNICODE;%(PreprocessorDefinitions);VERSION_BUILD=0$(BUILD_NUMBER)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CommanLineParser.h" />
     <ClInclude Include="Environment.h" />
+    <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="ErrorUtilities.h" />
+    <ClInclude Include="ExitCode.h" />
+    <ClInclude Include="PrivilegeManager.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="StreamWriter.h" />
     <ClInclude Include="Handle.h" />
     <ClInclude Include="HelpUtilities.h" />
     <ClInclude Include="IProcess.h" />
+    <ClInclude Include="IStreamWriter.h" />
     <ClInclude Include="Pipe.h" />
+    <ClInclude Include="ProcessRunner.h" />
     <ClInclude Include="ProcessTracker.h" />
     <ClInclude Include="ProcessWithLogon.h" />
     <ClInclude Include="ProcessUnderService.h" />
     <ClInclude Include="ProcessInfoProvider.h" />
+    <ClInclude Include="Result.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="StringWriter.h" />
+    <ClInclude Include="StubWriter.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommanLineParser.cpp" />
     <ClCompile Include="Environment.cpp" />
     <ClCompile Include="ErrorUtilities.cpp" />
+    <ClCompile Include="PrivilegeManager.cpp" />
+    <ClCompile Include="StreamWriter.cpp" />
     <ClCompile Include="Handle.cpp" />
     <ClCompile Include="HelpUtilities.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -198,6 +225,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StringWriter.cpp" />
+    <ClCompile Include="StubWriter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="JetBrains.runAs.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
