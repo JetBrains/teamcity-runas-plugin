@@ -44,7 +44,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		auto settingsResult = commanLineParser.TryParse(args, &exitCodeBase);
 		if (settingsResult.HasError())
 		{
-			result = Result<ExitCode>(settingsResult.GetErrorCode(), settingsResult.GetErrorDescription() + L"\n" + HelpUtilities::GetHelp());
+			result = Result<ExitCode>(settingsResult.GetErrorCode(), settingsResult.GetErrorDescription());
 		}
 		else
 		{
@@ -129,11 +129,15 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	std::wcout << std::endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << settings.GetExitCodeBase();
 	std::wcout << std::endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetStringValue(settings.GetExecutable());
 	std::wcout << std::endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetStringValue(settings.GetCommandLine());
-
-	auto errorDescription = result.GetErrorDescription();
-	if (errorDescription != L"")
+	
+	if (result.GetErrorCode() == ERROR_CODE_INVALID_USAGE)
 	{
-		std::wcerr << std::endl << std::endl << L"Error:" << std::endl << result.GetErrorDescription();
+		std::wcout << std::endl << HelpUtilities::GetHelp();
+	}
+
+	if (result.GetErrorDescription() != L"")
+	{
+		std::wcerr << std::endl << std::endl << L"Error: " + result.GetErrorDescription();
 	}
 
 	return exitCodeBase > 0 ? exitCodeBase + result.GetErrorCode() : exitCodeBase - result.GetErrorCode();

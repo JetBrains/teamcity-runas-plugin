@@ -14,7 +14,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String TOOL_FILE_NAME = "JetBrains.runAs.exe";
   static final String SETTINGS_EXT = ".settings";
   static final String WARNING_STATUS = "WARNING";
-  static final String CONFIG_FILE_CMD_KEY = "/c:";
+  static final String CONFIG_FILE_CMD_KEY = "-c:";
 
   private static final String CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING = "the configuration parameter \"%s\" was not defined or empty";
   private static final String RUN_AS_WAS_NOT_USED_MESSAGE = "RunAs was not used because %s";
