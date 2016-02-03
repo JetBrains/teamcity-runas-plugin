@@ -31,7 +31,7 @@ Result<Environment> Environment::CreateForCurrentProcess()
 	}	
 
 	FreeEnvironmentStringsW(environment);
-	return Result<Environment>(newEnvironment);
+	return newEnvironment;
 }
 
 Result<Environment> Environment::CreateFormString(std::wstring variables)
@@ -54,7 +54,7 @@ Result<Environment> Environment::CreateFormString(std::wstring variables)
 		environment._empty = false;
 	}
 
-	return Result<Environment>(environment);
+	return environment;
 }
 
 Environment Environment::Merge(Environment& baseEnvironment, Environment& mergingEnvironment)

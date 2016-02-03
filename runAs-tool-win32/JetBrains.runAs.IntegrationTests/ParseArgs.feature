@@ -1,4 +1,4 @@
-﻿Feature: RunAs checks command line argument and shows help
+﻿Feature: RunAs parses command line argument
 
 Scenario: RunAs returns -201 exit code and shows error message when user runs without user name arg
 	Given I have appended the file command.cmd by the line WhoAmI.exe
@@ -7,9 +7,9 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 	When I run RunAs tool
 	Then the exit code should be -201
 	And the errors should contain:
-	|                               |
-	| Error:                        |
-	| user_name should be specified |
+	|                                 |
+	| Error:                          |
+	| "user_name" should not be empty |
 
 Scenario: RunAs returns -201 exit code and shows error message when user runs without execurable arg
 	Given I have appended the file command.cmd by the line WhoAmI.exe
@@ -18,9 +18,9 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 	When I run RunAs tool
 	Then the exit code should be -201
 	And the errors should contain:
-	|                                |
-	| Error:                         |
-	| executable should be specified |
+	|                                  |
+	| Error:                           |
+	| "executable" should not be empty |
 
 Scenario: RunAs returns -201 exit code and shows error message when user add cmd args not in the end via config file for args
 	Given I have appended the file command.cmd by the line @echo %1 %2
@@ -43,3 +43,17 @@ Scenario: RunAs returns -201 exit code and shows error message when user add cmd
 	And I've added the argument -p:aaa
 	When I run RunAs tool
 	Then the exit code should be -201
+
+Scenario Outline: RunAs returns error exit code with specified exit code base
+	Given I have appended the file command.cmd by the line WhoAmI.exe
+	And I've added the argument -p:aaa
+	And I've added the argument -b:<exitCodeBase>
+	And I've added the argument command.cmd
+	When I run RunAs tool
+	Then the exit code should be <exitCode>
+		
+Examples:
+	| exitCodeBase | exitCode |
+	| -200         | -201     |
+	| -0           | -1       |
+	| 200          | 201      |

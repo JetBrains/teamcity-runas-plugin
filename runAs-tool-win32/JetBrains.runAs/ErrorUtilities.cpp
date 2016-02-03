@@ -43,7 +43,7 @@ std::wstring ErrorUtilities::GetLastErrorMessage(std::wstring targetAction)
 		std::wstring result(message);
 		LocalFree(messageBuffer);
 		std::wstringstream errorStream;
-		errorStream << L"" << targetAction << L" throws 0x" << std::hex << std::setw(8) << std::setfill(L'0') << errorCode << L" - " << result;
+		errorStream << result  << targetAction << L" returns the error 0x" << std::hex << std::setw(8) << std::setfill(L'0') << errorCode << L".";
 		return errorStream.str();
 	}
 

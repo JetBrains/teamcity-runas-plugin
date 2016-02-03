@@ -35,8 +35,7 @@ Result<bool> ProcessTracker::Initialize(SECURITY_ATTRIBUTES& securityAttributes,
 	startupInfo.hStdError = _stdErrorOutPipe.GetWriter();
 	startupInfo.hStdInput = _stdInPipe.GetReader();
 	startupInfo.dwFlags |= STARTF_USESTDHANDLES;
-
-	return Result<bool>(true);
+	return true;
 }
 
 Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
@@ -66,7 +65,7 @@ Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
 	}
 	while (exitCode == STILL_ACTIVE || hasData);
 
-	return Result<ExitCode>(exitCode);
+	return exitCode;
 }
 
 Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& writer)
@@ -81,7 +80,7 @@ Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& wri
 		if (GetLastError() == ERROR_BROKEN_PIPE)
 		{
 			// Pipe done - normal exit path.
-			return Result<bool>(true);
+			return true;
 		}
 
 		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"PeekNamedPipe"));
@@ -89,7 +88,7 @@ Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& wri
 
 	if (totalBytesAvail == 0)
 	{
-		return Result<bool>(false);
+		return false;
 	}
 
 	if (!ReadFile(hPipeRead, buffer, bytesReaded, &bytesReaded, nullptr) || !bytesReaded)
@@ -97,7 +96,7 @@ Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& wri
 		if (GetLastError() == ERROR_BROKEN_PIPE)
 		{
 			// Pipe done - normal exit path.
-			return Result<bool>(false);
+			return false;
 		}
 
 		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"ReadFile"));
@@ -108,6 +107,6 @@ Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& wri
 		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"WriteConsole"));
 	}
 
-	return Result<bool>(true);
+	return true;
 }
 

@@ -18,20 +18,20 @@ namespace JetBrains.runAs.IntegrationTests
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("RunAs checks command line argument and shows help")]
-    public partial class RunAsChecksCommandLineArgumentAndShowsHelpFeature
+    [NUnit.Framework.DescriptionAttribute("RunAs parses command line argument")]
+    public partial class RunAsParsesCommandLineArgumentFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "ChecksArgumentsAndShowsHelp.feature"
+#line 1 "ParseArgs.feature"
 #line hidden
         
         [NUnit.Framework.TestFixtureSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "RunAs checks command line argument and shows help", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "RunAs parses command line argument", null, ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -88,7 +88,7 @@ this.ScenarioSetup(scenarioInfo);
             table1.AddRow(new string[] {
                         "Error:"});
             table1.AddRow(new string[] {
-                        "user_name should be specified"});
+                        "\"user_name\" should not be empty"});
 #line 9
  testRunner.And("the errors should contain:", ((string)(null)), table1, "And ");
 #line hidden
@@ -120,7 +120,7 @@ this.ScenarioSetup(scenarioInfo);
             table2.AddRow(new string[] {
                         "Error:"});
             table2.AddRow(new string[] {
-                        "executable should be specified"});
+                        "\"executable\" should not be empty"});
 #line 20
  testRunner.And("the errors should contain:", ((string)(null)), table2, "And ");
 #line hidden
@@ -185,6 +185,32 @@ this.ScenarioSetup(scenarioInfo);
  testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 45
  testRunner.Then("the exit code should be -201", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("RunAs returns error exit code with specified exit code base")]
+        [NUnit.Framework.TestCaseAttribute("-200", "-201", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("-0", "-1", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("200", "201", new string[0])]
+        public virtual void RunAsReturnsErrorExitCodeWithSpecifiedExitCodeBase(string exitCodeBase, string exitCode, string[] exampleTags)
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("RunAs returns error exit code with specified exit code base", exampleTags);
+#line 47
+this.ScenarioSetup(scenarioInfo);
+#line 48
+ testRunner.Given("I have appended the file command.cmd by the line WhoAmI.exe", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 49
+ testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 50
+ testRunner.And(string.Format("I\'ve added the argument -b:{0}", exitCodeBase), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 51
+ testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 52
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 53
+ testRunner.Then(string.Format("the exit code should be {0}", exitCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }

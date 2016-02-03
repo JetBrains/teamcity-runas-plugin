@@ -42,7 +42,7 @@ Result<bool> PrivilegeManager::SetPrivileges(Handle& token, std::list<std::wstri
 		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"AdjustTokenPrivileges"));
 	}
 
-	return Result<bool>(true);
+	return true;
 }
 
 Result<LUID> PrivilegeManager::LookupPrivilegeValue(std::wstring privilegeName)
@@ -56,5 +56,5 @@ Result<LUID> PrivilegeManager::LookupPrivilegeValue(std::wstring privilegeName)
 		return Result<LUID>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LookupPrivilegeValue"));
 	}
 
-	return Result<LUID>(luid);
+	return luid;
 }

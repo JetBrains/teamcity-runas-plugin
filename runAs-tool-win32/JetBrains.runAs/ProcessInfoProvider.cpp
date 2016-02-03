@@ -62,7 +62,7 @@ Result<bool> ProcessInfoProvider::IsServiceProcess() const
 			auto nextProcessInfo = processInfoIterrator->second;
 			if (L"services.exe" == nextProcessInfo.ExeFileName)
 			{
-				return Result<bool>(true);
+				return true;
 			}
 
 			processId = nextProcessInfo.ParentProcessId;
@@ -73,7 +73,7 @@ Result<bool> ProcessInfoProvider::IsServiceProcess() const
 		}
 	} 	
 
-	return Result<bool>(false);
+	return false;
 }
 
 bool ProcessInfoProvider::Is64OS() const
@@ -147,9 +147,9 @@ Result<bool> ProcessInfoProvider::IsUserAnAdministrator(void) const
 		isAdmin = IsUserAnAdmin() == TRUE;
 	}
 
-	return Result<bool>(isAdmin);	
+	return isAdmin;	
 #else
-	return Result<bool>(IsUserAnAdmin() == TRUE);	
+	return IsUserAnAdmin() == TRUE;	
 #endif
 }
 

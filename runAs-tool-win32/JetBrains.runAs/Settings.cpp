@@ -40,7 +40,7 @@ std::wstring Settings::GetExecutable() const
 
 std::wstring Settings::GetCommandLine() const
 {
-	return _executable + L" " + _args;
+	return _executable + (_args.size() > 0 ? L" " + _args : L"");
 }
 
 
