@@ -10,6 +10,9 @@
 
 	using TechTalk.SpecFlow;
 	using System.Collections.Generic;
+
+	using TestContext = JetBrains.runAs.IntegrationTests.Dsl.TestContext;
+
 	[Binding]
     public class RunSteps
     {		
@@ -41,7 +44,7 @@
         {
 			var ctx = ScenarioContext.Current.GetTestContext();
 			var testSession = ctx.TestSession;
-			CheckText(testSession.Output, table);
+			CheckText(ctx, testSession.Output, table);
         }
 
 		[Then(@"the errors should contain:")]
@@ -49,10 +52,10 @@
 		{
 			var ctx = ScenarioContext.Current.GetTestContext();
 			var testSession = ctx.TestSession;
-			CheckText(testSession.Errors, table);
+			CheckText(ctx, testSession.Errors, table);
 		}
 
-		private static void CheckText(string text, Table table)
+		private static void CheckText(TestContext ctx, string text, Table table)
 		{
 			var separator = new[] { Environment.NewLine };
 			var lines = new List<string>(text.Split(separator, StringSplitOptions.None));
@@ -70,7 +73,7 @@
 
 			if (parrents.Any())
 			{
-				Assert.Fail($"Patterns are not matched:\n{string.Join(Environment.NewLine, parrents)}");
+				Assert.Fail($"Patterns are not matched:\n{string.Join(Environment.NewLine, parrents)}\nOutput:\n{text}\n\nSee {ctx}");
 			}
 		}
 	}

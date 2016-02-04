@@ -7,9 +7,8 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 	When I run RunAs tool
 	Then the exit code should be -201
 	And the errors should contain:
-	|                                 |
-	| Error:                          |
-	| "user_name" should not be empty |
+	|                                         |
+	| Error:.*"user_name" should not be empty |	
 
 Scenario: RunAs returns -201 exit code and shows error message when user runs without execurable arg
 	Given I have appended the file command.cmd by the line WhoAmI.exe
@@ -18,9 +17,8 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 	When I run RunAs tool
 	Then the exit code should be -201
 	And the errors should contain:
-	|                                  |
-	| Error:                           |
-	| "executable" should not be empty |
+	|                                          |
+	| Error:.*"executable" should not be empty |
 
 Scenario: RunAs returns -201 exit code and shows error message when user add cmd args not in the end via config file for args
 	Given I have appended the file command.cmd by the line @echo %1 %2
