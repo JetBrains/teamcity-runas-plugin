@@ -41,3 +41,12 @@ bool ProcessInfoProvider::IsSuitableOS() const
 	
 	return true;
 }
+
+bool ProcessInfoProvider::Is64OS() const
+{
+#if defined(_M_X64) || defined(x86_64)
+	return true;
+#else
+	return IsWow64() == true;
+#endif
+}
