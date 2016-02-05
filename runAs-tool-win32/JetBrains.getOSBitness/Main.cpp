@@ -31,6 +31,8 @@ bool Is64OS()
 
 int main()
 {
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOOPENFILEERRORBOX);
+
 	std::wcout << VER_PRODUCTNAME_STR;
 #if defined(_M_X64) || defined(x86_64)
 	std::wcout << L" x64";

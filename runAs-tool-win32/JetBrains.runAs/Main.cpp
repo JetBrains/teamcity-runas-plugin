@@ -1,10 +1,8 @@
 #include "stdafx.h"
 #include "CommanLineParser.h"
-#include "ProcessUnderService.h"
 #include "Settings.h"
 #include "HelpUtilities.h"
 #include "ProcessInfoProvider.h"
-#include "ProcessWithLogon.h"
 #include "ErrorCode.h"
 #include "Result.h"
 #include <iostream>
@@ -12,7 +10,7 @@
 #include "Args.h"
 
 class ProcessInfoProvider;
-class ProcessUnderService;
+class ProcessAsUser;
 
 std::wstring GetStringValue(std::wstring value)
 {
@@ -25,7 +23,7 @@ std::wstring GetStringValue(std::wstring value)
 }
 
 int _tmain(int argc, _TCHAR *argv[]) {
-	SetErrorMode(SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOOPENFILEERRORBOX);
 	
 	std::list<std::wstring> args;
 	for (auto argIndex = 1; argIndex < argc; argIndex++)
@@ -57,41 +55,9 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		}		
 
 		if (!result.HasError())
-		{
-			auto isServiceProcess = processInfoProvider.IsServiceProcess();
-			if (isServiceProcess.HasError())
-			{
-				result = Result<ExitCode>(isServiceProcess.GetErrorCode(), isServiceProcess.GetErrorDescription());
-			}
-			else
-			{
-				if (isServiceProcess.GetResultValue())
-				{
-					auto isAdmin = processInfoProvider.IsUserAnAdministrator();
-					if (isAdmin.HasError())
-					{
-						result = Result<ExitCode>(isAdmin.GetErrorCode(), isAdmin.GetErrorDescription());
-					}
-					else
-					{
-						if (!isAdmin.GetResultValue())
-						{
-							result = Result<ExitCode>(ERROR_CODE_ACCESS, L"The current user should have administrative privileges.");
-						}
-					}
-
-					if (!result.HasError())
-					{
-						ProcessRunner<ProcessUnderService> runner;
-						result = runner.Run(settings);
-					}					
-				}
-				else
-				{
-					ProcessRunner<ProcessWithLogon> runner;
-					result = runner.Run(settings);					
-				}				
-			}
+		{		
+			ProcessRunner runner;
+			result = runner.Run(settings);			
 		}
 	}
 	catch(...)

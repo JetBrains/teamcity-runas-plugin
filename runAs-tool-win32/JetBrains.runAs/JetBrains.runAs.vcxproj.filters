@@ -50,9 +50,6 @@
     <ClInclude Include="Environment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessUnderService.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ErrorCode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Args.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessAsUser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -127,9 +127,6 @@
     <ClCompile Include="Environment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProcessUnderService.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StreamWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -140,6 +137,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PrivilegeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessAsUser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessRunner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

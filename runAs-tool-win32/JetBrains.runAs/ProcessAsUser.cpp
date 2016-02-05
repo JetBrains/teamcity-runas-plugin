@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ProcessUnderService.h"
+#include "ProcessAsUser.h"
 #include "Settings.h"
 #include "ErrorUtilities.h"
 #include "ProcessTracker.h"
@@ -8,7 +8,7 @@
 #include "ExitCode.h"
 class ProcessTracker;
 
-Result<ExitCode> ProcessUnderService::Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const
+Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const
 {
 	// Attempt to log a user on to the local computer
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -22,16 +22,7 @@ Result<ExitCode> ProcessUnderService::Run(Settings& settings, Environment& envir
 	{
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
 	}
-
-	// Load profile
-	PROFILEINFO profileInfo = {};
-	profileInfo.dwSize = sizeof(PROFILEINFO);
-	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
-	if (!LoadUserProfile(newUserSecurityTokenHandle, &profileInfo))
-	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
-	}
-
+	
 	// Initialize a new security descriptor
 	SECURITY_DESCRIPTOR securityDescriptor = {};
 	if (!InitializeSecurityDescriptor(
@@ -67,7 +58,6 @@ Result<ExitCode> ProcessUnderService::Run(Settings& settings, Environment& envir
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
 	}
 
-	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
 	SECURITY_ATTRIBUTES threadSecAttributes = {};
 	threadSecAttributes.lpSecurityDescriptor = nullptr;
 	threadSecAttributes.nLength = 0;
@@ -80,6 +70,16 @@ Result<ExitCode> ProcessUnderService::Run(Settings& settings, Environment& envir
 		return Result<ExitCode>(error.GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
 	}
 
+	// Load profile
+	PROFILEINFO profileInfo = {};
+	profileInfo.dwSize = sizeof(PROFILEINFO);
+	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
+	if (!LoadUserProfile(primaryNewUserSecurityTokenHandle, &profileInfo))
+	{
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
+	}
+
+	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
 	PROCESS_INFORMATION processInformation = {};
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,

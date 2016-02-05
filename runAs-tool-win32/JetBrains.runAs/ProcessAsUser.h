@@ -6,7 +6,7 @@
 #include "Handle.h"
 class Settings;
 
-class ProcessUnderService: public IProcess
+class ProcessAsUser: public IProcess
 {	
 	static Result<ExitCode> SetPrivileges(Handle& hToken);
 

@@ -1,5 +1,4 @@
 #pragma once
-#include "Result.h"
 
 class ProcessInfoProvider
 {	
@@ -10,8 +9,6 @@ public:
 	ProcessInfoProvider();
 	~ProcessInfoProvider();
 
-	Result<bool> IsServiceProcess() const;
-	Result<bool> IsUserAnAdministrator() const;
 	bool IsSuitableOS() const;
 };
 
