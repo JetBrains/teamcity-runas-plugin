@@ -2,7 +2,6 @@
 #include <list>
 #include <map>
 #include "Result.h"
-#include <vector>
 
 class Environment
 {		
@@ -10,7 +9,6 @@ class Environment
 	std::map<std::wstring, std::wstring> _vars;
 	bool _empty = true;
 
-	static void SplitString(std::wstring &str, const std::wstring delim, std::vector<std::wstring>& strs);
 	void CreateVariableMap(LPVOID environment);
 	LPVOID* CreateEnvironmentFromMap();	
 

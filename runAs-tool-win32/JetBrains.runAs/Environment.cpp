@@ -2,6 +2,7 @@
 #include "Environment.h"
 #include <regex>
 #include <set>
+#include "StringUtilities.h"
 
 static const std::set<std::wstring> Overrides = {
 	L"appdata",
@@ -36,8 +37,7 @@ Result<Environment> Environment::CreateForCurrentProcess()
 
 Result<Environment> Environment::CreateFormString(std::wstring variables)
 {
-	std::vector<std::wstring> vars;
-	SplitString(variables, L"\n", vars);
+	auto vars = StringUtilities::Split(variables, L"\n");
 
 	Environment environment;
 	std::wsmatch matchResult;	
@@ -182,20 +182,4 @@ std::wstring Environment::TryGetValue(std::wstring variableName)
 	}
 
 	return L"";
-}
-
-void Environment::SplitString(std::wstring &str, const std::wstring delim, std::vector<std::wstring>& strs)
-{
-	size_t i = 0;
-	auto pos = str.find(delim);
-	while (pos != std::wstring::npos) 
-	{
-		strs.push_back(str.substr(i, pos - i));
-		i = ++pos;
-		pos = str.find(delim, pos);
-		if (pos == std::string::npos)
-		{
-			strs.push_back(str.substr(i, str.length()));
-		}
-	}
 }
