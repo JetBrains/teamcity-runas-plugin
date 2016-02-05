@@ -70,6 +70,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="InheritEnvironment.feature.cs">
+      <DependentUpon>InheritEnvironment.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="RunsAsUser.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -84,6 +89,10 @@
     <None Include="ParseArgs.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ParseArgs.feature.cs</LastGenOutput>
+    </None>
+    <None Include="InheritEnvironment.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>InheritEnvironment.feature.cs</LastGenOutput>
     </None>
     <None Include="RunsAsUser.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

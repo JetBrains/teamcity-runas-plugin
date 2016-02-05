@@ -14,8 +14,7 @@ class Environment
 
 public:
 	static Result<Environment> CreateForCurrentProcess();
-	static Result<Environment> CreateFormString(std::wstring variables);
-	static Environment Environment::Merge(Environment& baseEnvironment, Environment& newEnvironment);
+	static Result<Environment> CreateFormString(std::wstring variables);	
 	~Environment();
 	LPVOID* CreateEnvironment();
 	std::wstring TryGetValue(std::wstring variableName);

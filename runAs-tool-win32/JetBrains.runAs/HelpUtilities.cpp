@@ -43,6 +43,7 @@ std::wstring HelpUtilities::GetHelp()
 	help << std::endl << L"\t-p:" << ARG_PASSWORD << "\t\t- user's password, it is optional and empty by default";
 	help << std::endl << L"\t-w:" << ARG_WORKING_DIRECTORY << "\t- current directory, it is optional and empty by default";
 	help << std::endl << L"\t-b:" << ARG_EXIT_CODE_BASE << "\t- base number for exit code, it is optional and -200 by default";
+	help << std::endl << L"\t-i:" << ARG_INHERIT_ENVIRONMENT << "\t- set \"true\" if the environment variables should be inherited from a parent process, and set to \"false\" otherwise, it is optional and \"true\" by default";
 	help << std::endl << L"\t-c:" << ARG_CONFIGURATION_FILE << L"\t- text file, containing the any configuration arguments, it is optional";
 	help << std::endl << L"\t" << ARG_EXECUTABLE << "\t\t- executable file";
 	help << std::endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << "\t- command line arguments, it is optional and empty by default ";

@@ -210,6 +210,43 @@ this.ScenarioSetup(scenarioInfo);
 #line hidden
             this.ScenarioCleanup();
         }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("User runs the command whith invalid arg for the inherited environment")]
+        [NUnit.Framework.TestCaseAttribute("t", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("f", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("trueFalse", new string[0])]
+        public virtual void UserRunsTheCommandWhithInvalidArgForTheInheritedEnvironment(string inhetritEnvironment, string[] exampleTags)
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs the command whith invalid arg for the inherited environment", exampleTags);
+#line 59
+this.ScenarioSetup(scenarioInfo);
+#line 60
+ testRunner.Given("I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 61
+ testRunner.And("I\'ve defined the TestEnvVar environment variable by the value TestValue", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 62
+ testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 63
+ testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 64
+ testRunner.And(string.Format("I\'ve added the argument -i:{0}", inhetritEnvironment), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 65
+ testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 66
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 67
+ testRunner.Then("the exit code should be -201", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        ""});
+            table3.AddRow(new string[] {
+                        "Error:.*Invalid argument \"i\""});
+#line 68
+ testRunner.And("the errors should contain:", ((string)(null)), table3, "And ");
+#line hidden
+            this.ScenarioCleanup();
+        }
     }
 }
 #pragma warning restore

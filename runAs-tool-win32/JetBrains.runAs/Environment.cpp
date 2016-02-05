@@ -4,19 +4,6 @@
 #include <set>
 #include "StringUtilities.h"
 
-static const std::set<std::wstring> Overrides = {
-	L"appdata",
-	L"clientname",
-	L"homedrive",
-	L"homepath",
-	L"localappdata",
-	L"logonserver",
-	L"userdomain",
-	L"userdomain_roamingprofile",
-	L"username",
-	L"userprofile",
-};
-
 static const std::wregex EnvVarRegex = std::wregex(L"(.+)=(.*)");
 
 Result<Environment> Environment::CreateForCurrentProcess()
@@ -55,29 +42,6 @@ Result<Environment> Environment::CreateFormString(std::wstring variables)
 	}
 
 	return environment;
-}
-
-Environment Environment::Merge(Environment& baseEnvironment, Environment& mergingEnvironment)
-{
-	Environment targetEnvironment;
-	for (auto varsIterator = baseEnvironment._vars.begin(); varsIterator != baseEnvironment._vars.end(); ++varsIterator)
-	{
-		targetEnvironment._vars[varsIterator->first] = varsIterator->second;
-		targetEnvironment._empty = false;
-	}	
-
-	for (auto varsIterator = mergingEnvironment._vars.begin(); varsIterator != mergingEnvironment._vars.end(); ++varsIterator)
-	{		
-		std::wstring varNameInLowCase;
-		varNameInLowCase.resize(varsIterator->first.size());
-		transform(varsIterator->first.begin(), varsIterator->first.end(), varNameInLowCase.begin(), tolower);
-		if (Overrides.find(varNameInLowCase) != Overrides.end())
-		{
-			targetEnvironment._vars[varsIterator->first] = varsIterator->second;
-		}
-	}
-
-	return targetEnvironment;
 }
 
 Environment::~Environment()

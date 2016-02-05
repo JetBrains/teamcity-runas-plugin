@@ -23,6 +23,13 @@
 			ctx.CommandLineSetup.Arguments.Add(arg);
 		}
 
+		[Given(@"I've defined the (.+) environment variable by the value (.+)")]
+		public void AddEnvVar(string name, string value)
+		{
+			var ctx = ScenarioContext.Current.GetTestContext();
+			ctx.CommandLineSetup.EnvVariables[name] = value;
+		}
+
 		[When(@"I run RunAs tool")]
         public void RunRunAsTool()
         {

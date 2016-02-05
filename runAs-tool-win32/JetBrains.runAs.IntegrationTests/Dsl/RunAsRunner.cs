@@ -1,6 +1,7 @@
 ﻿namespace JetBrains.runAs.IntegrationTests.Dsl
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
@@ -10,15 +11,16 @@
 	{
 		public TestSession Run(TestContext ctx, CommandLineSetup setup)
 		{
-			var cmd = Path.Combine(ctx.SandboxPath, "run.cmd");
-			File.WriteAllText(
-				cmd,
-				$"@pushd \"{ctx.CurrentDirectory}\""
-				+ Environment.NewLine + $"@\"{setup.ToolName}\" " + string.Join(" ", setup.Arguments)
-				+ Environment.NewLine + "@set exitCode=%errorlevel%"
-				+ Environment.NewLine + "@popd"
-				+ Environment.NewLine + "@exit /b %exitCode%");
+			var lines = new List<string>();
+			lines.AddRange(ctx.CommandLineSetup.EnvVariables.Select(envVar => $"@SET \"{envVar.Key}={envVar.Value}\""));
+			lines.Add($"@pushd \"{ctx.CurrentDirectory}\"");
+			lines.Add($"@\"{setup.ToolName}\" " + string.Join(" ", setup.Arguments));
+			lines.Add("@set exitCode=%errorlevel%");
+			lines.Add("@popd");
+			lines.Add("@exit /b %exitCode%");
 
+			var cmd = Path.Combine(ctx.SandboxPath, "run.cmd");
+			File.WriteAllText(cmd, string.Join(Environment.NewLine, lines));
 			var output = new StringBuilder();
 			var errors = new StringBuilder();
 			var process = new Process();

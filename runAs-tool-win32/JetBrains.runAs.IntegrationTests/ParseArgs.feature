@@ -55,3 +55,22 @@ Examples:
 	| -200         | -201     |
 	| -0           | -1       |
 	| 200          | 201      |
+
+Scenario Outline: User runs the command whith invalid arg for the inherited environment
+	Given I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%
+	And I've defined the TestEnvVar environment variable by the value TestValue
+	And I've added the argument -u:TestUser
+	And I've added the argument -p:aaa
+	And I've added the argument -i:<inhetritEnvironment>
+	And I've added the argument command.cmd
+	When I run RunAs tool
+	Then the exit code should be -201
+	And the errors should contain:
+	|                             |
+	| Error:.*Invalid argument "i" |
+
+Examples:
+	| inhetritEnvironment |
+	| t                   |
+	| f                   |
+	| trueFalse           |

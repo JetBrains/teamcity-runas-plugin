@@ -9,9 +9,12 @@
 #include "ErrorCode.h"
 #include "ExitCode.h"
 #include "Args.h"
+#include "StringUtilities.h"
 
 static const std::wregex ArgRegex = std::wregex(L"\\s*-\\s*(\\w+)\\s*:\\s*(.+)\\s*$");
 static const std::wregex UserRegex = std::wregex(L"^([^@\\\\]+)@([^@\\\\]+)$|^([^@\\\\]+)\\\\([^@\\\\]+)$|(^[^@\\\\]+$)");
+static const std::wstring TrueStr = L"true";
+static const std::wstring FalseStr = L"false";
 
 CommanLineParser::CommanLineParser()
 {
@@ -28,6 +31,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 	std::wstring workingDirectory;
 	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
 	std::wstringstream commandLineArgs;
+	auto _inheritEnvironment = true;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	
 	while (actualArgs.size() > 0)
@@ -60,11 +64,9 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		actualArgs.erase(actualArgs.begin());
 
 		auto argName = matchResult._At(1).str();
-		auto argValue = matchResult._At(2).str();
-
-		std::wstring argNameInLowCase;
-		argNameInLowCase.resize(argName.size());
-		transform(argName.begin(), argName.end(), argNameInLowCase.begin(), tolower);
+		auto argValue = matchResult._At(2).str();		
+		auto argNameInLowCase = StringUtilities::Convert(argName, tolower);
+		auto argValueInLowCase = StringUtilities::Convert(argValue, tolower);
 
 		// User name like SomeUserName or domain\SomeUserName or SomeUserName@domain
 		if (argNameInLowCase == L"u")
@@ -144,6 +146,21 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 			continue;
 		}
 
+		// Inherite environment
+		if (argNameInLowCase == L"i")
+		{		
+			if (argValueInLowCase == FalseStr)
+			{
+				_inheritEnvironment = false;
+				continue;
+			}
+
+			if (argValueInLowCase == TrueStr)
+			{
+				continue;
+			}			
+		}
+
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
@@ -178,7 +195,15 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, details.str());
 	}	
 
-	return Settings(userName, domain, password, executable, workingDirectory, *exitCodeBase, commandLineArgs.str());
+	return Settings(
+		userName,
+		domain,
+		password,
+		executable,
+		workingDirectory,
+		*exitCodeBase,
+		commandLineArgs.str(), 
+		_inheritEnvironment);
 }
 
 std::wstring CommanLineParser::NormalizeCmdArg(std::wstring cmdArg)

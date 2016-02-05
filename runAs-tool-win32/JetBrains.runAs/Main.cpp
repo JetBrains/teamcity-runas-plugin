@@ -93,6 +93,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	std::wcout << std::endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetStringValue(settings.GetDomain());
 	std::wcout << std::endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetStringValue(settings.GetWorkingDirectory());
 	std::wcout << std::endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << settings.GetExitCodeBase();
+	std::wcout << std::endl << L"\t" << ARG_INHERIT_ENVIRONMENT << L":\t" << (settings.GetInheritEnvironment() ? L"true" : L"false");
 	std::wcout << std::endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetStringValue(settings.GetExecutable());
 	std::wcout << std::endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetStringValue(settings.GetCommandLine());
 	

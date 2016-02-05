@@ -1,12 +1,13 @@
 #include "stdafx.h"
-#include "StringWriter.h"
+#include "StreamWriter.h"
 
-StringWriter::StringWriter(std::stringstream& stream): _stream(stream)
-{	
+StreamWriter::StreamWriter(HANDLE hStream)
+{
+	_hStream = hStream;
 }
 
-bool StringWriter::WriteFile(void* buffer, unsigned long size)
+bool StreamWriter::WriteFile(void* buffer, unsigned long size)
 {
-	_stream << std::string(static_cast<char*>(buffer), size / sizeof(char));
-	return true;
+	DWORD bytesWritten;
+	return ::WriteFile(_hStream, buffer, size, &bytesWritten, nullptr) == TRUE;
 }

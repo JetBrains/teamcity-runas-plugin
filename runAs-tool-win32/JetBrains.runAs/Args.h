@@ -8,3 +8,4 @@
 #define ARG_CONFIGURATION_FILE		TEXT("configuration_file")
 #define ARG_EXECUTABLE				TEXT("executable")
 #define ARG_EXIT_COMMAND_LINE_ARGS	TEXT("command_line_args")
+#define ARG_INHERIT_ENVIRONMENT		TEXT("inherit_environment")
