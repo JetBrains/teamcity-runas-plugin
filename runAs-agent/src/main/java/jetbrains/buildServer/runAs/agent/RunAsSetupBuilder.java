@@ -11,10 +11,12 @@ import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
-  static final String TOOL_FILE_NAME = "JetBrains.runAs.exe";
-  static final String SETTINGS_EXT = ".settings";
+  static final String TOOL_FILE_NAME = "runAs.cmd";
+  static final String SETTINGS_EXT = ".runAs";
   static final String WARNING_STATUS = "WARNING";
   static final String CONFIG_FILE_CMD_KEY = "-c:";
+  private static final String ARGS_SEPARATOR = " ";
+  private static final String QUOTE_STR = "\"";
 
   private static final String CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING = "the configuration parameter \"%s\" was not defined or empty";
   private static final String RUN_AS_WAS_NOT_USED_MESSAGE = "RunAs was not used because %s";
@@ -58,29 +60,38 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     }
 
     final Settings settings = new Settings(
-      commandLineSetup,
       user,
       password,
       myFileService.getCheckoutDirectory().getAbsolutePath());
 
     final ArrayList<CommandLineResource> resources = new ArrayList<CommandLineResource>();
     resources.addAll(commandLineSetup.getResources());
+
+    // Settings
     final File settingsFile = myFileService.getTempFileName(SETTINGS_EXT);
     final String settingsContent = mySettingsGenerator.create(settings);
     resources.add(new CommandLineFile(mySettingsPublisher, settingsFile, settingsContent));
+
+    final StringBuffer runAsCmd = new StringBuffer();
+    runAsCmd.append(QUOTE_STR);
+    runAsCmd.append(commandLineSetup.getToolPath());
+    for(CommandLineArgument cmdArg: commandLineSetup.getArgs()) {
+      runAsCmd.append(ARGS_SEPARATOR);
+      runAsCmd.append(cmdArg.getValue());
+    }
+    runAsCmd.append(QUOTE_STR);
+
     return Collections.singleton(
       new CommandLineSetup(
         getTool().getAbsolutePath(),
-        Arrays.asList(new CommandLineArgument(CONFIG_FILE_CMD_KEY + settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER)),
+        Arrays.asList(
+          new CommandLineArgument(CONFIG_FILE_CMD_KEY + settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+          new CommandLineArgument(runAsCmd.toString(), CommandLineArgument.Type.PARAMETER)),
         resources));
   }
 
   private void sendWarning(@NotNull final String reason) {
     myLoggerService.onMessage(new Message(String.format(RUN_AS_WAS_NOT_USED_MESSAGE, reason), WARNING_STATUS, null));
-  }
-
-  private void sendOutput(@NotNull final String text) {
-    myLoggerService.onStandardOutput(text);
   }
 
   private File getTool() {

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ProcessRunner.h"
-#include <iostream>
 #include "Environment.h"
 #include "ProcessWithLogon.h"
 #include "StreamWriter.h"
@@ -17,9 +16,6 @@ Result<ExitCode> ProcessRunner::Run(Settings settings) const
 	auto parentProcessEnvironment = parentProcessEnvironmentResult.GetResultValue();
 	Environment defaultEnvironment;
 
-	// Send info to TeamCity
-	SendTeamCityInfo(settings, parentProcessEnvironment);
-
 	// Run process
 	auto newProcessEnvironment = settings.GetInheritEnvironment() ? parentProcessEnvironment : defaultEnvironment;
 	StreamWriter stdOutput(GetStdHandle(STD_OUTPUT_HANDLE));
@@ -35,20 +31,4 @@ Result<ExitCode> ProcessRunner::Run(Settings settings) const
 	
 	ProcessWithLogon processWithLogonToRun;
 	return processWithLogonToRun.Run(settings, newProcessEnvironment, processTracker);
-}
-
-void ProcessRunner::SendTeamCityInfo(Settings& settings, Environment& environment)
-{
-	if (environment.TryGetValue(L"TEAMCITY_VERSION") != L"")
-	{
-		std::wcout << CreateTeamCityMessage(L"Starting: " + settings.GetCommandLine());
-		std::wcout << std::endl;
-		std::wcout << CreateTeamCityMessage(L"in directory: " + settings.GetWorkingDirectory());
-		std::wcout << std::endl;
-	}
-}
-
-std::wstring ProcessRunner::CreateTeamCityMessage(std::wstring text)
-{
-	return L"##teamcity[message text = '" + text + L"']";
 }

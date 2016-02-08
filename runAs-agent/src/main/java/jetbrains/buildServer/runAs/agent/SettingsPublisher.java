@@ -2,8 +2,10 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import java.io.IOException;
-import jetbrains.buildServer.dotNet.buildRunner.agent.*;
-import jetbrains.buildServer.messages.serviceMessages.Message;
+import jetbrains.buildServer.dotNet.buildRunner.agent.BuildException;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineExecutionContext;
+import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
+import jetbrains.buildServer.dotNet.buildRunner.agent.ResourcePublisher;
 import org.jetbrains.annotations.NotNull;
 
 public class SettingsPublisher implements ResourcePublisher {
@@ -14,6 +16,7 @@ public class SettingsPublisher implements ResourcePublisher {
     myFileService = fileService;
   }
 
+  @Override
   public void publishBeforeBuildFile(@NotNull final CommandLineExecutionContext executionContext, @NotNull final File file, @NotNull String content) {
       try {
         myFileService.writeAllTextFile(content, file);
@@ -23,6 +26,7 @@ public class SettingsPublisher implements ResourcePublisher {
       }
   }
 
+  @Override
   public void publishAfterBuildArtifactFile(@NotNull final CommandLineExecutionContext executionContext, @NotNull final File file) {
   }
 }

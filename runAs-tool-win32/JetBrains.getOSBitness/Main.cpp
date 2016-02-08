@@ -29,29 +29,48 @@ bool Is64OS()
 	#endif
 }
 
-int main()
+int _tmain(int argc, _TCHAR *argv[])
 {
+	auto silentMode = false;
+	if(argc == 2)
+	{
+		std::wstring arg = argv[1];
+		silentMode = arg == L"-s";
+	}
+
 	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOOPENFILEERRORBOX);
 
-	std::wcout << VER_PRODUCTNAME_STR;
+	if (!silentMode)
+	{
+		std::wcout << VER_PRODUCTNAME_STR;
 #if defined(_M_X64) || defined(x86_64)
-	std::wcout << L" x64";
+		std::wcout << L" x64";
 #else
-	std::wcout << L" x86";
+		std::wcout << L" x86";
 #endif
-	std::wcout << L" " << VER_FILE_VERSION_STR;
+		std::wcout << L" " << VER_FILE_VERSION_STR;
 
-	std::wcout << std::endl << VER_COPYRIGHT_STR;
-	std::wcout << std::endl << VER_FILE_DESCRIPTION_STR;
-	std::wcout << std::endl;
+		std::wcout << std::endl << VER_COPYRIGHT_STR;
+		std::wcout << std::endl << VER_FILE_DESCRIPTION_STR;
+		std::wcout << std::endl;
 
-	std::wcout << std::endl << L"The current OS is ";
+		std::wcout << std::endl << L"The current OS is ";
+	}
+
 	if(Is64OS())
 	{
-		std::wcout << L"64-bit";
+		if (!silentMode)
+		{
+			std::wcout << L"64-bit";
+		}
+
 		return 64;
 	}
 
-	std::wcout << L"32-bit";
+	if (!silentMode)
+	{
+		std::wcout << L"32-bit";
+	}
+
 	return 32;
 }

@@ -46,14 +46,13 @@ public class RunAsSetupBuilderTest {
     // Given
     final File checkoutDir = new File("checkoutDir");
     final File settingsFile = new File("my.settings");
-    final String toolName = "tool";
+    final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsSetupBuilder.TOOL_FILE_NAME);
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
-    final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
     final String settingsContent = "content";
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
@@ -71,7 +70,7 @@ public class RunAsSetupBuilderTest {
       oneOf(myFileService).getTempFileName(RunAsSetupBuilder.SETTINGS_EXT);
       will(returnValue(settingsFile));
 
-      oneOf(mySettingsGenerator).create(with(new Settings(baseSetup, user, password, checkoutDir.getAbsolutePath())));
+      oneOf(mySettingsGenerator).create(with(new Settings(user, password, checkoutDir.getAbsolutePath())));
       will(returnValue(settingsContent));
 
       oneOf(myRunnerParametersService).getToolPath(Constants.RUN_AS_TOOL_NAME);
@@ -89,7 +88,9 @@ public class RunAsSetupBuilderTest {
     myCtx.assertIsSatisfied();
     then(setup.getToolPath()).isEqualTo(runAsTool.getAbsolutePath());
     then(setup.getResources()).containsExactly(myCommandLineResource1, myCommandLineResource2, new CommandLineFile(myResourcePublisher, settingsFile, settingsContent));
-    then(setup.getArgs()).containsExactly(new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
+    then(setup.getArgs()).containsExactly(
+      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument("\"my tool arg1 arg2\"", CommandLineArgument.Type.PARAMETER));
   }
 
   @Test()
