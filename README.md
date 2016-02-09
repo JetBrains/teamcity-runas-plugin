@@ -1,6 +1,6 @@
 # JetBrains runAs plugin for TeamCity #
 
-This plugin provides an ability to run builds under the specified windows user account. See [WiKi](/JetBrains/teamcity-runas-plugin/wiki) for more information.
+This plugin provides an ability to run builds under the specified windows user account. See [Wiki](https://github.com/JetBrains/teamcity-runas-plugin/wiki) for more information.
 
 ## License ##
 
