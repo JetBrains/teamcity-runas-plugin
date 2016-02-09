@@ -24,7 +24,7 @@ Result<ExitCode> ProcessRunner::Run(Settings settings) const
 	
 	ProcessAsUser processAsUserToRun;
 	auto runResult = processAsUserToRun.Run(settings, newProcessEnvironment, processTracker);
-	if (!runResult.HasError())
+	if (!runResult.HasError() && runResult.GetResultValue() != STATUS_DLL_INIT_FAILED)
 	{
 		return runResult.GetResultValue();
 	}
