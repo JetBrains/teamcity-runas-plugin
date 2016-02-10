@@ -8,10 +8,12 @@
   <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
   <bean class="jetbrains.buildServer.runAs.agent.CredentialsGenerator" id="credentialsGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsArgsGenerator" id="runAsArgsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.TeamCityServiceMessagesGenerator" id="teamCityServiceMessagesGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
     <constructor-arg ref="settingsPublisher"/>
     <constructor-arg ref="credentialsGenerator"/>
     <constructor-arg ref="runAsArgsGenerator"/>
+    <constructor-arg ref="teamCityServiceMessagesGenerator"/>
   </bean>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
     <constructor-arg ref="runAsSetupBuilder"/>

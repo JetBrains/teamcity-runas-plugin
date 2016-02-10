@@ -9,6 +9,8 @@ import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -26,6 +28,7 @@ public class RunAsSetupBuilderTest {
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsArgsSettings> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
+  private ResourceGenerator<RunAsArgsSettings> myTeamCityServiceMessagesGenerator;
 
   @BeforeMethod
   public void setUp()
@@ -38,6 +41,8 @@ public class RunAsSetupBuilderTest {
     myCredentialsGenerator = (ResourceGenerator<CredentialsSettings>)myCtx.mock(ResourceGenerator.class, "CredentialsGenerator");
     //noinspection unchecked
     myArgsGenerator = (ResourceGenerator<RunAsArgsSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
+    //noinspection unchecked
+    myTeamCityServiceMessagesGenerator = (ResourceGenerator<RunAsArgsSettings>)myCtx.mock(ResourceGenerator.class, "TeamCityServiceMessagesGenerator");
     myLoggerService = myCtx.mock(LoggerService.class);
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
@@ -48,8 +53,10 @@ public class RunAsSetupBuilderTest {
   public void shouldBuildSetup() throws IOException {
     // Given
     final File checkoutDir = new File("checkoutDir");
+    final File tempDir = new File("tempDir");
     final File credentialsFile = new File("credentials.runAs");
     final File argsFile = new File("args.runAs");
+    final File messagesFile = new File("messages.runAs");
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsSetupBuilder.TOOL_FILE_NAME);
@@ -59,7 +66,9 @@ public class RunAsSetupBuilderTest {
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
     final String credentialsContent = "credentials content";
     final String argsContent = "args content";
+    final String messagesContent = "messages content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
+    final RunAsArgsSettings runAsArgsSettings = new RunAsArgsSettings("cmd line", checkoutDir.getAbsolutePath());
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
@@ -70,13 +79,13 @@ public class RunAsSetupBuilderTest {
       oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.PASSWORD_VAR);
       will(returnValue(password));
 
-      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.SETTINGS_EXT);
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CREDENTIALS_EXT);
       will(returnValue(credentialsFile));
 
       oneOf(myCredentialsGenerator).create(with(new CredentialsSettings(user, password)));
       will(returnValue(credentialsContent));
 
-      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.SETTINGS_EXT);
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.ARGS_EXT);
       will(returnValue(argsFile));
 
       //noinspection unchecked
@@ -86,13 +95,28 @@ public class RunAsSetupBuilderTest {
       oneOf(myFileService).getCheckoutDirectory();
       will(returnValue(checkoutDir));
 
-      oneOf(myArgsGenerator).create(new RunAsArgsSettings("cmd line", checkoutDir.getAbsolutePath()));
+      oneOf(myFileService).getTempDirectory();
+      will(returnValue(tempDir));
+
+      oneOf(myArgsGenerator).create(runAsArgsSettings);
       will(returnValue(argsContent));
+
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.MESSAGES_EXT);
+      will(returnValue(messagesFile));
+
+      oneOf(myTeamCityServiceMessagesGenerator).create(runAsArgsSettings);
+      will(returnValue(messagesContent));
+
+      allowing(myFileService).getRelativePath(with(tempDir), with(any(File.class)));
+      will(new CustomAction("getRelativePath") {
+        @Override
+        public Object invoke(final Invocation invocation) throws Throwable {
+          return invocation.getParameter(1);
+        }
+      });
 
       oneOf(myRunnerParametersService).getToolPath(Constants.RUN_AS_TOOL_NAME);
       will(returnValue(runAsToolPath));
-
-      allowing(myLoggerService).onStandardOutput(with(any(String.class)));
 
       oneOf(myFileService).validatePath(runAsTool);
     }});
@@ -110,11 +134,14 @@ public class RunAsSetupBuilderTest {
       myCommandLineResource1,
       myCommandLineResource2,
       new CommandLineFile(myResourcePublisher, credentialsFile, credentialsContent),
-      new CommandLineFile(myResourcePublisher, argsFile, argsContent));
+      new CommandLineFile(myResourcePublisher, argsFile, argsContent),
+      new CommandLineFile(myResourcePublisher, messagesFile, messagesContent));
 
     then(setup.getArgs()).containsExactly(
-      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + argsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
+      new CommandLineArgument(tempDir.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + credentialsFile.getPath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + argsFile.getPath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(messagesFile.getPath(), CommandLineArgument.Type.PARAMETER));
   }
 
   @Test()
@@ -155,6 +182,7 @@ public class RunAsSetupBuilderTest {
       myResourcePublisher,
       myCredentialsGenerator,
       myArgsGenerator,
+      myTeamCityServiceMessagesGenerator,
       myLoggerService,
       myCommandLineArgumentsService);
   }

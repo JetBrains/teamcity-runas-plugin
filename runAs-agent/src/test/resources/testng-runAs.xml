@@ -4,6 +4,7 @@
     <classes>
       <class name="jetbrains.buildServer.runAs.agent.CredentialsGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsArgsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.TeamCityServiceMessagesGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.SettingsPublisherTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>
