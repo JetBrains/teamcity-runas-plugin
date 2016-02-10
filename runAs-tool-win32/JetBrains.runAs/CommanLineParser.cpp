@@ -30,7 +30,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 	std::wstring executable;
 	std::wstring workingDirectory;
 	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
-	std::wstringstream commandLineArgs;
+	std::list<std::wstring> commandLineArgs;
 	auto _inheritEnvironment = true;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	
@@ -40,8 +40,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 
 		if (argsMode == 2)
 		{
-			commandLineArgs << " ";
-			commandLineArgs << NormalizeCmdArg(arg);
+			commandLineArgs.push_back(arg);
 			actualArgs.erase(actualArgs.begin());
 			continue;
 		}
@@ -202,16 +201,6 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		executable,
 		workingDirectory,
 		*exitCodeBase,
-		commandLineArgs.str(), 
+		commandLineArgs, 
 		_inheritEnvironment);
-}
-
-std::wstring CommanLineParser::NormalizeCmdArg(std::wstring cmdArg)
-{	
-	if(cmdArg.find(L' ') != std::string::npos && cmdArg.size() > 0 && !(cmdArg[0] == L'\"' && cmdArg[cmdArg.size() - 1] == L'\"'))
-	{		
-		return L'\"' + cmdArg + L'\"';
-	}
-
-	return cmdArg;
 }

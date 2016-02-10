@@ -20,7 +20,12 @@
 		public CommandLineSetup CommandLineSetup { get; }
 
 		public TestSession TestSession { get; set; }
-		
+
+		public override string ToString()
+		{
+			return $"cd \"{SandboxPath}\"";
+		}
+
 		private static string GetSandboxName()
 		{
 			return NUnit.Framework.TestContext.CurrentContext.Test.Name?
@@ -31,6 +36,6 @@
 				.Replace(",null", string.Empty)
 				.Replace(",", "_")
 				.Replace(")", string.Empty) ?? string.Empty;
-		}
+		}		
 	}
 }

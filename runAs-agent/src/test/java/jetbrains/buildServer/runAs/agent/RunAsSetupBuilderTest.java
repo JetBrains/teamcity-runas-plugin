@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
-import jetbrains.buildServer.messages.serviceMessages.Message;
 import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
@@ -22,10 +20,12 @@ public class RunAsSetupBuilderTest {
   private FileService myFileService;
   private RunnerParametersService myRunnerParametersService;
   private ResourcePublisher myResourcePublisher;
-  private ResourceGenerator<Settings> mySettingsGenerator;
+  private ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
   private LoggerService myLoggerService;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
+  private ResourceGenerator<RunAsArgsSettings> myArgsGenerator;
+  private CommandLineArgumentsService myCommandLineArgumentsService;
 
   @BeforeMethod
   public void setUp()
@@ -35,17 +35,21 @@ public class RunAsSetupBuilderTest {
     myFileService = myCtx.mock(FileService.class);
     myResourcePublisher = myCtx.mock(ResourcePublisher.class);
     //noinspection unchecked
-    mySettingsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class);
+    myCredentialsGenerator = (ResourceGenerator<CredentialsSettings>)myCtx.mock(ResourceGenerator.class, "CredentialsGenerator");
+    //noinspection unchecked
+    myArgsGenerator = (ResourceGenerator<RunAsArgsSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
     myLoggerService = myCtx.mock(LoggerService.class);
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
+    myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
   }
 
   @Test()
   public void shouldBuildSetup() throws IOException {
     // Given
     final File checkoutDir = new File("checkoutDir");
-    final File settingsFile = new File("my.settings");
+    final File credentialsFile = new File("credentials.runAs");
+    final File argsFile = new File("args.runAs");
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsSetupBuilder.TOOL_FILE_NAME);
@@ -53,7 +57,9 @@ public class RunAsSetupBuilderTest {
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
-    final String settingsContent = "content";
+    final String credentialsContent = "credentials content";
+    final String argsContent = "args content";
+    final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
@@ -64,17 +70,29 @@ public class RunAsSetupBuilderTest {
       oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.PASSWORD_VAR);
       will(returnValue(password));
 
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.SETTINGS_EXT);
+      will(returnValue(credentialsFile));
+
+      oneOf(myCredentialsGenerator).create(with(new CredentialsSettings(user, password)));
+      will(returnValue(credentialsContent));
+
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.SETTINGS_EXT);
+      will(returnValue(argsFile));
+
+      //noinspection unchecked
+      oneOf(myCommandLineArgumentsService).createCommandLineString(with(any(List.class)));
+      will(returnValue("cmd line"));
+
       oneOf(myFileService).getCheckoutDirectory();
       will(returnValue(checkoutDir));
 
-      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.SETTINGS_EXT);
-      will(returnValue(settingsFile));
-
-      oneOf(mySettingsGenerator).create(with(new Settings(user, password, checkoutDir.getAbsolutePath())));
-      will(returnValue(settingsContent));
+      oneOf(myArgsGenerator).create(new RunAsArgsSettings("cmd line", checkoutDir.getAbsolutePath()));
+      will(returnValue(argsContent));
 
       oneOf(myRunnerParametersService).getToolPath(Constants.RUN_AS_TOOL_NAME);
       will(returnValue(runAsToolPath));
+
+      allowing(myLoggerService).onStandardOutput(with(any(String.class)));
 
       oneOf(myFileService).validatePath(runAsTool);
     }});
@@ -82,15 +100,21 @@ public class RunAsSetupBuilderTest {
     final CommandLineSetupBuilder instance = createInstance();
 
     // When
-    final CommandLineSetup setup = instance.build(new CommandLineSetup(toolName, args, resources)).iterator().next();
+    final CommandLineSetup setup = instance.build(commandLineSetup).iterator().next();
 
     // Then
     myCtx.assertIsSatisfied();
     then(setup.getToolPath()).isEqualTo(runAsTool.getAbsolutePath());
-    then(setup.getResources()).containsExactly(myCommandLineResource1, myCommandLineResource2, new CommandLineFile(myResourcePublisher, settingsFile, settingsContent));
+
+    then(setup.getResources()).containsExactly(
+      myCommandLineResource1,
+      myCommandLineResource2,
+      new CommandLineFile(myResourcePublisher, credentialsFile, credentialsContent),
+      new CommandLineFile(myResourcePublisher, argsFile, argsContent));
+
     then(setup.getArgs()).containsExactly(
-      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument("\"my tool arg1 arg2\"", CommandLineArgument.Type.PARAMETER));
+      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + argsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
   }
 
   @Test()
@@ -122,37 +146,6 @@ public class RunAsSetupBuilderTest {
     };
   }
 
-  @Test(dataProvider = "configurationParametersCases")
-  public void shouldNotBuildSetupAndSendWarningWhenConfigurationParametersWereNotSpecified(@Nullable final String user, @Nullable final String password) throws IOException {
-    // Given
-    final String toolName = "tool";
-    final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
-    final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
-    final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
-    myCtx.checking(new Expectations() {{
-      oneOf(myRunnerParametersService).isRunningUnderWindows();
-      will(returnValue(true));
-
-      oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.USER_VAR);
-      will(returnValue(user));
-
-      allowing(myRunnerParametersService).tryGetConfigParameter(Constants.PASSWORD_VAR);
-      will(returnValue(password));
-
-      oneOf(myLoggerService).onMessage(with(any(Message.class)));
-      will(returnValue(password));
-    }});
-
-    final CommandLineSetupBuilder instance = createInstance();
-
-    // When
-    final CommandLineSetup setup = instance.build(new CommandLineSetup(toolName, args, resources)).iterator().next();
-
-    // Then
-    myCtx.assertIsSatisfied();
-    then(setup).isEqualTo(baseSetup);
-  }
-
   @NotNull
   private CommandLineSetupBuilder createInstance()
   {
@@ -160,7 +153,9 @@ public class RunAsSetupBuilderTest {
       myRunnerParametersService,
       myFileService,
       myResourcePublisher,
-      mySettingsGenerator,
-      myLoggerService);
+      myCredentialsGenerator,
+      myArgsGenerator,
+      myLoggerService,
+      myCommandLineArgumentsService);
   }
 }

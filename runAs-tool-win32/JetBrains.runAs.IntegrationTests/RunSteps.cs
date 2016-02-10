@@ -19,8 +19,18 @@
 		[Given(@"I've added the argument (.+)")]
 		public void AddArg(string arg)
 		{
+			if (string.IsNullOrEmpty(arg))
+			{
+				return;
+			}
+
 			var ctx = ScenarioContext.Current.GetTestContext();
 			ctx.CommandLineSetup.Arguments.Add(arg);
+		}
+
+		[Given(@"I've added the argument\s+")]
+		public void AddEmptyArg()
+		{			
 		}
 
 		[Given(@"I've defined the (.+) environment variable by the value (.+)")]

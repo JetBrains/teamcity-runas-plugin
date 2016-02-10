@@ -6,10 +6,12 @@
 
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
   <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
-  <bean class="jetbrains.buildServer.runAs.agent.SettingsGenerator" id="settingsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.CredentialsGenerator" id="credentialsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsArgsGenerator" id="runAsArgsGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
     <constructor-arg ref="settingsPublisher"/>
-    <constructor-arg ref="settingsGenerator"/>
+    <constructor-arg ref="credentialsGenerator"/>
+    <constructor-arg ref="runAsArgsGenerator"/>
   </bean>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
     <constructor-arg ref="runAsSetupBuilder"/>

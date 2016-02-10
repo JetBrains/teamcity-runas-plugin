@@ -1,0 +1,7 @@
+diff a/runAs-tool-win32/cmd/runAs.cmd b/runAs-tool-win32/cmd/runAs.cmd	(rejected hunks)
+@@ -0,3 +0,4 @@
+ 
+ REM Run command line
+ @ECHO ##teamcity[message text='Starting: %~2']
++%RUN_AS_PATH_TO_TOOL% %1 -i:true %2
+\ No newline at end of file

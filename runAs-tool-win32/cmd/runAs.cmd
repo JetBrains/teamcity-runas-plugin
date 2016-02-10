@@ -5,10 +5,10 @@ FOR %%A in (%*) DO SET /A "ARGS_COUNT+=1"
 IF %ARGS_COUNT% NEQ 2 (
 	@ECHO Invalid arguments.
 	@ECHO Usage:
-	@ECHO 	runAs.cmd args_for_JetBrains.runAs.exe cmd_to_run
+	@ECHO 	runAs.cmd credential_args other_args
 	@ECHO 	where:
-	@ECHO 		args_for_JetBrains.runAs.exe	- runAs arguments
-	@ECHO 		cmd_to_run			- command line to run
+	@ECHO 		credentials	- credential command line arguments -u: and -p: or -c:credentias_file
+	@ECHO 		args		- other command line arguments or -c:args_file
 	@EXIT -1
 )
 ENDLOCAL
@@ -22,9 +22,8 @@ IF %errorlevel% EQU 64 SET "RUN_AS_PATH_TO_TOOL=%RUN_AS_PATH_TO_BIN%x64\%RUN_AS_
 IF %errorlevel% EQU 32 SET "RUN_AS_PATH_TO_TOOL=%RUN_AS_PATH_TO_BIN%x86\%RUN_AS_PATH_TO_TOOL%"
 
 REM Override environment variables
-SET RUN_AS_GET_VARS=%RUN_AS_PATH_TO_TOOL% %1 -i:false %RUN_AS_PATH_TO_BIN%getEnvVars.cmd
+SET RUN_AS_GET_VARS=%RUN_AS_PATH_TO_TOOL% %1 -i:false cmd.exe /C %RUN_AS_PATH_TO_BIN%getEnvVars.cmd
 FOR /F %%G IN ('%RUN_AS_GET_VARS%') do SET "%%G"
 
 REM Run command line
-@ECHO ##teamcity[message text='Starting: %~2']
 %RUN_AS_PATH_TO_TOOL% %1 -i:true %2

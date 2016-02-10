@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class SettingsGeneratorTest {
+public class CredentialsGeneratorTest {
   private static final String ourlineSeparator = System.getProperty("line.separator");
   private Mockery myCtx;
 
@@ -20,20 +20,12 @@ public class SettingsGeneratorTest {
   @Test()
   public void shouldGenerateContent() {
     // Given
-    final Settings settings = new Settings(
-      "nik",
-      "aa",
-      "wd"
-    );
+    String expectedContent = "-u:nik" + ourlineSeparator + "-p:aa";
 
-    String expectedContent = "-u:nik" + ourlineSeparator +
-                             "-p:aa" + ourlineSeparator +
-                             "-w:wd";
-
-    final SettingsGenerator instance = createInstance();
+    final CredentialsGenerator instance = createInstance();
 
     // When
-    final String content = instance.create(settings);
+    final String content = instance.create(new CredentialsSettings("nik", "aa"));
 
     // Then
     myCtx.assertIsSatisfied();
@@ -41,8 +33,8 @@ public class SettingsGeneratorTest {
   }
 
   @NotNull
-  private SettingsGenerator createInstance()
+  private CredentialsGenerator createInstance()
   {
-    return new SettingsGenerator();
+    return new CredentialsGenerator();
   }
 }

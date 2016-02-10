@@ -39,6 +39,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		ProcessInfoProvider processInfoProvider;
 		CommanLineParser commanLineParser;
 
+		auto cmd = GetCommandLine();
 		auto settingsResult = commanLineParser.TryParse(args, &exitCodeBase);
 		if (settingsResult.HasError())
 		{

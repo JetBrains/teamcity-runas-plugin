@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.messages.serviceMessages.Message;
 import jetbrains.buildServer.runAs.common.Constants;
@@ -15,8 +16,6 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String SETTINGS_EXT = ".runAs";
   static final String WARNING_STATUS = "WARNING";
   static final String CONFIG_FILE_CMD_KEY = "-c:";
-  private static final String ARGS_SEPARATOR = " ";
-  private static final String QUOTE_STR = "\"";
 
   private static final String CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING = "the configuration parameter \"%s\" was not defined or empty";
   private static final String RUN_AS_WAS_NOT_USED_MESSAGE = "RunAs was not used because %s";
@@ -24,20 +23,26 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   private final RunnerParametersService myParametersService;
   private final FileService myFileService;
   private final ResourcePublisher mySettingsPublisher;
-  private final ResourceGenerator<Settings> mySettingsGenerator;
+  private final ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
+  private final ResourceGenerator<RunAsArgsSettings> myRunAsArgsGenerator;
   private final LoggerService myLoggerService;
+  private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public RunAsSetupBuilder(
     @NotNull final RunnerParametersService parametersService,
     @NotNull final FileService fileService,
     @NotNull final ResourcePublisher settingsPublisher,
-    @NotNull final ResourceGenerator<Settings> settingsGenerator,
-    @NotNull final LoggerService loggerService) {
+    @NotNull final ResourceGenerator<CredentialsSettings> credentialsGenerator,
+    @NotNull final ResourceGenerator<RunAsArgsSettings> runAsArgsGenerator,
+    @NotNull final LoggerService loggerService,
+    @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myParametersService = parametersService;
     myFileService = fileService;
     mySettingsPublisher = settingsPublisher;
-    mySettingsGenerator = settingsGenerator;
+    myCredentialsGenerator = credentialsGenerator;
+    myRunAsArgsGenerator = runAsArgsGenerator;
     myLoggerService = loggerService;
+    myCommandLineArgumentsService = commandLineArgumentsService;
   }
 
   @NotNull
@@ -59,34 +64,33 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
       return Collections.singleton(commandLineSetup);
     }
 
-    final Settings settings = new Settings(
-      user,
-      password,
-      myFileService.getCheckoutDirectory().getAbsolutePath());
-
     final ArrayList<CommandLineResource> resources = new ArrayList<CommandLineResource>();
     resources.addAll(commandLineSetup.getResources());
 
-    // Settings
-    final File settingsFile = myFileService.getTempFileName(SETTINGS_EXT);
-    final String settingsContent = mySettingsGenerator.create(settings);
-    resources.add(new CommandLineFile(mySettingsPublisher, settingsFile, settingsContent));
+    // Credentials
+    final File credentialsFile = myFileService.getTempFileName(SETTINGS_EXT);
+    final String credentialsContent = myCredentialsGenerator.create(new CredentialsSettings(user, password));
+    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile, credentialsContent));
 
-    final StringBuffer runAsCmd = new StringBuffer();
-    runAsCmd.append(QUOTE_STR);
-    runAsCmd.append(commandLineSetup.getToolPath());
-    for(CommandLineArgument cmdArg: commandLineSetup.getArgs()) {
-      runAsCmd.append(ARGS_SEPARATOR);
-      runAsCmd.append(cmdArg.getValue());
-    }
-    runAsCmd.append(QUOTE_STR);
+    // RunAs args
+    final File runAsArgsFile = myFileService.getTempFileName(SETTINGS_EXT);
+    List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();
+    cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
+    cmdLineArgs.addAll(commandLineSetup.getArgs());
+    final String commandLine = myCommandLineArgumentsService.createCommandLineString(cmdLineArgs);
+    final String workingDirectory = myFileService.getCheckoutDirectory().getAbsolutePath();
+    final String runAsArgsContent = myRunAsArgsGenerator.create(new RunAsArgsSettings(commandLine, workingDirectory));
+    resources.add(new CommandLineFile(mySettingsPublisher, runAsArgsFile, runAsArgsContent));
+
+    myLoggerService.onStandardOutput("Starting: " + commandLine);
+    myLoggerService.onStandardOutput("in directory: " + workingDirectory);
 
     return Collections.singleton(
       new CommandLineSetup(
         getTool().getAbsolutePath(),
         Arrays.asList(
-          new CommandLineArgument(CONFIG_FILE_CMD_KEY + settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(runAsCmd.toString(), CommandLineArgument.Type.PARAMETER)),
+          new CommandLineArgument(CONFIG_FILE_CMD_KEY + credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+          new CommandLineArgument(CONFIG_FILE_CMD_KEY + runAsArgsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER)),
         resources));
   }
 
