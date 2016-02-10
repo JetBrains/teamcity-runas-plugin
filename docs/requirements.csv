@@ -6,7 +6,7 @@
 5;The solution should be platform-specific (runas on Windows and sudo on Linux?);TW-3175;;
 6;Need to ensure each project is delimited from others for security reasons;TW-3176;;
 7;Certain users in TeamCity might have a permission to run the build process under elevated permissions user on the agent (e.g. to perform signing).;TW-3177;;
-8;Extend "run" dialog to specify the credentials to run the build under specific user.;TW-3178;;
+8;Extend 'run' dialog to specify the credentials to run the build under specific user.;TW-3178;;
 9;This feature is applicable to use with DB (test);TW-3179;;
 10;It should work correct via local and domain users;TW-3180;;
 11;Ability to run  elevated admin application;TW-3181;;
@@ -22,16 +22,16 @@
 20;there should be logging in the build log on the usage of the feature;TW-3182;;
 21;We just want to run build steps processes under runAs, we are not using it to start processes like vcs sources checkout, artifact downloading, results processing, etc.;Yegor;Scope;
 22;Now we are implementing it for windows agents only;Pavel;Scope;
-23;"User should have an ability to select ""runAs"" account for a project level and for a step level";TW-3182;UI;
-24;"Administrative UI provides an ability to create a list of users (Id, UserName, Password) including the current agent's account (""Default"") to use in the projects/steps";Nikolay;UI, Admin;
-25;"Administrative UI provides an ability to grant the following options:
+23;User should have an ability to select 'runAs' account for a project level and for a step level;TW-3182;UI;
+24;Administrative UI provides an ability to create a list of users (Id, UserName, Password) including the current agent's account ('Default') to use in the projects/steps;Nikolay;UI, Admin;
+25;Administrative UI provides an ability to grant the following options:
 - to select a subset of users which can be used in projects,
 - the privilege to filter a set of project
-- the privilege to change ""runAs"" account";Nikolay;UI, Admin;
-26;"Project level ""runAs"" UI provides an ability
+- the privilege to change 'runAs' account;Nikolay;UI, Admin;
+26;Project level 'runAs' UI provides an ability
 - to filter a subset of users which applicable here and for childrent projects/steps, if it is allowed by admin or in the parent projects
-- to change ""runAs"" account, if it is allowed by admin or in the parent projects";Nikolay;UI, Project level;
-27;"Step level ""runAs"" UI provides an ability to change ""runAs"" account, if it is allowed by admin or in the parent projects";Nikolay;UI, Step level;
+- to change 'runAs' account, if it is allowed by admin or in the parent projects';Nikolay;UI, Project level;
+27;Step level 'runAs' UI provides an ability to change 'runAs' account, if it is allowed by admin or in the parent projects;Nikolay;UI, Step level;
 28;A project produces a requirement to check capability of agents - a set of user names;Nikolay;Capabilities;
 29;An agent produces a a set of supported user names according to some by reg expression to filter user names or according to the configuration parameter;Nikolay;Capabilities;
 ;;;;
