@@ -6,11 +6,11 @@
 5;The solution should be platform-specific (runas on Windows and sudo on Linux?);TW-3175;;
 6;Need to ensure each project is delimited from others for security reasons;TW-3176;;
 7;Certain users in TeamCity might have a permission to run the build process under elevated permissions user on the agent (e.g. to perform signing).;TW-3177;;
-8;"Extend ""run"" dialog to specify the credentials to run the build under specific user.";TW-3178;;
+8;Extend "run" dialog to specify the credentials to run the build under specific user.;TW-3178;;
 9;This feature is applicable to use with DB (test);TW-3179;;
 10;It should work correct via local and domain users;TW-3180;;
 11;Ability to run  elevated admin application;TW-3181;;
-12;We could use a generic build account instead but we’d much prefer it if we could pass the credentials the user is currently using to authenticate to Team City to the Powershell script without hardcoding any passwords;TW-3182;;
+12;We could use a generic build account instead but weâ€™d much prefer it if we could pass the credentials the user is currently using to authenticate to Team City to the Powershell script without hardcoding any passwords;TW-3182;;
 13;We should pass almost all environment variables excepting like these: appdata, localappdata, userdomain, username, userprofile;Yegor;;
 13;This plugin should work when an agent is running as a console app and as a service;Yegor;;
 14;ExitCode, StdOut and ErrorOut should be transparently redirected to TeamCity;Yegor;;
