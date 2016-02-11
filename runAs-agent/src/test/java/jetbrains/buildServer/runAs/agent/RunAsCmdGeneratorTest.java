@@ -14,7 +14,7 @@ public class RunAsCmdGeneratorTest {
     final RunAsCmdGenerator instance = createInstance();
 
     // When
-    final String content = instance.create(new RunAsArgsSettings("cmd line", "w d"));
+    final String content = instance.create(new RunAsCmdSettings("cmd line", "w d"));
 
     // Then
     then(content).contains("PUSHD \"w d\"");

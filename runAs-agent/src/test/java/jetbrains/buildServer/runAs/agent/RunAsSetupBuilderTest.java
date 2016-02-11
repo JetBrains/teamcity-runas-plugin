@@ -26,9 +26,8 @@ public class RunAsSetupBuilderTest {
   private LoggerService myLoggerService;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
-  private ResourceGenerator<RunAsArgsSettings> myArgsGenerator;
+  private ResourceGenerator<RunAsCmdSettings> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
-  private ResourceGenerator<RunAsArgsSettings> myTeamCityServiceMessagesGenerator;
 
   @BeforeMethod
   public void setUp()
@@ -40,9 +39,7 @@ public class RunAsSetupBuilderTest {
     //noinspection unchecked
     myCredentialsGenerator = (ResourceGenerator<CredentialsSettings>)myCtx.mock(ResourceGenerator.class, "CredentialsGenerator");
     //noinspection unchecked
-    myArgsGenerator = (ResourceGenerator<RunAsArgsSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
-    //noinspection unchecked
-    myTeamCityServiceMessagesGenerator = (ResourceGenerator<RunAsArgsSettings>)myCtx.mock(ResourceGenerator.class, "TeamCityServiceMessagesGenerator");
+    myArgsGenerator = (ResourceGenerator<RunAsCmdSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
     myLoggerService = myCtx.mock(LoggerService.class);
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
@@ -53,9 +50,8 @@ public class RunAsSetupBuilderTest {
   public void shouldBuildSetup() throws IOException {
     // Given
     final File checkoutDir = new File("checkoutDir");
-    final File tempDir = new File("tempDir");
-    final String sessionId = "session";
-    final File sessionFile = new File(tempDir, sessionId);
+    final File credentialsFile = new File("credentials");
+    final File cmdFile = new File("command");
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsSetupBuilder.TOOL_FILE_NAME);
@@ -67,7 +63,7 @@ public class RunAsSetupBuilderTest {
     final String cmdContent = "args content";
     final String messagesContent = "messages content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
-    final RunAsArgsSettings runAsArgsSettings = new RunAsArgsSettings("cmd line", checkoutDir.getAbsolutePath());
+    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings("cmd line", checkoutDir.getAbsolutePath());
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
@@ -78,8 +74,11 @@ public class RunAsSetupBuilderTest {
       oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.PASSWORD_VAR);
       will(returnValue(password));
 
-      oneOf(myFileService).getTempFileName("");
-      will(returnValue(sessionFile));
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CREDENTIALS_EXT);
+      will(returnValue(credentialsFile));
+
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CMD_EXT);
+      will(returnValue(cmdFile));
 
       oneOf(myCredentialsGenerator).create(with(new CredentialsSettings(user, password)));
       will(returnValue(credentialsContent));
@@ -91,19 +90,8 @@ public class RunAsSetupBuilderTest {
       oneOf(myFileService).getCheckoutDirectory();
       will(returnValue(checkoutDir));
 
-      oneOf(myArgsGenerator).create(runAsArgsSettings);
+      oneOf(myArgsGenerator).create(runAsCmdSettings);
       will(returnValue(cmdContent));
-
-      oneOf(myTeamCityServiceMessagesGenerator).create(runAsArgsSettings);
-      will(returnValue(messagesContent));
-
-      allowing(myFileService).getRelativePath(with(tempDir), with(any(File.class)));
-      will(new CustomAction("getRelativePath") {
-        @Override
-        public Object invoke(final Invocation invocation) throws Throwable {
-          return invocation.getParameter(1);
-        }
-      });
 
       oneOf(myRunnerParametersService).getToolPath(Constants.RUN_AS_TOOL_NAME);
       will(returnValue(runAsToolPath));
@@ -123,12 +111,12 @@ public class RunAsSetupBuilderTest {
     then(setup.getResources()).containsExactly(
       myCommandLineResource1,
       myCommandLineResource2,
-      new CommandLineFile(myResourcePublisher, new File(tempDir, sessionId + RunAsSetupBuilder.CREDENTIALS_EXT).getAbsoluteFile(), credentialsContent),
-      new CommandLineFile(myResourcePublisher, new File(tempDir, sessionId + RunAsSetupBuilder.CMD_EXT).getAbsoluteFile(), cmdContent),
-      new CommandLineFile(myResourcePublisher, new File(tempDir, sessionId + RunAsSetupBuilder.MESSAGES_EXT).getAbsoluteFile(), messagesContent));
+      new CommandLineFile(myResourcePublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
+      new CommandLineFile(myResourcePublisher, cmdFile.getAbsoluteFile(), cmdContent));
 
     then(setup.getArgs()).containsExactly(
-      new CommandLineArgument(sessionId, CommandLineArgument.Type.PARAMETER));
+      new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
   }
 
   @Test()
@@ -169,7 +157,6 @@ public class RunAsSetupBuilderTest {
       myResourcePublisher,
       myCredentialsGenerator,
       myArgsGenerator,
-      myTeamCityServiceMessagesGenerator,
       myLoggerService,
       myCommandLineArgumentsService);
   }

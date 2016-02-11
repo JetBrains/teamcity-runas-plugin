@@ -2,11 +2,11 @@ package jetbrains.buildServer.runAs.agent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class RunAsArgsSettings {
+public class RunAsCmdSettings {
   private final String myCommandLine;
   private final String myWorkingDirectory;
 
-  public RunAsArgsSettings(
+  public RunAsCmdSettings(
     @NotNull final String commandLine,
     @NotNull final String workingDirectory) {
     myCommandLine = commandLine;
@@ -28,7 +28,7 @@ public class RunAsArgsSettings {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    final RunAsArgsSettings that = (RunAsArgsSettings)o;
+    final RunAsCmdSettings that = (RunAsCmdSettings)o;
 
     if (!getCommandLine().equals(that.getCommandLine())) return false;
     return getWorkingDirectory().equals(that.getWorkingDirectory());
