@@ -9,3 +9,4 @@
 #define ARG_EXECUTABLE				TEXT("executable")
 #define ARG_EXIT_COMMAND_LINE_ARGS	TEXT("command_line_args")
 #define ARG_INHERIT_ENVIRONMENT		TEXT("inherit_environment")
+#define ARG_LOG_LEVEL				TEXT("log_level")

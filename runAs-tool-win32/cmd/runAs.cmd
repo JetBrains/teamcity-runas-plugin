@@ -20,13 +20,15 @@ IF %errorlevel% EQU 32 SET "RUN_AS_PATH_TO_TOOL=%RUN_AS_PATH_TO_BIN%x86\%RUN_AS_
 PUSHD %1
 
 REM Override environment variables
-SET RUN_AS_GET_VARS=%RUN_AS_PATH_TO_TOOL% %2 -i:false cmd.exe /C %RUN_AS_PATH_TO_BIN%getEnvVars.cmd
+SET RUN_AS_GET_VARS=%RUN_AS_PATH_TO_TOOL% %2 -i:false -l:off cmd.exe /C %RUN_AS_PATH_TO_BIN%getEnvVars.cmd
 FOR /F %%G IN ('%RUN_AS_GET_VARS%') do SET "%%G"
 
 REM Send TeamCity messages
 TYPE %4
 
 REM Run command line
-%RUN_AS_PATH_TO_TOOL% %1\%2 -i:true %3
+%RUN_AS_PATH_TO_TOOL% %1\%2 -i:true -l:errors -b:-10000 %3
+SET "EXIT_CODE=%ERRORLEVEL%"
 
 POPD
+EXIT /B %EXIT_CODE%

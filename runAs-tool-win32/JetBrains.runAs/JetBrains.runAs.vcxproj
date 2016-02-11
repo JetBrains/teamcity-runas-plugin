@@ -184,6 +184,7 @@
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="ErrorUtilities.h" />
     <ClInclude Include="ExitCode.h" />
+    <ClInclude Include="LogLevel.h" />
     <ClInclude Include="PrivilegeManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StreamWriter.h" />

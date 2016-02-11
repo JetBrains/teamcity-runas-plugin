@@ -5,7 +5,7 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 	And I've added the argument -p:aaa
 	And I've added the argument command.cmd
 	When I run RunAs tool
-	Then the exit code should be -201
+	Then the exit code should be -100001
 	And the errors should contain:
 	|                                         |
 	| Error:.*"user_name" should not be empty |	
@@ -15,7 +15,7 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 	And I've added the argument -u:TestUser
 	And I've added the argument -p:aaa
 	When I run RunAs tool
-	Then the exit code should be -201
+	Then the exit code should be -100001
 	And the errors should contain:
 	|                                          |
 	| Error:.*"executable" should not be empty |
@@ -29,7 +29,7 @@ Scenario: RunAs returns -201 exit code and shows error message when user add cmd
 	And I've added the argument -c:args.txt	
 	And I've added the argument -u:TestUser	
 	When I run RunAs tool
-	Then the exit code should be -201	
+	Then the exit code should be -100001
 
 Scenario: RunAs returns -201 exit code and shows error message when user add cmd args not in the
 	Given I have appended the file command.cmd by the line @echo %1 %2
@@ -40,7 +40,7 @@ Scenario: RunAs returns -201 exit code and shows error message when user add cmd
 	And I've added the argument "world !!!"
 	And I've added the argument -p:aaa
 	When I run RunAs tool
-	Then the exit code should be -201
+	Then the exit code should be -100001
 
 Scenario Outline: RunAs returns error exit code with specified exit code base
 	Given I have appended the file command.cmd by the line WhoAmI.exe
@@ -64,7 +64,7 @@ Scenario Outline: User runs the command whith invalid arg for the inherited envi
 	And I've added the argument -i:<inhetritEnvironment>
 	And I've added the argument command.cmd
 	When I run RunAs tool
-	Then the exit code should be -201
+	Then the exit code should be -100001
 	And the errors should contain:
 	|                             |
 	| Error:.*Invalid argument "i" |

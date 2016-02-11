@@ -20,7 +20,7 @@ CommanLineParser::CommanLineParser()
 {
 }
 
-Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCode* exitCodeBase) const
+Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const
 {
 	auto actualArgs = std::list<std::wstring>(args);
 
@@ -33,6 +33,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 	std::list<std::wstring> commandLineArgs;
 	auto _inheritEnvironment = true;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
+	*logLevel = LOG_LEVEL_NORMAL;
 	
 	while (actualArgs.size() > 0)
 	{
@@ -160,6 +161,27 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 			}			
 		}
 
+		// Log level
+		if (argNameInLowCase == L"l")
+		{
+			if (argValueInLowCase == LOG_LEVEL_NORMAL)
+			{
+				*logLevel = LOG_LEVEL_NORMAL;
+			}
+
+			if (argValueInLowCase == LOG_LEVEL_ERRORS)
+			{
+				*logLevel = LOG_LEVEL_ERRORS;
+			}
+
+			if (argValueInLowCase == LOG_LEVEL_OFF)
+			{
+				*logLevel = LOG_LEVEL_OFF;
+			}
+
+			continue;
+		}
+
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
@@ -194,7 +216,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, details.str());
 	}	
 
-	return Settings(
+	auto settings = Settings(
 		userName,
 		domain,
 		password,
@@ -203,4 +225,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		*exitCodeBase,
 		commandLineArgs, 
 		_inheritEnvironment);
+
+	settings.SetLogLevel(*logLevel);
+	return settings;
 }

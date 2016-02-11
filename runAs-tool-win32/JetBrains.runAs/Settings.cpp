@@ -68,6 +68,16 @@ bool Settings::GetInheritEnvironment() const
 	return _inheritEnvironment;
 }
 
+LogLevel Settings::GetLogLevel() const
+{
+	return _logLevel;
+}
+
+void Settings::SetLogLevel(LogLevel logLevel)
+{
+	_logLevel = logLevel;
+}
+
 std::wstring Settings::AddQuotes(std::wstring str)
 {
 	if (str.find(L' ') != std::string::npos && str.size() > 0 && !(str[0] == L'\"' && str[str.size() - 1] == L'\"'))
