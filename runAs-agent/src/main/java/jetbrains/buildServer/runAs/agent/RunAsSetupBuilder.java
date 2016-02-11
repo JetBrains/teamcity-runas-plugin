@@ -12,10 +12,9 @@ import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
-  private static final String LINE_SEPARATOR = System.getProperty("line.separator");
   static final String TOOL_FILE_NAME = "runAs.cmd";
   static final String CREDENTIALS_EXT = ".cred";
-  static final String ARGS_EXT = ".args";
+  static final String CMD_EXT = ".cmd";
   static final String MESSAGES_EXT = ".messages";
   static final String WARNING_STATUS = "WARNING";
   static final String CONFIG_FILE_CMD_KEY = "-c:";
@@ -27,7 +26,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   private final FileService myFileService;
   private final ResourcePublisher mySettingsPublisher;
   private final ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
-  private final ResourceGenerator<RunAsArgsSettings> myRunAsArgsGenerator;
+  private final ResourceGenerator<RunAsArgsSettings> myRunAsCmdGenerator;
   private final ResourceGenerator<RunAsArgsSettings> myTeamCityServiceMessagesGenerator;
   private final LoggerService myLoggerService;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
@@ -37,7 +36,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     @NotNull final FileService fileService,
     @NotNull final ResourcePublisher settingsPublisher,
     @NotNull final ResourceGenerator<CredentialsSettings> credentialsGenerator,
-    @NotNull final ResourceGenerator<RunAsArgsSettings> runAsArgsGenerator,
+    @NotNull final ResourceGenerator<RunAsArgsSettings> runAsCmdGenerator,
     @NotNull final ResourceGenerator<RunAsArgsSettings> teamCityServiceMessagesGenerator,
     @NotNull final LoggerService loggerService,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
@@ -45,7 +44,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     myFileService = fileService;
     mySettingsPublisher = settingsPublisher;
     myCredentialsGenerator = credentialsGenerator;
-    myRunAsArgsGenerator = runAsArgsGenerator;
+    myRunAsCmdGenerator = runAsCmdGenerator;
     myTeamCityServiceMessagesGenerator = teamCityServiceMessagesGenerator;
     myLoggerService = loggerService;
     myCommandLineArgumentsService = commandLineArgumentsService;
@@ -58,6 +57,16 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
       return Collections.singleton(commandLineSetup);
     }
 
+    // Resources
+    final ArrayList<CommandLineResource> resources = new ArrayList<CommandLineResource>();
+    resources.addAll(commandLineSetup.getResources());
+
+    // Create session
+    final File sessionFile = myFileService.getTempFileName("");
+    final String sessionFilePath = sessionFile.getAbsolutePath();
+    final String sessionId = sessionFile.getName();
+
+    // Credentials
     final String user = myParametersService.tryGetConfigParameter(Constants.USER_VAR);
     if(StringUtil.isEmptyOrSpaces(user)) {
       sendWarning(String.format(CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING, Constants.USER_VAR));
@@ -70,40 +79,26 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
       return Collections.singleton(commandLineSetup);
     }
 
-    final ArrayList<CommandLineResource> resources = new ArrayList<CommandLineResource>();
-    resources.addAll(commandLineSetup.getResources());
+    resources.add(new CommandLineFile(mySettingsPublisher, new File(sessionFilePath + CREDENTIALS_EXT), myCredentialsGenerator.create(new CredentialsSettings(user, password))));
 
-    final CredentialsSettings credentialsSettings = new CredentialsSettings(user, password);
-
+    // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();
     cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
     cmdLineArgs.addAll(commandLineSetup.getArgs());
-    final String commandLine = myCommandLineArgumentsService.createCommandLineString(cmdLineArgs);
-    final String workingDirectory = myFileService.getCheckoutDirectory().getAbsolutePath();
-    final RunAsArgsSettings runAsArgsSettings = new RunAsArgsSettings(commandLine, workingDirectory);
 
-    // Credentials
-    final File credentialsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile, myCredentialsGenerator.create(credentialsSettings)));
+    final RunAsArgsSettings runAsArgsSettings = new RunAsArgsSettings(
+      myCommandLineArgumentsService.createCommandLineString(cmdLineArgs),
+      myFileService.getCheckoutDirectory().getAbsolutePath());
 
-    // RunAs args
-    final File runAsArgsFile = myFileService.getTempFileName(ARGS_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, runAsArgsFile, myRunAsArgsGenerator.create(runAsArgsSettings)));
+    resources.add(new CommandLineFile(mySettingsPublisher, new File(sessionFilePath + CMD_EXT), myRunAsCmdGenerator.create(runAsArgsSettings)));
 
-    // Message
-    final File messageFile = myFileService.getTempFileName(MESSAGES_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, messageFile, myTeamCityServiceMessagesGenerator.create(runAsArgsSettings)));
-
-    final File tempDirectory = myFileService.getTempDirectory();
+    // Messages
+    resources.add(new CommandLineFile(mySettingsPublisher, new File(sessionFilePath + MESSAGES_EXT), myTeamCityServiceMessagesGenerator.create(runAsArgsSettings)));
 
     return Collections.singleton(
       new CommandLineSetup(
         getTool().getAbsolutePath(),
-        Arrays.asList(
-          new CommandLineArgument(tempDirectory.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(CONFIG_FILE_CMD_KEY + myFileService.getRelativePath(tempDirectory, credentialsFile).getPath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(CONFIG_FILE_CMD_KEY + myFileService.getRelativePath(tempDirectory, runAsArgsFile).getPath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(myFileService.getRelativePath(tempDirectory, messageFile).getPath(), CommandLineArgument.Type.PARAMETER)),
+        Arrays.asList(new CommandLineArgument(sessionId, CommandLineArgument.Type.PARAMETER)),
         resources));
   }
 

@@ -11,9 +11,14 @@ ErrorUtilities::ErrorUtilities()
 ErrorCode ErrorUtilities::GetErrorCode()
 {	
 	auto errorCode = GetLastError();
-	if (errorCode >= 0x0000052e && errorCode <= 0x00000532)
+	if (errorCode >= ERROR_INVALID_ACCOUNT_NAME && errorCode <= ERROR_ACCOUNT_DISABLED)
 	{
 		return ERROR_CODE_ACCESS;
+	}
+
+	if (errorCode == RPC_X_BAD_STUB_DATA)
+	{
+		return ERROR_CODE_INVALID_USAGE;
 	}
 
 	return ERROR_WIN32;	

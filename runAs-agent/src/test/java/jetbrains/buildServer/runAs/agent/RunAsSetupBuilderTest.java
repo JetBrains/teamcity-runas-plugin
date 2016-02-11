@@ -54,9 +54,8 @@ public class RunAsSetupBuilderTest {
     // Given
     final File checkoutDir = new File("checkoutDir");
     final File tempDir = new File("tempDir");
-    final File credentialsFile = new File("credentials.runAs");
-    final File argsFile = new File("args.runAs");
-    final File messagesFile = new File("messages.runAs");
+    final String sessionId = "session";
+    final File sessionFile = new File(tempDir, sessionId);
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsSetupBuilder.TOOL_FILE_NAME);
@@ -65,7 +64,7 @@ public class RunAsSetupBuilderTest {
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
     final String credentialsContent = "credentials content";
-    final String argsContent = "args content";
+    final String cmdContent = "args content";
     final String messagesContent = "messages content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsArgsSettings runAsArgsSettings = new RunAsArgsSettings("cmd line", checkoutDir.getAbsolutePath());
@@ -79,14 +78,11 @@ public class RunAsSetupBuilderTest {
       oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.PASSWORD_VAR);
       will(returnValue(password));
 
-      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CREDENTIALS_EXT);
-      will(returnValue(credentialsFile));
+      oneOf(myFileService).getTempFileName("");
+      will(returnValue(sessionFile));
 
       oneOf(myCredentialsGenerator).create(with(new CredentialsSettings(user, password)));
       will(returnValue(credentialsContent));
-
-      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.ARGS_EXT);
-      will(returnValue(argsFile));
 
       //noinspection unchecked
       oneOf(myCommandLineArgumentsService).createCommandLineString(with(any(List.class)));
@@ -95,14 +91,8 @@ public class RunAsSetupBuilderTest {
       oneOf(myFileService).getCheckoutDirectory();
       will(returnValue(checkoutDir));
 
-      oneOf(myFileService).getTempDirectory();
-      will(returnValue(tempDir));
-
       oneOf(myArgsGenerator).create(runAsArgsSettings);
-      will(returnValue(argsContent));
-
-      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.MESSAGES_EXT);
-      will(returnValue(messagesFile));
+      will(returnValue(cmdContent));
 
       oneOf(myTeamCityServiceMessagesGenerator).create(runAsArgsSettings);
       will(returnValue(messagesContent));
@@ -133,15 +123,12 @@ public class RunAsSetupBuilderTest {
     then(setup.getResources()).containsExactly(
       myCommandLineResource1,
       myCommandLineResource2,
-      new CommandLineFile(myResourcePublisher, credentialsFile, credentialsContent),
-      new CommandLineFile(myResourcePublisher, argsFile, argsContent),
-      new CommandLineFile(myResourcePublisher, messagesFile, messagesContent));
+      new CommandLineFile(myResourcePublisher, new File(tempDir, sessionId + RunAsSetupBuilder.CREDENTIALS_EXT).getAbsoluteFile(), credentialsContent),
+      new CommandLineFile(myResourcePublisher, new File(tempDir, sessionId + RunAsSetupBuilder.CMD_EXT).getAbsoluteFile(), cmdContent),
+      new CommandLineFile(myResourcePublisher, new File(tempDir, sessionId + RunAsSetupBuilder.MESSAGES_EXT).getAbsoluteFile(), messagesContent));
 
     then(setup.getArgs()).containsExactly(
-      new CommandLineArgument(tempDir.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + credentialsFile.getPath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(RunAsSetupBuilder.CONFIG_FILE_CMD_KEY + argsFile.getPath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(messagesFile.getPath(), CommandLineArgument.Type.PARAMETER));
+      new CommandLineArgument(sessionId, CommandLineArgument.Type.PARAMETER));
   }
 
   @Test()
