@@ -30,5 +30,10 @@ REM Run command line
 %RUN_AS_PATH_TO_TOOL% %1\%2 -i:true -l:errors -b:-10000 %3
 SET "EXIT_CODE=%ERRORLEVEL%"
 
+IF %EXIT_CODE% EQU -10000 ECHO ##teamcity[message text='Unknown error occurred.' status='ERROR']
+IF %EXIT_CODE% EQU -10001 ECHO ##teamcity[message text='Invalid usage of the tool.' status='ERROR']
+IF %EXIT_CODE% EQU -10002 ECHO ##teamcity[message text='Security error occurred.' status='ERROR']
+IF %EXIT_CODE% EQU -10003 ECHO ##teamcity[message text='WIN32 API error occurred.' status='ERROR']
+
 POPD
 EXIT /B %EXIT_CODE%
