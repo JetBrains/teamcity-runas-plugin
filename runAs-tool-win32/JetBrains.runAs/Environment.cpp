@@ -22,28 +22,6 @@ Result<Environment> Environment::CreateForCurrentProcess()
 	return newEnvironment;
 }
 
-Result<Environment> Environment::CreateFormString(std::wstring variables)
-{
-	auto vars = StringUtilities::Split(variables, L"\n");
-
-	Environment environment;
-	std::wsmatch matchResult;	
-	for (auto varsIterrator = vars.begin(); varsIterrator != vars.end(); ++varsIterrator)
-	{
-		if (!regex_search(*varsIterrator, matchResult, EnvVarRegex))
-		{			
-			continue;
-		}
-
-		auto envName = matchResult._At(1).str();
-		auto envValue = matchResult._At(2).str();
-		environment._vars[envName] = envValue;
-		environment._empty = false;
-	}
-
-	return environment;
-}
-
 Environment::~Environment()
 {	
 	for (auto environmentBlockIterator = _environmentBlocks.begin(); environmentBlockIterator != _environmentBlocks.end(); ++environmentBlockIterator)

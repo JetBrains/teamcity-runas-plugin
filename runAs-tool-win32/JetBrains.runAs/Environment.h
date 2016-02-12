@@ -13,8 +13,7 @@ class Environment
 	LPVOID* CreateEnvironmentFromMap();	
 
 public:
-	static Result<Environment> CreateForCurrentProcess();
-	static Result<Environment> CreateFormString(std::wstring variables);	
+	static Result<Environment> CreateForCurrentProcess();	
 	~Environment();
 	LPVOID* CreateEnvironment();
 	std::wstring TryGetValue(std::wstring variableName);
