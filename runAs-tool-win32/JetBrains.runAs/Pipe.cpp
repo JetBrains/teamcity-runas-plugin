@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Pipe.h"
 #include "ErrorUtilities.h"
-#include "ErrorCode.h"
 #include "Result.h"
 
 Pipe::Pipe(std::wstring name): 

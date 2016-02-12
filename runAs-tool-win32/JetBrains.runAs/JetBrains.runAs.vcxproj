@@ -197,7 +197,6 @@
     <ClInclude Include="ProcessTracker.h" />
     <ClInclude Include="ProcessWithLogon.h" />
     <ClInclude Include="ProcessAsUser.h" />
-    <ClInclude Include="ProcessInfoProvider.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
@@ -218,7 +217,6 @@
     <ClCompile Include="ProcessTracker.cpp" />
     <ClCompile Include="ProcessWithLogon.cpp" />
     <ClCompile Include="ProcessAsUser.cpp" />
-    <ClCompile Include="ProcessInfoProvider.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -2,15 +2,11 @@
 #include "CommanLineParser.h"
 #include "Settings.h"
 #include "HelpUtilities.h"
-#include "ProcessInfoProvider.h"
 #include "ErrorCode.h"
 #include "Result.h"
 #include <iostream>
 #include "ProcessRunner.h"
 #include "Args.h"
-
-class ProcessInfoProvider;
-class ProcessAsUser;
 
 std::wstring GetStringValue(std::wstring value)
 {
@@ -37,10 +33,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	LogLevel logLevel;
 	try
 	{
-		ProcessInfoProvider processInfoProvider;
 		CommanLineParser commanLineParser;
-
-		auto cmd = GetCommandLine();
 		auto settingsResult = commanLineParser.TryParse(args, &exitCodeBase, &logLevel);
 		if (settingsResult.HasError())
 		{
@@ -51,11 +44,6 @@ int _tmain(int argc, _TCHAR *argv[]) {
 			settings = settingsResult.GetResultValue();
 		}
 		
-		if (!result.HasError() && !processInfoProvider.IsSuitableOS())
-		{
-			result = Result<ExitCode>(ERROR_CODE_INVALID_USAGE, L"Use x64 version for the 64-bit OS.");			
-		}		
-
 		if (!result.HasError())
 		{		
 			ProcessRunner runner;

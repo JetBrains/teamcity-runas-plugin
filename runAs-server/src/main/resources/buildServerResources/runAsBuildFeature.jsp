@@ -1,12 +1,12 @@
 <%@ include file="/include-internal.jsp"%>
 <%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
 <jsp:useBean id="buildForm" type="jetbrains.buildServer.controllers.admin.projects.BuildTypeForm" scope="request"/>
-<jsp:useBean id="constants" scope="request" class="jetbrains.buildServer.ssh.SshKeyBuildFeatureConstants"/>
+<!--jsp:useBean id="constants" scope="request" class="jetbrains.buildServer.ssh.SshKeyBuildFeatureConstants"/-->
 
 <style type="text/css">
 
 </style>
-<script type="text/javascript">
+<!--script type="text/javascript">
   BS.SshAgentBuildFeature = {
     keySelected: function(encrypted) {
       if (encrypted) {
@@ -17,12 +17,13 @@
       }
     }
   };
-</script>
+</script-->
 
 <tr>
   <td colspan="2"><em>This build feature runs an SSH agent with an uploaded SSH key during a build.</em></td>
 </tr>
-<tr>
+
+<!--tr>
   <th>
     <label for="${constants.sshKeyProp}">Uploaded key:</label>
   </th>
@@ -42,4 +43,4 @@
 <script type="text/javascript">
   var encrypted = $j('#${constants.sshKeyProp}').find(':selected').hasClass('encrypted');
   BS.SshAgentBuildFeature.keySelected(encrypted);
-</script>
+</script-->

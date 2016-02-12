@@ -103,6 +103,6 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment
 	
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;	
-
+	
 	return processTracker.WaiteForExit(processInformation.hProcess);
 }

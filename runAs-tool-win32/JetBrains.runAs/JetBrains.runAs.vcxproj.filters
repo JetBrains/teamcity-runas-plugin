@@ -35,9 +35,6 @@
     <ClInclude Include="HelpUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessInfoProvider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ProcessWithLogon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,9 +110,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProcessInfoProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProcessWithLogon.cpp">

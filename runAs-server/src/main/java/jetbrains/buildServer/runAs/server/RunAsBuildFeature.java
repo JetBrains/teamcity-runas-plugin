@@ -1,4 +1,4 @@
-/*package jetbrains.buildServer.runAs.server;
+package jetbrains.buildServer.runAs.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,4 +68,3 @@ public class RunAsBuildFeature extends BuildFeature {
     };
   }
 }
-*/
