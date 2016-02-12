@@ -81,11 +81,10 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment
 
 	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
 	PROCESS_INFORMATION processInformation = {};
-	auto executable = settings.GetExecutable();
 	auto cmdLine = settings.GetCommandLine();
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,
-		const_cast<LPWSTR>(executable.c_str()),
+		nullptr,
 		const_cast<LPWSTR>(cmdLine.c_str()),
 		&processSecAttributes,
 		&threadSecAttributes,

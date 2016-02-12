@@ -17,14 +17,13 @@ Result<ExitCode> ProcessWithLogon::Run(Settings& settings, Environment& environm
 	PROCESS_INFORMATION processInformation = {};
 
 	processTracker.Initialize(securityAttributes, startupInfo);
-	auto executable = settings.GetExecutable();
 	auto cmdLine = settings.GetCommandLine();
 	if (!CreateProcessWithLogonW(
 		settings.GetUserName().c_str(),
 		settings.GetDomain().c_str(),
 		settings.GetPassword().c_str(),
 		LOGON_WITH_PROFILE,
-		const_cast<LPWSTR>(executable.c_str()),
+		nullptr,
 		const_cast<LPWSTR>(cmdLine.c_str()),
 		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
 		environment.CreateEnvironment(),
