@@ -1,6 +1,5 @@
 package jetbrains.buildServer.runAs.agent;
 
-import com.intellij.openapi.util.text.StringUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +8,9 @@ import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.messages.serviceMessages.Message;
 import jetbrains.buildServer.runAs.common.Constants;
+import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.StringUtils;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String TOOL_FILE_NAME = "runAs.cmd";
@@ -17,10 +18,10 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String CMD_EXT = ".cmd";
   static final String WARNING_STATUS = "WARNING";
 
-  private static final String CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING = "the configuration parameter \"%s\" was not defined or empty";
   private static final String RUN_AS_WAS_NOT_USED_MESSAGE = "RunAs was not used because %s";
 
   private final RunnerParametersService myParametersService;
+  private final BuildFeatureParametersService myBuildFeatureParametersService;
   private final FileService myFileService;
   private final ResourcePublisher mySettingsPublisher;
   private final ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
@@ -30,6 +31,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
 
   public RunAsSetupBuilder(
     @NotNull final RunnerParametersService parametersService,
+    @NotNull final BuildFeatureParametersService buildFeatureParametersService,
     @NotNull final FileService fileService,
     @NotNull final ResourcePublisher settingsPublisher,
     @NotNull final ResourceGenerator<CredentialsSettings> credentialsGenerator,
@@ -37,6 +39,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     @NotNull final LoggerService loggerService,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myParametersService = parametersService;
+    myBuildFeatureParametersService = buildFeatureParametersService;
     myFileService = fileService;
     mySettingsPublisher = settingsPublisher;
     myCredentialsGenerator = credentialsGenerator;
@@ -52,25 +55,26 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
       return Collections.singleton(commandLineSetup);
     }
 
+    // Get parameters
+    final List<String> userNames = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
+    final List<String> passwords = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
+    if(userNames.size() == 0 || passwords.size() == 0) {
+      return Collections.singleton(commandLineSetup);
+    }
+
+    final String userName = userNames.get(0);
+    final String password = passwords.get(0);
+    if(StringUtil.isEmptyOrSpaces(userName) || password == null) {
+      return Collections.singleton(commandLineSetup);
+    }
+
     // Resources
     final ArrayList<CommandLineResource> resources = new ArrayList<CommandLineResource>();
     resources.addAll(commandLineSetup.getResources());
 
     // Credentials
-    final String user = myParametersService.tryGetConfigParameter(Constants.USER_VAR);
-    if(StringUtil.isEmptyOrSpaces(user)) {
-      sendWarning(String.format(CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING, Constants.USER_VAR));
-      return Collections.singleton(commandLineSetup);
-    }
-
-    final String password = myParametersService.tryGetConfigParameter(Constants.PASSWORD_VAR);
-    if(StringUtil.isEmptyOrSpaces(password)) {
-      sendWarning(String.format(CONFIGURATION_PARAMETER_WAS_NOT_DEFINED_WARNING, Constants.PASSWORD_VAR));
-      return Collections.singleton(commandLineSetup);
-    }
-
     final File credentialsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), myCredentialsGenerator.create(new CredentialsSettings(user, password))));
+    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), myCredentialsGenerator.create(new CredentialsSettings(userName, password))));
 
     // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();

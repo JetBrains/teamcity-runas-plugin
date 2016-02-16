@@ -7,6 +7,7 @@ import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
@@ -28,12 +29,14 @@ public class RunAsSetupBuilderTest {
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsCmdSettings> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
+  private BuildFeatureParametersService myBuildFeatureParametersService;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
+    myBuildFeatureParametersService = myCtx.mock(BuildFeatureParametersService.class);
     myFileService = myCtx.mock(FileService.class);
     myResourcePublisher = myCtx.mock(ResourcePublisher.class);
     //noinspection unchecked
@@ -68,11 +71,11 @@ public class RunAsSetupBuilderTest {
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
 
-      oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.USER_VAR);
-      will(returnValue(user));
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
+      will(returnValue(Arrays.asList(user, "bbb")));
 
-      oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.PASSWORD_VAR);
-      will(returnValue(password));
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
+      will(returnValue(Arrays.asList(password, "aaa")));
 
       oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CREDENTIALS_EXT);
       will(returnValue(credentialsFile));
@@ -119,6 +122,70 @@ public class RunAsSetupBuilderTest {
       new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
   }
 
+  @DataProvider(name = "emptyUserNameCases")
+  public Object[][] getEmptyUserNameCases() {
+    return new Object[][] {
+      { "  " }, { "" }, { null },
+    };
+  }
+
+  @Test(dataProvider = "emptyUserNameCases")
+  public void shouldNotBuildSetupWhenHasEmptyUserName(@Nullable final String userName) throws IOException {
+    // Given
+    final String toolName = "my tool";
+    final String password = "abc";
+    final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
+    final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
+    final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
+    myCtx.checking(new Expectations() {{
+      oneOf(myRunnerParametersService).isRunningUnderWindows();
+      will(returnValue(true));
+
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
+      will(returnValue(Arrays.asList(userName)));
+
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
+      will(returnValue(Arrays.asList(password)));
+    }});
+
+    final CommandLineSetupBuilder instance = createInstance();
+
+    // When
+    final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(setup).isEqualTo(baseSetup);
+  }
+
+  public void shouldNotBuildSetupWhenBuildFeatureWasNotFound() throws IOException {
+    // Given
+    final String toolName = "my tool";
+    final String password = "abc";
+    final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
+    final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
+    final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
+    myCtx.checking(new Expectations() {{
+      oneOf(myRunnerParametersService).isRunningUnderWindows();
+      will(returnValue(true));
+
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
+      will(returnValue(Arrays.asList()));
+
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
+      will(returnValue(Arrays.asList()));
+    }});
+
+    final CommandLineSetupBuilder instance = createInstance();
+
+    // When
+    final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(setup).isEqualTo(baseSetup);
+  }
+
   @Test()
   public void shouldNotBuildSetupWhenIsNotWindows() throws IOException {
     // Given
@@ -153,6 +220,7 @@ public class RunAsSetupBuilderTest {
   {
     return new RunAsSetupBuilder(
       myRunnerParametersService,
+      myBuildFeatureParametersService,
       myFileService,
       myResourcePublisher,
       myCredentialsGenerator,

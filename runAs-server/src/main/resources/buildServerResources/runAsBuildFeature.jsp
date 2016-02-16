@@ -1,46 +1,32 @@
 <%@ include file="/include-internal.jsp"%>
 <%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
 <jsp:useBean id="buildForm" type="jetbrains.buildServer.controllers.admin.projects.BuildTypeForm" scope="request"/>
-<!--jsp:useBean id="constants" scope="request" class="jetbrains.buildServer.ssh.SshKeyBuildFeatureConstants"/-->
+<jsp:useBean id="bean" class="jetbrains.buildServer.runAs.server.RunAsBean"/>
 
 <style type="text/css">
-
 </style>
-<!--script type="text/javascript">
-  BS.SshAgentBuildFeature = {
-    keySelected: function(encrypted) {
-      if (encrypted) {
-        $j('#passphraseRow').show();
-      } else {
-        $j('#secure\\:passphrase').val('');
-        $j('#passphraseRow').hide();
-      }
-    }
-  };
-</script-->
 
 <tr>
-  <td colspan="2"><em>This build feature runs an SSH agent with an uploaded SSH key during a build.</em></td>
+  <td colspan="2"><em>This build feature allows to run build steps under the specified user account.</em></td>
 </tr>
 
-<!--tr>
-  <th>
-    <label for="${constants.sshKeyProp}">Uploaded key:</label>
-  </th>
+<tr>
+  <th><label for="${bean.runAsUserKey}">User name: <l:star/></label></th>
   <td>
-    <admin:sshKeys projectId="${buildForm.project.externalId}" keySelectionCallback="BS.SshAgentBuildFeature.keySelected"/>
-    <span class="error" id="error_${constants.sshKeyProp}"></span>
+    <div class="completionIconWrapper">
+      <props:textProperty name="${bean.runAsUserKey}" className="longField"/>
+    </div>
+    <span class="error" id="error_${bean.runAsUserKey}"></span>
+    <span class="smallNote">Specify the user name in the formats "username" or "doman\username" or "username@domain"</span>
   </td>
 </tr>
-<tr id="passphraseRow" style="display: none;">
-  <th>
-    <label for="secure:passphrase">Passphrase:</label>
-  </th>
+
+<tr>
+  <th><label for="${bean.runAsPasswordKey}">Password: <l:star/></label></th>
   <td>
-    <props:passwordProperty name="secure:passphrase"/>
+    <div class="completionIconWrapper">
+      <props:passwordProperty name="${bean.runAsPasswordKey}" className="longField"/>
+    </div>
+    <span class="error" id="error_${bean.runAsPasswordKey}"></span>
   </td>
 </tr>
-<script type="text/javascript">
-  var encrypted = $j('#${constants.sshKeyProp}').find(':selected').hasClass('encrypted');
-  BS.SshAgentBuildFeature.keySelected(encrypted);
-</script-->
