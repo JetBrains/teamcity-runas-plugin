@@ -9,10 +9,14 @@
   <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
   <bean class="jetbrains.buildServer.runAs.agent.CredentialsGenerator" id="credentialsGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsCmdGenerator" id="runAsCmdGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.EnvironmentVariablesParser" id="environmentVariablesParser"/>
+  <bean class="jetbrains.buildServer.runAs.agent.EnvVarsCmdGenerator" id="getEnvVarsCmdGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
     <constructor-arg ref="settingsPublisher"/>
     <constructor-arg ref="credentialsGenerator"/>
     <constructor-arg ref="runAsCmdGenerator"/>
+    <constructor-arg ref="environmentVariablesParser"/>
+    <constructor-arg ref="getEnvVarsCmdGenerator"/>
   </bean>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
     <constructor-arg ref="runAsSetupBuilder"/>

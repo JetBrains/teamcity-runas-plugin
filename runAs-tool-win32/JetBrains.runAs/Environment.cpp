@@ -2,7 +2,8 @@
 #include "Environment.h"
 #include <regex>
 #include <set>
-#include "StringUtilities.h"
+#include "Handle.h"
+#include "ErrorUtilities.h"
 
 static const std::wregex EnvVarRegex = std::wregex(L"(.+)=(.*)");
 
@@ -19,6 +20,27 @@ Result<Environment> Environment::CreateForCurrentProcess()
 	}	
 
 	FreeEnvironmentStringsW(environment);
+	return newEnvironment;
+}
+
+Result<Environment> Environment::CreateForUser(Handle& token, bool inherit)
+{
+	Environment newEnvironment;
+	LPVOID environment;
+	if (!CreateEnvironmentBlock(&environment, token, inherit))
+	{
+		return Result<Environment>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateEnvironmentBlock"));
+	}
+
+	try
+	{
+		newEnvironment.CreateVariableMap(environment);
+	}
+	catch (...)
+	{
+	}
+
+	DestroyEnvironmentBlock(environment);
 	return newEnvironment;
 }
 

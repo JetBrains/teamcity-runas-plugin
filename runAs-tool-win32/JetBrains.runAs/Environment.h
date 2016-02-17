@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include "Result.h"
+#include "Handle.h"
 
 class Environment
 {		
@@ -13,7 +14,8 @@ class Environment
 	LPVOID* CreateEnvironmentFromMap();	
 
 public:
-	static Result<Environment> CreateForCurrentProcess();	
+	static Result<Environment> CreateForCurrentProcess();
+	static Result<Environment> CreateForUser(Handle& token, bool inherit);
 	~Environment();
 	LPVOID* CreateEnvironment();
 	std::wstring TryGetValue(std::wstring variableName);

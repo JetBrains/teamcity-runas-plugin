@@ -7,5 +7,5 @@ class Settings;
 class ProcessWithLogon : public IProcess
 {	
 public:
-	virtual Result<ExitCode> Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const override;
+	virtual Result<ExitCode> Run(Settings& settings, ProcessTracker& processTracker) const override;
 };

@@ -6,27 +6,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
-import jetbrains.buildServer.messages.serviceMessages.Message;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.StringUtils;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String TOOL_FILE_NAME = "runAs.cmd";
   static final String CREDENTIALS_EXT = ".cred";
   static final String CMD_EXT = ".cmd";
-  static final String WARNING_STATUS = "WARNING";
-
-  private static final String RUN_AS_WAS_NOT_USED_MESSAGE = "RunAs was not used because %s";
-
   private final RunnerParametersService myParametersService;
   private final BuildFeatureParametersService myBuildFeatureParametersService;
   private final FileService myFileService;
   private final ResourcePublisher mySettingsPublisher;
   private final ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
   private final ResourceGenerator<RunAsCmdSettings> myRunAsCmdGenerator;
-  private final LoggerService myLoggerService;
+  private final TextParser<List<EnvironmentVariable>> myEnvironmentVariablesParser;
+  private final ResourceGenerator<List<EnvironmentVariable>> myEnvVarsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public RunAsSetupBuilder(
@@ -36,7 +31,8 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     @NotNull final ResourcePublisher settingsPublisher,
     @NotNull final ResourceGenerator<CredentialsSettings> credentialsGenerator,
     @NotNull final ResourceGenerator<RunAsCmdSettings> runAsCmdGenerator,
-    @NotNull final LoggerService loggerService,
+    @NotNull final TextParser<List<EnvironmentVariable>> environmentVariablesParser,
+    @NotNull final ResourceGenerator<List<EnvironmentVariable>> envVarsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myParametersService = parametersService;
     myBuildFeatureParametersService = buildFeatureParametersService;
@@ -44,7 +40,8 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     mySettingsPublisher = settingsPublisher;
     myCredentialsGenerator = credentialsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
-    myLoggerService = loggerService;
+    myEnvironmentVariablesParser = environmentVariablesParser;
+    myEnvVarsCmdGenerator = envVarsCmdGenerator;
     myCommandLineArgumentsService = commandLineArgumentsService;
   }
 
@@ -76,6 +73,17 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     final File credentialsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
     resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), myCredentialsGenerator.create(new CredentialsSettings(userName, password))));
 
+    // Environment variables
+    //noinspection SpellCheckingInspection
+    final List<String> noninheritableEnvironmentVariables = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.NONINHERITABLE_ENVIRONMENT_VARIABLES);
+    final List<EnvironmentVariable> environmentVariables = new ArrayList<EnvironmentVariable>();
+    if(noninheritableEnvironmentVariables.size() > 0) {
+      environmentVariables.addAll(myEnvironmentVariablesParser.parse(noninheritableEnvironmentVariables.get(0)));
+    }
+
+    final File envVarsCmdFile = myFileService.getTempFileName(CMD_EXT);
+    resources.add(new CommandLineFile(mySettingsPublisher, envVarsCmdFile.getAbsoluteFile(), myEnvVarsCmdGenerator.create(environmentVariables)));
+
     // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();
     cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
@@ -93,12 +101,9 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
         getTool().getAbsolutePath(),
         Arrays.asList(
           new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+          new CommandLineArgument(envVarsCmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
           new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER)),
         resources));
-  }
-
-  private void sendWarning(@NotNull final String reason) {
-    myLoggerService.onMessage(new Message(String.format(RUN_AS_WAS_NOT_USED_MESSAGE, reason), WARNING_STATUS, null));
   }
 
   private File getTool() {

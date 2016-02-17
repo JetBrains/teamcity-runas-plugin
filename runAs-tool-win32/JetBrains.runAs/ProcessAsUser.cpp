@@ -3,12 +3,12 @@
 #include "Settings.h"
 #include "ErrorUtilities.h"
 #include "ProcessTracker.h"
-#include "Environment.h"
 #include "Result.h"
 #include "ExitCode.h"
+#include "Environment.h"
 class ProcessTracker;
 
-Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const
+Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processTracker) const
 {
 	// Attempt to log a user on to the local computer
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -79,6 +79,18 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
 	}
 
+	// Get environment
+	auto targetUserEnvironmentResult = Environment::CreateForUser(primaryNewUserSecurityTokenHandle, false);
+	if (targetUserEnvironmentResult.HasError())
+	{
+		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
+		return Result<ExitCode>(targetUserEnvironmentResult.GetErrorCode(), targetUserEnvironmentResult.GetErrorDescription());
+	}
+
+	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
+	Environment callingProcessEnvironment;
+	auto newProcessEnvironment = settings.GetInheritEnvironment() ? callingProcessEnvironment : targetUserEnvironment;
+
 	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
 	PROCESS_INFORMATION processInformation = {};
 	auto cmdLine = settings.GetCommandLine();
@@ -90,11 +102,12 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment
 		&threadSecAttributes,
 		true,
 		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
-		environment.CreateEnvironment(),
+		newProcessEnvironment.CreateEnvironment(),
 		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
 		&processInformation))
 	{
+		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser"));
 	}
 
@@ -102,7 +115,9 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, Environment& environment
 	processHandle = processInformation.hProcess;
 	
 	auto threadHandle = Handle(L"Thread");
-	threadHandle = processInformation.hThread;	
-	
-	return processTracker.WaiteForExit(processInformation.hProcess);
+	threadHandle = processInformation.hThread;
+
+	auto exitCode = processTracker.WaiteForExit(processInformation.hProcess);
+	UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
+	return exitCode;
 }

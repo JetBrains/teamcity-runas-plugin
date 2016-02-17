@@ -11,5 +11,5 @@ class IProcess
 public:
 	virtual ~IProcess()	{}
 
-	virtual Result<ExitCode> Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const = 0;
+	virtual Result<ExitCode> Run(Settings& settings, ProcessTracker& processTracker) const = 0;
 };

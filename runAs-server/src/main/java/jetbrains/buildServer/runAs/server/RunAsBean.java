@@ -13,4 +13,9 @@ public class RunAsBean {
   public String getRunAsPasswordKey() {
     return Constants.PASSWORD_VAR;
   }
+
+  @NotNull
+  public String getRunAsNoninheritableEnvironmentVariablesKey() {
+    return Constants.NONINHERITABLE_ENVIRONMENT_VARIABLES;
+  }
 }

@@ -12,7 +12,6 @@ public class RunAsCmdGenerator implements ResourceGenerator<RunAsCmdSettings> {
   @Override
   public String create(@NotNull final RunAsCmdSettings settings) {
     final StringBuilder sb = new StringBuilder();
-
     sb.append("@ECHO OFF");
 
     sb.append(LINE_SEPARATOR);

@@ -7,8 +7,19 @@
 #include "Result.h"
 #include "ExitCode.h"
 
-Result<ExitCode> ProcessWithLogon::Run(Settings& settings, Environment& environment, ProcessTracker& processTracker) const
+Result<ExitCode> ProcessWithLogon::Run(Settings& settings, ProcessTracker& processTracker) const
 {
+	// Get environment
+	auto callingProcessEnvironmentResult = Environment::CreateForCurrentProcess();
+	if (callingProcessEnvironmentResult.HasError())
+	{
+		return Result<ExitCode>(callingProcessEnvironmentResult.GetErrorCode(), callingProcessEnvironmentResult.GetErrorDescription());
+	}
+
+	auto callingProcessEnvironment = callingProcessEnvironmentResult.GetResultValue();
+	Environment targetUserEnvironment;
+	auto newProcessEnvironment = settings.GetInheritEnvironment() ? callingProcessEnvironment : targetUserEnvironment;
+
 	SECURITY_ATTRIBUTES securityAttributes = {};
 	securityAttributes.nLength = sizeof(SECURITY_DESCRIPTOR);
 	securityAttributes.bInheritHandle = true;
@@ -26,7 +37,7 @@ Result<ExitCode> ProcessWithLogon::Run(Settings& settings, Environment& environm
 		nullptr,
 		const_cast<LPWSTR>(cmdLine.c_str()),
 		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
-		environment.CreateEnvironment(),
+		newProcessEnvironment.CreateEnvironment(),
 		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
 		&processInformation))

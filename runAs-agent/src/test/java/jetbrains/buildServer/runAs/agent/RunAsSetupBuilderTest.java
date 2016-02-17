@@ -10,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.api.Invocation;
-import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -24,12 +22,13 @@ public class RunAsSetupBuilderTest {
   private RunnerParametersService myRunnerParametersService;
   private ResourcePublisher myResourcePublisher;
   private ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
-  private LoggerService myLoggerService;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsCmdSettings> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
   private BuildFeatureParametersService myBuildFeatureParametersService;
+  private ResourceGenerator<List<EnvironmentVariable>> myEnvVarsCmdGenerator;
+  private TextParser<List<EnvironmentVariable>> myEnvironmentVariablesParser;
 
   @BeforeMethod
   public void setUp()
@@ -43,7 +42,9 @@ public class RunAsSetupBuilderTest {
     myCredentialsGenerator = (ResourceGenerator<CredentialsSettings>)myCtx.mock(ResourceGenerator.class, "CredentialsGenerator");
     //noinspection unchecked
     myArgsGenerator = (ResourceGenerator<RunAsCmdSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
-    myLoggerService = myCtx.mock(LoggerService.class);
+    //noinspection unchecked
+    myEnvVarsCmdGenerator = (ResourceGenerator<List<EnvironmentVariable>>)myCtx.mock(ResourceGenerator.class, "EnvVarsCmdGenerator");
+    myEnvironmentVariablesParser = (TextParser<List<EnvironmentVariable>>)myCtx.mock(TextParser.class);
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
@@ -55,6 +56,7 @@ public class RunAsSetupBuilderTest {
     final File checkoutDir = new File("checkoutDir");
     final File credentialsFile = new File("credentials");
     final File cmdFile = new File("command");
+    final File envVarsCmdFile = new File("envVarsCmd");
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsSetupBuilder.TOOL_FILE_NAME);
@@ -64,9 +66,10 @@ public class RunAsSetupBuilderTest {
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
     final String credentialsContent = "credentials content";
     final String cmdContent = "args content";
-    final String messagesContent = "messages content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings("cmd line", checkoutDir.getAbsolutePath());
+    final List<EnvironmentVariable> environmentVariabls = Arrays.asList(new EnvironmentVariable("var1"), new EnvironmentVariable("var2"));
+    final String envVarsCmdContent = "envVars cmd";
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
@@ -79,6 +82,9 @@ public class RunAsSetupBuilderTest {
 
       oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CREDENTIALS_EXT);
       will(returnValue(credentialsFile));
+
+      oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CMD_EXT);
+      will(returnValue(envVarsCmdFile));
 
       oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CMD_EXT);
       will(returnValue(cmdFile));
@@ -95,6 +101,15 @@ public class RunAsSetupBuilderTest {
 
       oneOf(myArgsGenerator).create(runAsCmdSettings);
       will(returnValue(cmdContent));
+
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.NONINHERITABLE_ENVIRONMENT_VARIABLES);
+      will(returnValue(Arrays.asList("vars")));
+
+      oneOf(myEnvironmentVariablesParser).parse("vars");
+      will(returnValue(environmentVariabls));
+
+      oneOf(myEnvVarsCmdGenerator).create(environmentVariabls);
+      will(returnValue(envVarsCmdContent));
 
       oneOf(myRunnerParametersService).getToolPath(Constants.RUN_AS_TOOL_NAME);
       will(returnValue(runAsToolPath));
@@ -115,10 +130,12 @@ public class RunAsSetupBuilderTest {
       myCommandLineResource1,
       myCommandLineResource2,
       new CommandLineFile(myResourcePublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
+      new CommandLineFile(myResourcePublisher, envVarsCmdFile.getAbsoluteFile(), envVarsCmdContent),
       new CommandLineFile(myResourcePublisher, cmdFile.getAbsoluteFile(), cmdContent));
 
     then(setup.getArgs()).containsExactly(
       new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(envVarsCmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
       new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
   }
 
@@ -158,10 +175,10 @@ public class RunAsSetupBuilderTest {
     then(setup).isEqualTo(baseSetup);
   }
 
+  @Test()
   public void shouldNotBuildSetupWhenBuildFeatureWasNotFound() throws IOException {
     // Given
     final String toolName = "my tool";
-    final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
     final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
@@ -225,7 +242,8 @@ public class RunAsSetupBuilderTest {
       myResourcePublisher,
       myCredentialsGenerator,
       myArgsGenerator,
-      myLoggerService,
+      myEnvironmentVariablesParser,
+      myEnvVarsCmdGenerator,
       myCommandLineArgumentsService);
   }
 }

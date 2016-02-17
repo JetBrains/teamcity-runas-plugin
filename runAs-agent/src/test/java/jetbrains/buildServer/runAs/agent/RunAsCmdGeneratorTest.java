@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class RunAsCmdGeneratorTest {
-  private static final String ourLineSeparator = System.getProperty("line.separator");
 
   @Test()
   public void shouldGenerateContent() {
@@ -19,6 +18,7 @@ public class RunAsCmdGeneratorTest {
     // Then
     then(content).contains("PUSHD \"w d\"");
     then(content).contains("cmd line");
+    then(content).contains("POPD");
   }
 
   @NotNull
