@@ -83,8 +83,9 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processT
 	auto targetUserEnvironmentResult = Environment::CreateForUser(primaryNewUserSecurityTokenHandle, false);
 	if (targetUserEnvironmentResult.HasError())
 	{
+		auto result = Result<ExitCode>(targetUserEnvironmentResult.GetErrorCode(), targetUserEnvironmentResult.GetErrorDescription());
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
-		return Result<ExitCode>(targetUserEnvironmentResult.GetErrorCode(), targetUserEnvironmentResult.GetErrorDescription());
+		return result;
 	}
 
 	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
@@ -107,8 +108,9 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processT
 		&startupInfo,
 		&processInformation))
 	{
+		auto result = Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser"));
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser"));
+		return result;
 	}
 
 	auto processHandle = Handle(L"Service Process");
