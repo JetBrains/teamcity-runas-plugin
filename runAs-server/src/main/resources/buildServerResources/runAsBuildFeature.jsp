@@ -30,17 +30,3 @@
     <span class="error" id="error_${bean.runAsPasswordKey}"></span>
   </td>
 </tr>
-
-<tr class="advancedSetting">
-  <th><label for="${bean.runAsNoninheritableEnvironmentVariablesKey}">Noninheritable environment variables:</label></th>
-  <td><c:set var="note">Enter comma- or newline-separated names of environment variables which will not be inherited from agent's process. It is important to take into account that the space character is a meaningful symbol of the variable name.</c:set>
-    <props:multilineProperty
-      name="${bean.runAsNoninheritableEnvironmentVariablesKey}"
-      className="longField"
-      linkTitle=""
-      rows="3"
-      cols="49"
-      expanded="${true}"
-      note="${note}"
-  /></td>
-</tr>

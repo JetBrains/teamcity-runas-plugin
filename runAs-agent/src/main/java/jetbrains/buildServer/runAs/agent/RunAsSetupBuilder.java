@@ -20,8 +20,6 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   private final ResourcePublisher mySettingsPublisher;
   private final ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
   private final ResourceGenerator<RunAsCmdSettings> myRunAsCmdGenerator;
-  private final TextParser<List<EnvironmentVariable>> myEnvironmentVariablesParser;
-  private final ResourceGenerator<List<EnvironmentVariable>> myEnvVarsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public RunAsSetupBuilder(
@@ -31,8 +29,6 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     @NotNull final ResourcePublisher settingsPublisher,
     @NotNull final ResourceGenerator<CredentialsSettings> credentialsGenerator,
     @NotNull final ResourceGenerator<RunAsCmdSettings> runAsCmdGenerator,
-    @NotNull final TextParser<List<EnvironmentVariable>> environmentVariablesParser,
-    @NotNull final ResourceGenerator<List<EnvironmentVariable>> envVarsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myParametersService = parametersService;
     myBuildFeatureParametersService = buildFeatureParametersService;
@@ -40,8 +36,6 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     mySettingsPublisher = settingsPublisher;
     myCredentialsGenerator = credentialsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
-    myEnvironmentVariablesParser = environmentVariablesParser;
-    myEnvVarsCmdGenerator = envVarsCmdGenerator;
     myCommandLineArgumentsService = commandLineArgumentsService;
   }
 
@@ -73,17 +67,6 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     final File credentialsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
     resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), myCredentialsGenerator.create(new CredentialsSettings(userName, password))));
 
-    // Environment variables
-    //noinspection SpellCheckingInspection
-    final List<String> noninheritableEnvironmentVariables = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.NONINHERITABLE_ENVIRONMENT_VARIABLES);
-    final List<EnvironmentVariable> environmentVariables = new ArrayList<EnvironmentVariable>();
-    if(noninheritableEnvironmentVariables.size() > 0) {
-      environmentVariables.addAll(myEnvironmentVariablesParser.parse(noninheritableEnvironmentVariables.get(0)));
-    }
-
-    final File envVarsCmdFile = myFileService.getTempFileName(CMD_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, envVarsCmdFile.getAbsoluteFile(), myEnvVarsCmdGenerator.create(environmentVariables)));
-
     // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();
     cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
@@ -101,7 +84,6 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
         getTool().getAbsolutePath(),
         Arrays.asList(
           new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(envVarsCmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
           new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER)),
         resources));
   }
