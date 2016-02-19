@@ -171,6 +171,12 @@ Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCo
 		// Log level
 		if (argNameInLowCase == L"l")
 		{
+			if (argValueInLowCase == LOG_LEVEL_DEBUG)
+			{
+				*logLevel = LOG_LEVEL_DEBUG;
+				continue;
+			}
+
 			if (argValueInLowCase == LOG_LEVEL_NORMAL)
 			{
 				*logLevel = LOG_LEVEL_NORMAL;

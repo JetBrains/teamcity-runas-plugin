@@ -6,11 +6,17 @@
 #include "Result.h"
 #include "ExitCode.h"
 #include "Environment.h"
+#include "Trace.h"
+class Trace;
 class ProcessTracker;
 
 Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
-	// Attempt to log a user on to the local computer
+	Trace trace(settings.GetLogLevel());
+	trace << L"Try ProcessAsUser";
+	trace << L"Attempt to log a user on to the local computer";
+	trace << L"::LogonUser";
+
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
 		settings.GetUserName().c_str(),
@@ -21,9 +27,10 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		&newUserSecurityTokenHandle))
 	{
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
-	}
+	}	
 	
-	// Initialize a new security descriptor
+	trace << L"Initialize a new security descriptor";
+	trace << L"::InitializeSecurityDescriptor";
 	SECURITY_DESCRIPTOR securityDescriptor = {};
 	if (!InitializeSecurityDescriptor(
 		&securityDescriptor,
@@ -32,6 +39,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"InitializeSecurityDescriptor"));
 	}
 
+	trace << L"::SetSecurityDescriptorDacl";
 	if (!SetSecurityDescriptorDacl(
 		&securityDescriptor,
 		true,
@@ -41,12 +49,13 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"SetSecurityDescriptorDacl"));
 	}
 
-	// Creates a new access token that duplicates an existing token
+	trace << L"Creates a new access primary token that duplicates new process's token";
 	auto primaryNewUserSecurityTokenHandle = Handle(L"Primary new user security token");
 	SECURITY_ATTRIBUTES processSecAttributes = {};
 	processSecAttributes.lpSecurityDescriptor = &securityDescriptor;
 	processSecAttributes.nLength = sizeof(SECURITY_DESCRIPTOR);
 	processSecAttributes.bInheritHandle = true;
+	trace << L"::DuplicateTokenEx";
 	if (!DuplicateTokenEx(
 		newUserSecurityTokenHandle,
 		0,
@@ -64,13 +73,14 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	threadSecAttributes.bInheritHandle = false;	
 	STARTUPINFO startupInfo = {};	
 
+	trace << L"ProcessTracker::Initialize";
 	auto error = processTracker.Initialize(processSecAttributes, startupInfo);
 	if(error.HasError())
 	{
 		return Result<ExitCode>(error.GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
 	}
 
-	// Load profile
+	trace << L"::LoadUserProfile";
 	PROFILEINFO profileInfo = {};
 	profileInfo.dwSize = sizeof(PROFILEINFO);
 	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
@@ -86,9 +96,10 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(newProcessEnvironmentResult.GetErrorCode(), newProcessEnvironmentResult.GetErrorDescription());
 	}
 	
-	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
+	trace << L"Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
 	auto cmdLine = settings.GetCommandLine();
+	trace << L"::CreateProcessAsUser";
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,
 		nullptr,
@@ -101,7 +112,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
 		&processInformation))
-	{
+	{		
 		auto result = Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser"));
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
 		return result;
@@ -113,8 +124,10 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 
+	trace << L"ProcessTracker::WaiteForExit";
+
 	auto exitCode = processTracker.WaiteForExit(processInformation.hProcess);
-	UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
+	UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);	
 	return exitCode;
 }
 

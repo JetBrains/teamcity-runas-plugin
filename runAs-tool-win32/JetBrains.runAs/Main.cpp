@@ -7,6 +7,7 @@
 #include <iostream>
 #include "ProcessRunner.h"
 #include "Args.h"
+#include "Trace.h"
 
 wstring GetStringValue(wstring value)
 {
@@ -57,6 +58,8 @@ int _tmain(int argc, _TCHAR *argv[]) {
 
 	if (!result.HasError())
 	{
+		Trace trace(settings.GetLogLevel());
+		trace << L"Exit code:" << result.GetResultValue();
 		return result.GetResultValue();
 	}
 
@@ -110,5 +113,8 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		}
 	}	
 
-	return exitCodeBase > 0 ? exitCodeBase + result.GetErrorCode() : exitCodeBase - result.GetErrorCode();
+	Trace trace(settings.GetLogLevel());
+	auto exitCode = exitCodeBase > 0 ? exitCodeBase + result.GetErrorCode() : exitCodeBase - result.GetErrorCode();
+	trace << L"Error code:" << exitCode;	
+	return exitCode;
 }

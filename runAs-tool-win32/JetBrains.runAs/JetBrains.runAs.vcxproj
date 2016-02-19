@@ -205,6 +205,8 @@
     <ClInclude Include="StringWriter.h" />
     <ClInclude Include="StubWriter.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Trace.h" />
+    <ClInclude Include="Tracer.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +233,7 @@
     <ClCompile Include="StringUtilities.cpp" />
     <ClCompile Include="StringWriter.cpp" />
     <ClCompile Include="StubWriter.cpp" />
+    <ClCompile Include="Trace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="JetBrains.runAs.rc" />
