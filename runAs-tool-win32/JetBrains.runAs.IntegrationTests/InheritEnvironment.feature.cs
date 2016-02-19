@@ -97,9 +97,9 @@ this.ScenarioSetup(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("User runs the command whith the inherited environment")]
-        [NUnit.Framework.TestCaseAttribute("true", new string[0])]
-        [NUnit.Framework.TestCaseAttribute("TRUE", new string[0])]
-        [NUnit.Framework.TestCaseAttribute("True", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("ON", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("ON", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("ON", new string[0])]
         public virtual void UserRunsTheCommandWhithTheInheritedEnvironment(string inhetritEnvironment, string[] exampleTags)
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs the command whith the inherited environment", exampleTags);
@@ -134,9 +134,9 @@ this.ScenarioSetup(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("User runs the command whith the not inherited environment")]
-        [NUnit.Framework.TestCaseAttribute("false", new string[0])]
-        [NUnit.Framework.TestCaseAttribute("FALSE", new string[0])]
-        [NUnit.Framework.TestCaseAttribute("False", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("OFF", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("OFF", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("OFF", new string[0])]
         public virtual void UserRunsTheCommandWhithTheNotInheritedEnvironment(string inhetritEnvironment, string[] exampleTags)
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs the command whith the not inherited environment", exampleTags);

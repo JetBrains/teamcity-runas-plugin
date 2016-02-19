@@ -27,9 +27,9 @@ Scenario Outline: User runs the command whith the inherited environment
 
 Examples:
 	| inhetritEnvironment |
-	| true                |
-	| TRUE                |
-	| True                |	
+	| ON                  |
+	| ON                  |
+	| ON                  |
 
 Scenario Outline: User runs the command whith the not inherited environment
 	Given I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%
@@ -46,6 +46,6 @@ Scenario Outline: User runs the command whith the not inherited environment
 
 Examples:
 	| inhetritEnvironment |
-	| false               |
-	| FALSE               |
-	| False               |
+	| OFF                 |
+	| OFF                 |
+	| OFF                 |

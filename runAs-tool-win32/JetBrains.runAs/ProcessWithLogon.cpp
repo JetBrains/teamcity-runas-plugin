@@ -39,6 +39,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			{ L"/U", L"/C", L"SET" },
 			INHERITANCE_MODE_OFF);
 
+		getEnvVarsProcessSettings.SetLogLevel(LOG_LEVEL_OFF);
+
 		wstringstream getEnvVarsStream;
 		StringWriter getEnvVarsWriter(getEnvVarsStream);
 		StubWriter nulWriter;
