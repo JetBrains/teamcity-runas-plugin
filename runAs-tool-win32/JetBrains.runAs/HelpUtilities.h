@@ -6,7 +6,7 @@ class HelpUtilities
 	HelpUtilities();
 	
 public:	
-	static std::wstring GetHeader();
-	static std::wstring GetHelp();
+	static wstring GetHeader();
+	static wstring GetHelp();
 };
 

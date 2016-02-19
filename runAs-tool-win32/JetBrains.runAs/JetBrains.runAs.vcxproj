@@ -184,6 +184,7 @@
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="ErrorUtilities.h" />
     <ClInclude Include="ExitCode.h" />
+    <ClInclude Include="InheritanceMode.h" />
     <ClInclude Include="LogLevel.h" />
     <ClInclude Include="PrivilegeManager.h" />
     <ClInclude Include="resource.h" />
@@ -201,6 +202,8 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringUtilities.h" />
+    <ClInclude Include="StringWriter.h" />
+    <ClInclude Include="StubWriter.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
@@ -226,9 +229,14 @@
     </ClCompile>
     <ClCompile Include="StreamWriter.cpp" />
     <ClCompile Include="StringUtilities.cpp" />
+    <ClCompile Include="StringWriter.cpp" />
+    <ClCompile Include="StubWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="JetBrains.runAs.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StringWriter.cpp.rej" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,7 +3,7 @@
 #include "ProcessAsUser.h"
 
 class ProcessRunner
-{	
+{
 public:
-	Result<ExitCode> Run(Settings settings) const;	
+	Result<ExitCode> Run(const Settings& settings) const;
 };

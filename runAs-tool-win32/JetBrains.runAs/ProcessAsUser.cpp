@@ -8,7 +8,7 @@
 #include "Environment.h"
 class ProcessTracker;
 
-Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processTracker) const
+Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
 	// Attempt to log a user on to the local computer
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -79,19 +79,13 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processT
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
 	}
 
-	// Get environment
-	auto targetUserEnvironmentResult = Environment::CreateForUser(primaryNewUserSecurityTokenHandle, false);
-	if (targetUserEnvironmentResult.HasError())
+	auto newProcessEnvironmentResult = GetEnvironment(primaryNewUserSecurityTokenHandle, settings.GetInheritanceMode());
+	if (newProcessEnvironmentResult.HasError())
 	{
-		auto result = Result<ExitCode>(targetUserEnvironmentResult.GetErrorCode(), targetUserEnvironmentResult.GetErrorDescription());
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
-		return result;
+		return Result<ExitCode>(newProcessEnvironmentResult.GetErrorCode(), newProcessEnvironmentResult.GetErrorDescription());
 	}
-
-	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
-	Environment callingProcessEnvironment;
-	auto newProcessEnvironment = settings.GetInheritEnvironment() ? callingProcessEnvironment : targetUserEnvironment;
-
+	
 	// Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.
 	PROCESS_INFORMATION processInformation = {};
 	auto cmdLine = settings.GetCommandLine();
@@ -103,7 +97,7 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processT
 		&threadSecAttributes,
 		true,
 		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
-		newProcessEnvironment.CreateEnvironment(),
+		newProcessEnvironmentResult.GetResultValue().CreateEnvironment(),
 		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
 		&processInformation))
@@ -122,4 +116,23 @@ Result<ExitCode> ProcessAsUser::Run(Settings& settings, ProcessTracker& processT
 	auto exitCode = processTracker.WaiteForExit(processInformation.hProcess);
 	UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
 	return exitCode;
+}
+
+Result<Environment> ProcessAsUser::GetEnvironment(Handle& userToken, const InheritanceMode inheritanceMode)
+{
+	Environment callingProcessEnvironment;
+	if (inheritanceMode == INHERITANCE_MODE_ON)
+	{
+		return callingProcessEnvironment;
+	}
+
+	// Get target user's environment
+	auto targetUserEnvironmentResult = Environment::CreateForUser(userToken, false);
+	if (inheritanceMode == INHERITANCE_MODE_OFF || targetUserEnvironmentResult.HasError())
+	{
+		return targetUserEnvironmentResult;
+	}
+	
+	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
+	return Environment::Override(callingProcessEnvironment, targetUserEnvironment);	
 }

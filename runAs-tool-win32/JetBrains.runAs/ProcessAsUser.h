@@ -3,10 +3,13 @@
 #include "Settings.h"
 #include "ExitCode.h"
 #include "Result.h"
+#include "Handle.h"
 class Settings;
 
 class ProcessAsUser: public IProcess
 {		
+	static Result<Environment> GetEnvironment(Handle& userToken, InheritanceMode inheritanceMode);
+
 public:	
-	virtual Result<ExitCode> Run(Settings& settings, ProcessTracker& processTracker) const override;
+	virtual Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;
 };

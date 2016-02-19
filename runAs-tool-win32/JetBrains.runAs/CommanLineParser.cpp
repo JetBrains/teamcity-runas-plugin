@@ -11,27 +11,27 @@
 #include "Args.h"
 #include "StringUtilities.h"
 
-static const std::wregex ArgRegex = std::wregex(L"\\s*-\\s*(\\w+)\\s*:\\s*(.+)\\s*$");
-static const std::wregex UserRegex = std::wregex(L"^([^@\\\\]+)@([^@\\\\]+)$|^([^@\\\\]+)\\\\([^@\\\\]+)$|(^[^@\\\\]+$)");
-static const std::wstring TrueStr = L"true";
-static const std::wstring FalseStr = L"false";
+static const wregex ArgRegex = wregex(L"\\s*-\\s*(\\w+)\\s*:\\s*(.+)\\s*$");
+static const wregex UserRegex = wregex(L"^([^@\\\\]+)@([^@\\\\]+)$|^([^@\\\\]+)\\\\([^@\\\\]+)$|(^[^@\\\\]+$)");
+static const wstring TrueStr = L"true";
+static const wstring FalseStr = L"false";
 
 CommanLineParser::CommanLineParser()
 {
 }
 
-Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const
+Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const
 {
-	auto actualArgs = std::list<std::wstring>(args);
+	auto actualArgs = list<wstring>(args);
 
-	std::wstring userName;
-	std::wstring domain;
-	std::wstring password;
-	std::wstring executable;
-	std::wstring workingDirectory;
+	wstring userName;
+	wstring domain;
+	wstring password;
+	wstring executable;
+	wstring workingDirectory;
 	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
-	std::list<std::wstring> commandLineArgs;
-	auto _inheritEnvironment = true;
+	list<wstring> commandLineArgs;
+	auto _inheritanceMode = INHERITANCE_MODE_AUTO;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	*logLevel = LOG_LEVEL_NORMAL;
 	
@@ -54,7 +54,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 			continue;
 		}		
 
-		std::wsmatch matchResult;
+		wsmatch matchResult;
 		if (!regex_search(arg, matchResult, ArgRegex))
 		{
 			argsMode = 1;
@@ -127,14 +127,14 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		{
 			// Extract args from file
 			auto configFileName = argValue;
-			std::wifstream configFile;
+			wifstream configFile;
 			configFile.open(configFileName);
 			if (!configFile.is_open())
 			{
 				return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Unable to open file: \"" + configFileName + L"\"");
 			}
 
-			std::wstring line;
+			wstring line;
 			auto curElement = actualArgs.begin();
 			while (getline(configFile, line))
 			{
@@ -149,16 +149,23 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		// Inherite environment
 		if (argNameInLowCase == L"i")
 		{		
-			if (argValueInLowCase == FalseStr)
+			if (argValueInLowCase == INHERITANCE_MODE_OFF)
 			{
-				_inheritEnvironment = false;
+				_inheritanceMode = INHERITANCE_MODE_OFF;
 				continue;
 			}
 
-			if (argValueInLowCase == TrueStr)
+			if (argValueInLowCase == INHERITANCE_MODE_ON)
 			{
+				_inheritanceMode = INHERITANCE_MODE_ON;
 				continue;
-			}			
+			}
+
+			if (argValueInLowCase == INHERITANCE_MODE_AUTO)
+			{
+				_inheritanceMode = INHERITANCE_MODE_AUTO;
+				continue;
+			}
 		}
 
 		// Log level
@@ -167,19 +174,20 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 			if (argValueInLowCase == LOG_LEVEL_NORMAL)
 			{
 				*logLevel = LOG_LEVEL_NORMAL;
+				continue;
 			}
 
 			if (argValueInLowCase == LOG_LEVEL_ERRORS)
 			{
 				*logLevel = LOG_LEVEL_ERRORS;
+				continue;
 			}
 
 			if (argValueInLowCase == LOG_LEVEL_OFF)
 			{
 				*logLevel = LOG_LEVEL_OFF;
-			}
-
-			continue;
+				continue;
+			}			
 		}
 
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
@@ -189,10 +197,10 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 	{
 		TCHAR path[MAX_PATH];
 		GetCurrentDirectory(MAX_PATH, path);
-		workingDirectory = std::wstring(path);
+		workingDirectory = wstring(path);
 	}
 
-	std::list<std::wstring> emptyArgs;
+	list<wstring> emptyArgs;
 	if (userName == L"")
 	{		
 		emptyArgs.push_back(ARG_USER_NAME);
@@ -205,7 +213,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 
 	if (emptyArgs.size() > 0)
 	{
-		std::wstringstream details;
+		wstringstream details;
 		details << L"The argument(s):";
 		for (auto emptyArgsIterrator = emptyArgs.begin(); emptyArgsIterrator != emptyArgs.end(); ++emptyArgsIterrator)
 		{
@@ -224,7 +232,7 @@ Result<Settings> CommanLineParser::TryParse(std::list<std::wstring> args, ExitCo
 		workingDirectory,
 		*exitCodeBase,
 		commandLineArgs, 
-		_inheritEnvironment);
+		_inheritanceMode);
 
 	settings.SetLogLevel(*logLevel);
 	return settings;

@@ -7,7 +7,15 @@ Settings::Settings(): _exitCodeBase(DEFAULT_EXIT_CODE_BASE)
 {
 }
 
-Settings::Settings(const std::wstring userName, const std::wstring domain, const std::wstring password, const std::wstring executable, const std::wstring workingDirectory, int exitCodeBase, std::list<std::wstring> args, const bool inheritEnvironment)
+Settings::Settings(
+	const wstring userName,
+	const wstring domain,
+	const wstring password,
+	const wstring executable,
+	const wstring workingDirectory,
+	int exitCodeBase,
+	list<wstring> args,
+	const InheritanceMode inheritanceMode)
 {
 	_userName = userName;
 	_domain = domain;
@@ -15,34 +23,34 @@ Settings::Settings(const std::wstring userName, const std::wstring domain, const
 	_executable = executable;
 	_workingDirectory = workingDirectory;
 	_exitCodeBase = exitCodeBase;
-	_args = std::list<std::wstring>(args);
-	_inheritEnvironment = inheritEnvironment;
+	_args = list<wstring>(args);
+	_inheritanceMode = inheritanceMode;
 }
 
-std::wstring Settings::GetUserName() const
+wstring Settings::GetUserName() const
 {	
 	return _userName;
 }
 
-std::wstring Settings::GetDomain() const
+wstring Settings::GetDomain() const
 {
 	return _domain;
 }
 
 
-std::wstring Settings::GetPassword() const
+wstring Settings::GetPassword() const
 {
 	return _password;
 }
 
-std::wstring Settings::GetExecutable() const
+wstring Settings::GetExecutable() const
 {
 	return AddQuotes(_executable);	
 }
 
-std::wstring Settings::GetCommandLine() const
+wstring Settings::GetCommandLine() const
 {
-	std::wstringstream commandLine;
+	wstringstream commandLine;
 	commandLine << AddQuotes(_executable);
 	for (auto argsIterrator = _args.begin(); argsIterrator != _args.end(); ++argsIterrator)
 	{
@@ -53,7 +61,7 @@ std::wstring Settings::GetCommandLine() const
 }
 
 
-std::wstring Settings::GetWorkingDirectory() const
+wstring Settings::GetWorkingDirectory() const
 {
 	return _workingDirectory;
 }
@@ -63,9 +71,9 @@ int Settings::GetExitCodeBase() const
 	return _exitCodeBase;
 }
 
-bool Settings::GetInheritEnvironment() const
+InheritanceMode Settings::GetInheritanceMode() const
 {
-	return _inheritEnvironment;
+	return _inheritanceMode;
 }
 
 LogLevel Settings::GetLogLevel() const
@@ -78,9 +86,9 @@ void Settings::SetLogLevel(LogLevel logLevel)
 	_logLevel = logLevel;
 }
 
-std::wstring Settings::AddQuotes(std::wstring str)
+wstring Settings::AddQuotes(wstring str)
 {
-	if (str.find(L' ') != std::string::npos && str.size() > 0 && !(str[0] == L'\"' && str[str.size() - 1] == L'\"'))
+	if (str.find(L' ') != string::npos && str.size() > 0 && !(str[0] == L'\"' && str[str.size() - 1] == L'\"'))
 	{
 		return L'\"' + str + L'\"';
 	}

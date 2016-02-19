@@ -8,17 +8,17 @@ class Result
 	bool _hasError;
 	T _resultValue;
 	int _errorCode;
-	std::wstring _errorDescription;		
+	wstring _errorDescription;		
 
 public:
 	Result<T>();
 	Result<T>(T resultValue);
-	Result<T>(int errorCode, std::wstring errorDescription);
+	Result<T>(int errorCode, wstring errorDescription);
 
 	bool HasError() const;
 	T GetResultValue() const;
 	int GetErrorCode() const;
-	std::wstring GetErrorDescription() const;
+	wstring GetErrorDescription() const;
 };
 
 template<typename T>
@@ -35,7 +35,7 @@ Result<T>::Result(T resultValue)
 }
 
 template<typename T>
-Result<T>::Result(int errorCode, std::wstring errorDescription)
+Result<T>::Result(int errorCode, wstring errorDescription)
 {
 	_errorCode = errorCode;
 	_errorDescription = errorDescription;
@@ -61,7 +61,7 @@ int Result<T>::GetErrorCode() const
 }
 
 template<typename T>
-std::wstring Result<T>::GetErrorDescription() const
+wstring Result<T>::GetErrorDescription() const
 {
 	return _errorDescription;
 }

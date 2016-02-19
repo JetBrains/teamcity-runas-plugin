@@ -4,8 +4,20 @@
 #include <set>
 #include "Handle.h"
 #include "ErrorUtilities.h"
+#include "StringUtilities.h"
 
-static const std::wregex EnvVarRegex = std::wregex(L"(.+)=(.*)");
+static const wregex EnvVarRegex = wregex(L"(.+)=(.*)");
+
+// In upper case
+static const set<wstring> AutoOverrides = {
+	L"APPDATA",
+	L"HOMEPATH",
+	L"LOCALAPPDATA",
+	L"USERDOMAIN",
+	L"USERDOMAIN_ROAMINGPROFILE",
+	L"USERNAME",
+	L"USERPROFILE"
+};
 
 Result<Environment> Environment::CreateForCurrentProcess()
 {
@@ -44,6 +56,50 @@ Result<Environment> Environment::CreateForUser(Handle& token, bool inherit)
 	return newEnvironment;
 }
 
+Environment Environment::CreateFormString(wstring variables)
+{
+	auto vars = StringUtilities::Split(variables, L"\n");
+
+	Environment environment;
+	wsmatch matchResult;
+	for (auto varsIterrator = vars.begin(); varsIterrator != vars.end(); ++varsIterrator)
+	{
+		if (!regex_search(*varsIterrator, matchResult, EnvVarRegex))
+		{
+			continue;
+		}
+
+		auto envName = matchResult._At(1).str();
+		auto envValue = matchResult._At(2).str();
+		environment._vars[envName] = envValue;
+		environment._empty = false;
+	}
+
+	return environment;
+}
+
+Environment Environment::Override(Environment& destinarionEnvironment, Environment& sourceEnvironment)
+{
+	Environment targetEnvironment;
+	for (auto varsIterator = destinarionEnvironment._vars.begin(); varsIterator != destinarionEnvironment._vars.end(); ++varsIterator)
+	{
+		targetEnvironment._vars[varsIterator->first] = varsIterator->second;
+		targetEnvironment._empty = false;
+	}
+
+	auto autoOverrides = GetAutoOverrides();
+	for (auto varsIterator = sourceEnvironment._vars.begin(); varsIterator != sourceEnvironment._vars.end(); ++varsIterator)
+	{
+		auto varNameInLowCase = StringUtilities::Convert(varsIterator->first, toupper);
+		if (autoOverrides.find(varNameInLowCase) != autoOverrides.end())
+		{
+			targetEnvironment._vars[varsIterator->first] = varsIterator->second;
+		}
+	}
+
+	return targetEnvironment;
+}
+
 Environment::~Environment()
 {	
 	for (auto environmentBlockIterator = _environmentBlocks.begin(); environmentBlockIterator != _environmentBlocks.end(); ++environmentBlockIterator)
@@ -62,7 +118,7 @@ void Environment::CreateVariableMap(LPVOID environment)
 	size_t len;
 	do
 	{
-		std::wstring curVarValue(curVar);
+		wstring curVarValue(curVar);
 		len = curVarValue.size();
 		if (len == 0)
 		{
@@ -70,7 +126,7 @@ void Environment::CreateVariableMap(LPVOID environment)
 		}
 
 		curVar += len + 1;
-		std::wsmatch matchResult;
+		wsmatch matchResult;
 		if (!regex_search(curVarValue, matchResult, EnvVarRegex))
 		{
 			continue;
@@ -128,17 +184,12 @@ LPVOID* Environment::CreateEnvironment()
 	return environment;
 }
 
-std::wstring Environment::TryGetValue(std::wstring variableName)
+wstring Environment::TryGetValue(wstring variableName)
 {
-	std::wstring curVarNameInLowCase;
-	curVarNameInLowCase.resize(variableName.size());
-	transform(variableName.begin(), variableName.end(), curVarNameInLowCase.begin(), tolower);
-
+	auto curVarNameInLowCase = StringUtilities::Convert(variableName, tolower);
 	for (auto varsIterator = _vars.begin(); varsIterator != _vars.end(); ++varsIterator)
 	{
-		std::wstring varNameInLowCase;
-		varNameInLowCase.resize(varsIterator->first.size());
-		transform(varsIterator->first.begin(), varsIterator->first.end(), varNameInLowCase.begin(), tolower);
+		auto varNameInLowCase = StringUtilities::Convert(varsIterator->first, tolower);
 		if (varNameInLowCase == curVarNameInLowCase)
 		{
 			return varsIterator->second;
@@ -146,4 +197,9 @@ std::wstring Environment::TryGetValue(std::wstring variableName)
 	}
 
 	return L"";
+}
+
+set<wstring> Environment::GetAutoOverrides()
+{
+	return AutoOverrides;
 }

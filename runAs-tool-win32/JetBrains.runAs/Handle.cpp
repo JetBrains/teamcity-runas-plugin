@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Handle.h"
 
-Handle::Handle(std::wstring name)
+Handle::Handle(wstring name)
 {
 	_name = name;
 	_handle = INVALID_HANDLE_VALUE;

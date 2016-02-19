@@ -7,7 +7,7 @@ class ErrorUtilities
 	ErrorUtilities();
 	
 public:	
-	static std::wstring GetLastErrorMessage(std::wstring targetAction);	
-	static std::wstring GetActionName(std::wstring targetAction, std::wstring arg);
+	static wstring GetLastErrorMessage(wstring targetAction);	
+	static wstring GetActionName(wstring targetAction, wstring arg);
 	static ErrorCode GetErrorCode();
 };

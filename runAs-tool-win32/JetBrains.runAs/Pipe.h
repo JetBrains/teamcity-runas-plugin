@@ -7,10 +7,10 @@ class Pipe
 {
 	Handle _readHandle;
 	Handle _writeHandle;
-	std::wstring _name;
+	wstring _name;
 
 public:
-	explicit Pipe(std::wstring name);
+	explicit Pipe(wstring name);
 	Result<bool> Initialize(SECURITY_ATTRIBUTES& securityAttributes);
 	Handle& GetReader();
 	Handle& GetWriter();

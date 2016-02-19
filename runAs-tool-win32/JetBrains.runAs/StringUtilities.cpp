@@ -2,13 +2,13 @@
 #include "StringUtilities.h"
 #include <algorithm>
 
-std::vector<std::wstring> StringUtilities::Split(std::wstring &str, const std::wstring separator)
+vector<wstring> StringUtilities::Split(wstring &str, const wstring separator)
 {
-	std::vector<std::wstring> strs;
+	vector<wstring> strs;
 	auto separatorSize = separator.size();
 	size_t start = 0;
 	size_t pos;
-	while ((pos = str.find(separator, start)) != std::wstring::npos)
+	while ((pos = str.find(separator, start)) != wstring::npos)
 	{
 		strs.push_back(str.substr(start, pos - start - separatorSize));
 		start = pos + separatorSize;		
@@ -23,9 +23,9 @@ std::vector<std::wstring> StringUtilities::Split(std::wstring &str, const std::w
 	return strs;
 }
 
-std::wstring StringUtilities::Convert(std::wstring str, int(* converter)(int))
+wstring StringUtilities::Convert(wstring str, int(* converter)(int))
 {
-	std::wstring convertedStr;
+	wstring convertedStr;
 	convertedStr.resize(str.size());
 	transform(str.begin(), str.end(), convertedStr.begin(), converter);
 	return convertedStr;

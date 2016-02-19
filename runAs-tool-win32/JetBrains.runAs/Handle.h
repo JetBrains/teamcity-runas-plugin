@@ -3,11 +3,11 @@
 
 class Handle
 {
-	std::wstring _name;
+	wstring _name;
 	HANDLE _handle = nullptr;	
 
 public:
-	explicit Handle(std::wstring name);
+	explicit Handle(wstring name);
 	~Handle();	
 	operator HANDLE() const;
 	Handle& operator = (const HANDLE handle);

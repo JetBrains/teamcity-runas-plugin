@@ -5,3 +5,4 @@
 #include <windows.h>
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
+using namespace std;

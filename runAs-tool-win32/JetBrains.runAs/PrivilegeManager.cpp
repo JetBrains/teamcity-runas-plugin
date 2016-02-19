@@ -3,7 +3,7 @@
 #include "ErrorUtilities.h"
 #include "Handle.h"
 
-const std::list<std::wstring> AllPrivilegies = {
+const list<wstring> AllPrivilegies = {
 	SE_CREATE_TOKEN_NAME,
 	SE_ASSIGNPRIMARYTOKEN_NAME,
 	SE_LOCK_MEMORY_NAME,
@@ -64,7 +64,7 @@ void PrivilegeManager::TrySetAllPrivileges(bool enablePrivileges)
 	}
 }
 
-Result<bool> PrivilegeManager::SetPrivileges(std::list<std::wstring> privileges, bool enablePrivileges)
+Result<bool> PrivilegeManager::SetPrivileges(list<wstring> privileges, bool enablePrivileges)
 {
 	Handle token(L"Current process token");
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
@@ -75,7 +75,7 @@ Result<bool> PrivilegeManager::SetPrivileges(std::list<std::wstring> privileges,
 	return SetPrivileges(token, privileges, enablePrivileges);
 }
 
-Result<bool> PrivilegeManager::SetPrivileges(Handle& token, std::list<std::wstring> privileges, bool enablePrivileges)
+Result<bool> PrivilegeManager::SetPrivileges(Handle& token, list<wstring> privileges, bool enablePrivileges)
 {
 	auto tokenPrivileges = static_cast<PTOKEN_PRIVILEGES>(_alloca(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (privileges.size() - 1)));
 	tokenPrivileges->PrivilegeCount = static_cast<DWORD>(privileges.size());	
@@ -107,7 +107,7 @@ Result<bool> PrivilegeManager::SetPrivileges(Handle& token, std::list<std::wstri
 	return true;
 }
 
-Result<LUID> PrivilegeManager::LookupPrivilegeValue(std::wstring privilegeName)
+Result<LUID> PrivilegeManager::LookupPrivilegeValue(wstring privilegeName)
 {
 	LUID luid;
 	if (!::LookupPrivilegeValue(

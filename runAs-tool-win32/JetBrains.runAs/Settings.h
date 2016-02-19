@@ -2,32 +2,41 @@
 #include <string>
 #include <list>
 #include "LogLevel.h"
+#include "InheritanceMode.h"
 
 class Settings
 {
-	std::wstring _userName = L"";
-	std::wstring _domain = L"";
-	std::wstring _password = L"";
-	std::wstring _executable = L"";
-	std::wstring _workingDirectory = L"";
-	std::list<std::wstring> _args;
+	wstring _userName = L"";
+	wstring _domain = L"";
+	wstring _password = L"";
+	wstring _executable = L"";
+	wstring _workingDirectory = L"";
+	list<wstring> _args;
 	int _exitCodeBase = 0;
-	bool _inheritEnvironment = true;
+	InheritanceMode _inheritanceMode = INHERITANCE_MODE_AUTO;
 	LogLevel _logLevel = LOG_LEVEL_NORMAL;
 
-	static std::wstring AddQuotes(std::wstring str);
+	static wstring AddQuotes(wstring str);
 
 public:
 	Settings();
-	Settings(const std::wstring userName, const std::wstring domain, const std::wstring password, const std::wstring executable, const std::wstring workingDirectory, int exitCodeBase, const std::list<std::wstring> args, const bool inheritEnvironment);
-	std::wstring GetUserName() const;
-	std::wstring GetDomain() const;
-	std::wstring GetPassword() const;
-	std::wstring GetExecutable() const;
-	std::wstring GetCommandLine() const;
-	std::wstring GetWorkingDirectory() const;
+	Settings(
+		const wstring userName,
+		const wstring domain,
+		const wstring password,
+		const wstring executable,
+		const wstring workingDirectory,
+		int exitCodeBase,
+		const list<wstring> args,
+		const InheritanceMode inheritanceMode);
+	wstring GetUserName() const;
+	wstring GetDomain() const;
+	wstring GetPassword() const;
+	wstring GetExecutable() const;
+	wstring GetCommandLine() const;
+	wstring GetWorkingDirectory() const;
 	int GetExitCodeBase() const;
-	bool GetInheritEnvironment() const;
+	InheritanceMode GetInheritanceMode() const;
 	LogLevel GetLogLevel() const;
 	void SetLogLevel(LogLevel logLevel);
 };

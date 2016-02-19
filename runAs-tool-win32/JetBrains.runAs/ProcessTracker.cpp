@@ -44,7 +44,7 @@ Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
 	bool hasData;
 	do
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(0));
+		this_thread::sleep_for(chrono::milliseconds(0));
 		auto hasData1 = RedirectStream(_stdOutPipe.GetReader(), _outputWriter);
 		if(hasData1.HasError())
 		{

@@ -4,6 +4,6 @@ class IStreamWriter
 public:
 	virtual ~IStreamWriter() {};
 
-	virtual bool WriteFile(void* buffer, unsigned long size) = 0;
+	virtual bool WriteFile(const void* buffer, const unsigned long size) = 0;
 };
 

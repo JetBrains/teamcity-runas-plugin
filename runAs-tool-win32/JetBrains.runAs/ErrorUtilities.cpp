@@ -24,7 +24,7 @@ ErrorCode ErrorUtilities::GetErrorCode()
 	return ERROR_WIN32;	
 }
 
-std::wstring ErrorUtilities::GetLastErrorMessage(std::wstring targetAction)
+wstring ErrorUtilities::GetLastErrorMessage(wstring targetAction)
 {
 	auto errorCode = GetLastError();	
 	if (errorCode != 0)
@@ -45,17 +45,17 @@ std::wstring ErrorUtilities::GetLastErrorMessage(std::wstring targetAction)
 		}
 
 		auto message = static_cast<LPCWSTR>(messageBuffer);
-		std::wstring result(message);
+		wstring result(message);
 		LocalFree(messageBuffer);
-		std::wstringstream errorStream;
-		errorStream << result  << targetAction << L" returns the error 0x" << std::hex << std::setw(8) << std::setfill(L'0') << errorCode << L".";
+		wstringstream errorStream;
+		errorStream << result  << targetAction << L" returns the error 0x" << hex << setw(8) << setfill(L'0') << errorCode << L".";
 		return errorStream.str();
 	}
 
 	return L"";
 }
 
-std::wstring ErrorUtilities::GetActionName(std::wstring targetAction, std::wstring arg)
+wstring ErrorUtilities::GetActionName(wstring targetAction, wstring arg)
 {
 	return targetAction + L"(" + arg + L")";
 }

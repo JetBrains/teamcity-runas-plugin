@@ -1,12 +1,11 @@
 #pragma once
 #include "IStreamWriter.h"
 
-class StreamWriter: public IStreamWriter
+class StringWriter: public IStreamWriter
 {
-	const HANDLE _hStream;
+	wstringstream& _stream;
 
 public:
-	explicit StreamWriter(const HANDLE hStream);	
+	explicit StringWriter(wstringstream& stream);
 	bool WriteFile(const void* buffer, const unsigned long size) override;
 };
-

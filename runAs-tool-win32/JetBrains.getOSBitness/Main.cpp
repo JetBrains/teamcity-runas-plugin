@@ -34,7 +34,7 @@ int _tmain(int argc, _TCHAR *argv[])
 	auto silentMode = false;
 	if(argc == 2)
 	{
-		std::wstring arg = argv[1];
+		wstring arg = argv[1];
 		silentMode = arg == L"-s";
 	}
 
@@ -42,26 +42,26 @@ int _tmain(int argc, _TCHAR *argv[])
 
 	if (!silentMode)
 	{
-		std::wcout << VER_PRODUCTNAME_STR;
+		wcout << VER_PRODUCTNAME_STR;
 #if defined(_M_X64) || defined(x86_64)
-		std::wcout << L" x64";
+		wcout << L" x64";
 #else
-		std::wcout << L" x86";
+		wcout << L" x86";
 #endif
-		std::wcout << L" " << VER_FILE_VERSION_STR;
+		wcout << L" " << VER_FILE_VERSION_STR;
 
-		std::wcout << std::endl << VER_COPYRIGHT_STR;
-		std::wcout << std::endl << VER_FILE_DESCRIPTION_STR;
-		std::wcout << std::endl;
+		wcout << endl << VER_COPYRIGHT_STR;
+		wcout << endl << VER_FILE_DESCRIPTION_STR;
+		wcout << endl;
 
-		std::wcout << std::endl << L"The current OS is ";
+		wcout << endl << L"The current OS is ";
 	}
 
 	if(Is64OS())
 	{
 		if (!silentMode)
 		{
-			std::wcout << L"64-bit";
+			wcout << L"64-bit";
 		}
 
 		return 64;
@@ -69,7 +69,7 @@ int _tmain(int argc, _TCHAR *argv[])
 
 	if (!silentMode)
 	{
-		std::wcout << L"32-bit";
+		wcout << L"32-bit";
 	}
 
 	return 32;

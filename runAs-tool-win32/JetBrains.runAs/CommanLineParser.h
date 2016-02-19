@@ -10,5 +10,5 @@ class CommanLineParser
 {		
 public:
 	CommanLineParser();	
-	Result<Settings> TryParse(std::list<std::wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const;
+	Result<Settings> TryParse(list<wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const;
 };
