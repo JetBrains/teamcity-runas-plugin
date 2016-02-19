@@ -40,7 +40,7 @@ wstring HelpUtilities::GetHelp()
 	help << endl << L"\t-w:" << ARG_WORKING_DIRECTORY << "\t- current directory, it is optional and empty by default.";
 	help << endl << L"\t-b:" << ARG_EXIT_CODE_BASE << "\t- base number for exit code, it is optional and " << DEFAULT_EXIT_CODE_BASE << L" by default.";
 	help << endl << L"\t-l:" << ARG_LOG_LEVEL << "\t\t- logging level (" << LOG_LEVEL_DEBUG << L"|" << LOG_LEVEL_NORMAL << L"|" << LOG_LEVEL_ERRORS << L"|" << LOG_LEVEL_OFF << L"), it is optional and \"" << LOG_LEVEL_NORMAL << L"\" by default.";
-	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\t- set \"" << INHERITANCE_MODE_ON << L"\" if the environment variables should be inherited from a parent process, set \"" << INHERITANCE_MODE_AUTO << L"\" if the some environment variables should be inherited from a parent process, and set to \"" << INHERITANCE_MODE_OFF << L"\" otherwise, it is optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
+	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\t- set \"" << INHERITANCE_MODE_ON << L"\" when the environment variables should be inherited from a parent process, set \"" << INHERITANCE_MODE_AUTO << L"\" when the some environment variables should be inherited from a parent process, set to \"" << INHERITANCE_MODE_OFF << L"\" when environment variables should not be inherited from a parent process, it is optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
 	help << L" The list of environment variables which are overridden in the \"" << INHERITANCE_MODE_AUTO << L"\" mode:";
 
 	auto overrides = Environment::GetAutoOverrides();
