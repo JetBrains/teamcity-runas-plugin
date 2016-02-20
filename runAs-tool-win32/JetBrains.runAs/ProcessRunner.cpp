@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ProcessRunner.h"
 #include "StreamWriter.h"
+#include "Trace.h"
 
 ProcessRunner::ProcessRunner()
 {
@@ -10,8 +11,12 @@ ProcessRunner::ProcessRunner()
 
 Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 {		
+	Trace trace(settings.GetLogLevel());
+
 	// Run process
+	trace < L"::GetStdHandle(STD_OUTPUT_HANDLE)";
 	StreamWriter stdOutput(GetStdHandle(STD_OUTPUT_HANDLE));
+	trace < L"::GetStdHandle(STD_ERROR_HANDLE)";
 	StreamWriter stdError(GetStdHandle(STD_ERROR_HANDLE));
 	auto runResult = Result<ExitCode>(ERROR_CODE_UNKOWN, L"The processes are not available.");
 	for (auto processIterrator = _processes.begin(); processIterrator != _processes.end(); ++processIterrator)

@@ -10,19 +10,20 @@
 #include "StringWriter.h"
 #include <sstream>
 #include "Trace.h"
+#include "Job.h"
 
 Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
 	Trace trace(settings.GetLogLevel());
-	trace << L"Try ProcessWithLogon";	
+	trace < L"Use ProcessWithLogon";	
 
 	Environment callingProcessEnvironment;
 	Environment targetUserEnvironment;
 	Environment environment;
 	if (settings.GetInheritanceMode() != INHERITANCE_MODE_OFF)
 	{
-		trace << L"Get calling process Environment";
-		trace << L"Environment::CreateForCurrentProcess";
+		trace < L"Get calling process Environment";
+		trace < L"Environment::CreateForCurrentProcess";
 		auto callingProcessEnvironmentResult = Environment::CreateForCurrentProcess();
 		if (callingProcessEnvironmentResult.HasError())
 		{
@@ -35,7 +36,7 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 
 	if (settings.GetInheritanceMode() != INHERITANCE_MODE_ON)
 	{		
-		trace << L"Get target user environment";
+		trace < L"Get target user environment";
 		Settings getEnvVarsProcessSettings(
 			settings.GetUserName(),
 			settings.GetDomain(),
@@ -58,14 +59,14 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			return getEnvVarsResult;
 		}
 
-		trace << L"Environment::CreateFormString";
+		trace < L"Environment::CreateFormString";
 		targetUserEnvironment = Environment::CreateFormString(getEnvVarsStream.str());
 		environment = targetUserEnvironment;
 	}
 
 	if (settings.GetInheritanceMode() == INHERITANCE_MODE_AUTO)
 	{
-		trace << L"Environment::Override";
+		trace < L"Environment::Override";
 		environment = Environment::Override(callingProcessEnvironment, targetUserEnvironment);
 	}
 	
@@ -81,11 +82,11 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	STARTUPINFO startupInfo = {};
 	PROCESS_INFORMATION processInformation = {};
 
-	trace << L"ProcessTracker::Initialize";
+	trace < L"ProcessTracker::Initialize";
 	processTracker.Initialize(securityAttributes, startupInfo);
 	auto cmdLine = settings.GetCommandLine();
 
-	trace << L"::CreateProcessWithLogonW";
+	trace < L"::CreateProcessWithLogonW";
 	if (!CreateProcessWithLogonW(
 		settings.GetUserName().c_str(),
 		settings.GetDomain().c_str(),
@@ -108,6 +109,18 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 
-	trace << L"ProcessTracker::WaiteForExit";
+	trace < L"Create a job";
+	Job job;
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobObjectInfo = {};
+	jobObjectInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	trace < L"Configure all child processes associated with the job to terminate when the parent is terminated";
+	trace < L"Job::SetInformation";
+	job.SetInformation(JobObjectExtendedLimitInformation, jobObjectInfo);
+
+	trace < L"Assign the new process to the job";
+	trace < L"Job::AssignProcessToJob";
+	job.AssignProcessToJob(processHandle);
+
+	trace < L"ProcessTracker::WaiteForExit";
 	return processTracker.WaiteForExit(processInformation.hProcess);
 }

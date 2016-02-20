@@ -7,15 +7,16 @@
 #include "ExitCode.h"
 #include "Environment.h"
 #include "Trace.h"
+#include "Job.h"
 class Trace;
 class ProcessTracker;
 
 Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
 	Trace trace(settings.GetLogLevel());
-	trace << L"Try ProcessAsUser";
-	trace << L"Attempt to log a user on to the local computer";
-	trace << L"::LogonUser";
+	trace < L"Use ProcessAsUser";
+	trace < L"Attempt to log a user on to the local computer";
+	trace < L"::LogonUser";
 
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
@@ -29,8 +30,8 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
 	}	
 	
-	trace << L"Initialize a new security descriptor";
-	trace << L"::InitializeSecurityDescriptor";
+	trace < L"Initialize a new security descriptor";
+	trace < L"::InitializeSecurityDescriptor";
 	SECURITY_DESCRIPTOR securityDescriptor = {};
 	if (!InitializeSecurityDescriptor(
 		&securityDescriptor,
@@ -39,7 +40,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"InitializeSecurityDescriptor"));
 	}
 
-	trace << L"::SetSecurityDescriptorDacl";
+	trace < L"::SetSecurityDescriptorDacl";
 	if (!SetSecurityDescriptorDacl(
 		&securityDescriptor,
 		true,
@@ -49,13 +50,13 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"SetSecurityDescriptorDacl"));
 	}
 
-	trace << L"Creates a new access primary token that duplicates new process's token";
+	trace < L"Creates a new access primary token that duplicates new process's token";
 	auto primaryNewUserSecurityTokenHandle = Handle(L"Primary new user security token");
 	SECURITY_ATTRIBUTES processSecAttributes = {};
 	processSecAttributes.lpSecurityDescriptor = &securityDescriptor;
 	processSecAttributes.nLength = sizeof(SECURITY_DESCRIPTOR);
 	processSecAttributes.bInheritHandle = true;
-	trace << L"::DuplicateTokenEx";
+	trace < L"::DuplicateTokenEx";
 	if (!DuplicateTokenEx(
 		newUserSecurityTokenHandle,
 		0,
@@ -73,14 +74,14 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	threadSecAttributes.bInheritHandle = false;	
 	STARTUPINFO startupInfo = {};	
 
-	trace << L"ProcessTracker::Initialize";
+	trace < L"ProcessTracker::Initialize";
 	auto error = processTracker.Initialize(processSecAttributes, startupInfo);
 	if(error.HasError())
 	{
 		return Result<ExitCode>(error.GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
 	}
 
-	trace << L"::LoadUserProfile";
+	trace < L"::LoadUserProfile";
 	PROFILEINFO profileInfo = {};
 	profileInfo.dwSize = sizeof(PROFILEINFO);
 	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
@@ -96,10 +97,10 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(newProcessEnvironmentResult.GetErrorCode(), newProcessEnvironmentResult.GetErrorDescription());
 	}
 	
-	trace << L"Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
+	trace < L"Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
 	auto cmdLine = settings.GetCommandLine();
-	trace << L"::CreateProcessAsUser";
+	trace < L"::CreateProcessAsUser";
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,
 		nullptr,
@@ -124,10 +125,18 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 
-	trace << L"ProcessTracker::WaiteForExit";
+	trace < L"Create a job";
+	Job job;
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobObjectInfo = {};
+	jobObjectInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	trace < L"Configure all child processes associated with the job to terminate when the parent is terminated";
+	trace < L"Job::SetInformation";
+	job.SetInformation(JobObjectExtendedLimitInformation, jobObjectInfo);
 
+	trace < L"ProcessTracker::WaiteForExit";
 	auto exitCode = processTracker.WaiteForExit(processInformation.hProcess);
 	UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);	
+
 	return exitCode;
 }
 

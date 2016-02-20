@@ -7,7 +7,7 @@ Trace::Trace(const LogLevel& logLevel)
 {
 }
 
-Trace& Trace::operator<<(const wstring& text)
+Trace& Trace::operator<(const wstring& text)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
@@ -17,11 +17,31 @@ Trace& Trace::operator<<(const wstring& text)
 	return *this;
 }
 
-Trace& Trace::operator<<(const int num)
+Trace& Trace::operator<<(const wstring& text)
+{
+	if (_logLevel == LOG_LEVEL_DEBUG)
+	{
+		wcout << text;
+	}
+
+	return *this;
+}
+
+Trace& Trace::operator<(const size_t num)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
 		wcout << endl << num;
+	}
+
+	return *this;
+}
+
+Trace& Trace::operator<<(const size_t num)
+{
+	if (_logLevel == LOG_LEVEL_DEBUG)
+	{
+		wcout << num;
 	}
 
 	return *this;

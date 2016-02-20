@@ -56,10 +56,11 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		result = Result<ExitCode>(ERROR_CODE_UNKOWN, L"Unknown error");
 	}
 
+	Trace trace(settings.GetLogLevel());
 	if (!result.HasError())
 	{
-		Trace trace(settings.GetLogLevel());
-		trace << L"Exit code:" << result.GetResultValue();
+		trace < L"Exit code: ";
+		trace << result.GetResultValue();
 		return result.GetResultValue();
 	}
 
@@ -113,8 +114,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		}
 	}	
 
-	Trace trace(settings.GetLogLevel());
 	auto exitCode = exitCodeBase > 0 ? exitCodeBase + result.GetErrorCode() : exitCodeBase - result.GetErrorCode();
-	trace << L"Error code:" << exitCode;	
+	trace << L"Error code:" + exitCode;
 	return exitCode;
 }
