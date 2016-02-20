@@ -180,6 +180,7 @@
   <ItemGroup>
     <ClInclude Include="Args.h" />
     <ClInclude Include="CommanLineParser.h" />
+    <ClInclude Include="Console.h" />
     <ClInclude Include="Environment.h" />
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="ErrorUtilities.h" />
@@ -212,6 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommanLineParser.cpp" />
+    <ClCompile Include="Console.cpp" />
     <ClCompile Include="Environment.cpp" />
     <ClCompile Include="ErrorUtilities.cpp" />
     <ClCompile Include="Job.cpp" />

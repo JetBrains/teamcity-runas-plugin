@@ -32,6 +32,8 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	Settings settings;
 	ExitCode exitCodeBase = DEFAULT_EXIT_CODE_BASE;
 	LogLevel logLevel;
+	Console console;
+	wstring endl = L"\n\r";
 	try
 	{
 		CommanLineParser commanLineParser;
@@ -67,22 +69,22 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
 	{
 		// Show header
-		wcout << HelpUtilities::GetHeader();
+		console << HelpUtilities::GetHeader();
 	}
 	
 	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
 	{
 		// Show arguments
-		wcout << endl << endl << L"Argument(s):";
+		console << endl << endl << L"Argument(s):";
 		if (args.size() == 0)
 		{
-			wcout << L" empty";
+			console << L" empty";
 		}
 		else
 		{
 			for (auto argsIterrator = args.begin(); argsIterrator != args.end(); ++argsIterrator)
 			{
-				wcout << L" " << *argsIterrator;
+				console << L" " << *argsIterrator;
 			}
 		}
 	}
@@ -90,19 +92,19 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
 	{
 		// Show settings
-		wcout << endl << endl << L"Settings:";
-		wcout << endl << L"\t" << ARG_USER_NAME << L":\t\t" << GetStringValue(settings.GetUserName());
-		wcout << endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetStringValue(settings.GetDomain());
-		wcout << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetStringValue(settings.GetWorkingDirectory());
-		wcout << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << settings.GetExitCodeBase();
-		wcout << endl << L"\t" << ARG_LOG_LEVEL << L":\t\t" << logLevel;
-		wcout << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << settings.GetInheritanceMode();
-		wcout << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetStringValue(settings.GetExecutable());
-		wcout << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetStringValue(settings.GetCommandLine());
+		console << endl << endl << L"Settings:";
+		console << endl << L"\t" << ARG_USER_NAME << L":\t\t" << GetStringValue(settings.GetUserName());
+		console << endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetStringValue(settings.GetDomain());
+		console << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetStringValue(settings.GetWorkingDirectory());
+		console << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << to_wstring(settings.GetExitCodeBase());
+		console << endl << L"\t" << ARG_LOG_LEVEL << L":\t\t" << logLevel;
+		console << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << settings.GetInheritanceMode();
+		console << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetStringValue(settings.GetExecutable());
+		console << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetStringValue(settings.GetCommandLine());
 
 		if (result.GetErrorCode() == ERROR_CODE_INVALID_USAGE)
 		{
-			wcout << endl << HelpUtilities::GetHelp();
+			console << endl << HelpUtilities::GetHelp();
 		}
 	}
 

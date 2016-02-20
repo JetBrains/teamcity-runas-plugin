@@ -1,17 +1,18 @@
 #include "stdafx.h"
 #include "Trace.h"
-#include <iostream>
+#include "Console.h"
 
 Trace::Trace(const LogLevel& logLevel)
 	:_logLevel(logLevel)
-{
+{	
 }
 
 Trace& Trace::operator<(const wstring& text)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
-		wcout << endl << text;
+		WritePrefix();
+		_console << text;
 	}
 
 	return *this;
@@ -21,7 +22,7 @@ Trace& Trace::operator<<(const wstring& text)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
-		wcout << text;
+		_console << text;
 	}
 
 	return *this;
@@ -31,7 +32,8 @@ Trace& Trace::operator<(const size_t num)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
-		wcout << endl << num;
+		WritePrefix();
+		_console << to_wstring(num);
 	}
 
 	return *this;
@@ -41,8 +43,14 @@ Trace& Trace::operator<<(const size_t num)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
-		wcout << num;
+		_console << to_wstring(num);
 	}
 
 	return *this;
+}
+
+void Trace::WritePrefix()
+{
+	_console << L"\r\n";
+	_console << L"DEBUG: ";
 }

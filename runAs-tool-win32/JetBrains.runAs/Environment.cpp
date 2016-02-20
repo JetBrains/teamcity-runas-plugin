@@ -5,6 +5,7 @@
 #include "Handle.h"
 #include "ErrorUtilities.h"
 #include "StringUtilities.h"
+#include "Trace.h"
 
 static const wregex EnvVarRegex = wregex(L"(.+)=(.*)");
 
@@ -20,13 +21,14 @@ static const set<wstring> AutoOverrides = {
 	L"USERPROFILE"
 };
 
-Result<Environment> Environment::CreateForCurrentProcess()
+Result<Environment> Environment::CreateForCurrentProcess(Trace& trace)
 {
+	trace < L"Environment::CreateForCurrentProcess";
 	auto environment = GetEnvironmentStringsW();
 	Environment newEnvironment;
 	try
 	{
-		newEnvironment.CreateVariableMap(environment);
+		newEnvironment.CreateVariableMap(environment, trace);
 	}
 	catch(...)
 	{		
@@ -36,8 +38,9 @@ Result<Environment> Environment::CreateForCurrentProcess()
 	return newEnvironment;
 }
 
-Result<Environment> Environment::CreateForUser(Handle& token, bool inherit)
+Result<Environment> Environment::CreateForUser(Handle& token, bool inherit, Trace& trace)
 {
+	trace < L"Environment::CreateForUser";
 	Environment newEnvironment;
 	LPVOID environment;
 	if (!CreateEnvironmentBlock(&environment, token, inherit))
@@ -47,7 +50,7 @@ Result<Environment> Environment::CreateForUser(Handle& token, bool inherit)
 
 	try
 	{
-		newEnvironment.CreateVariableMap(environment);
+		newEnvironment.CreateVariableMap(environment, trace);
 	}
 	catch (...)
 	{
@@ -57,8 +60,9 @@ Result<Environment> Environment::CreateForUser(Handle& token, bool inherit)
 	return newEnvironment;
 }
 
-Environment Environment::CreateFormString(wstring variables)
+Environment Environment::CreateFormString(wstring variables, Trace& trace)
 {
+	trace < L"Environment::CreateFormString";
 	auto vars = StringUtilities::Split(variables, L"\n");
 
 	Environment environment;
@@ -74,20 +78,25 @@ Environment Environment::CreateFormString(wstring variables)
 		auto envValue = matchResult._At(2).str();
 		environment._vars[envName] = envValue;
 		environment._empty = false;
+		TraceVarible(trace, envName, envValue);
 	}
 
 	return environment;
 }
 
-Environment Environment::Override(Environment& destinarionEnvironment, Environment& sourceEnvironment)
+Environment Environment::Override(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace)
 {
+	trace < L"Environment::Override";
+	trace < L"Copy environment variables from base environment";
 	Environment targetEnvironment;
-	for (auto varsIterator = destinarionEnvironment._vars.begin(); varsIterator != destinarionEnvironment._vars.end(); ++varsIterator)
+	for (auto varsIterator = baseEnvironment._vars.begin(); varsIterator != baseEnvironment._vars.end(); ++varsIterator)
 	{
 		targetEnvironment._vars[varsIterator->first] = varsIterator->second;
 		targetEnvironment._empty = false;
+		TraceVarible(trace, varsIterator->first, varsIterator->second);		
 	}
 
+	trace < L"Override environment variables from source environment";
 	auto autoOverrides = GetAutoOverrides();
 	for (auto varsIterator = sourceEnvironment._vars.begin(); varsIterator != sourceEnvironment._vars.end(); ++varsIterator)
 	{
@@ -95,6 +104,7 @@ Environment Environment::Override(Environment& destinarionEnvironment, Environme
 		if (autoOverrides.find(varNameInLowCase) != autoOverrides.end())
 		{
 			targetEnvironment._vars[varsIterator->first] = varsIterator->second;
+			TraceVarible(trace, varsIterator->first, varsIterator->second);
 		}
 	}
 
@@ -111,7 +121,7 @@ Environment::~Environment()
 	_environmentBlocks.clear();
 }
 
-void Environment::CreateVariableMap(LPVOID environment)
+void Environment::CreateVariableMap(LPVOID environment, Trace& trace)
 {
 	_vars.clear();
 
@@ -136,6 +146,7 @@ void Environment::CreateVariableMap(LPVOID environment)
 		auto envName = matchResult._At(1).str();
 		auto envValue = matchResult._At(2).str();
 		_vars[envName] = envValue;
+		TraceVarible(trace, envName, envValue);
 		_empty = false;
 	} while (len > 0);	
 }
@@ -203,4 +214,9 @@ wstring Environment::TryGetValue(wstring variableName)
 set<wstring> Environment::GetAutoOverrides()
 {
 	return AutoOverrides;
+}
+
+void Environment::TraceVarible(Trace& trace, const wstring& key, const wstring& value)
+{
+	(trace < L"SET \"") << key << L"=" << value << L"\"";
 }

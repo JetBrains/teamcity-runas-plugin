@@ -14,8 +14,7 @@ class ProcessTracker;
 Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
 	Trace trace(settings.GetLogLevel());
-	trace < L"Use ProcessAsUser";
-	trace < L"Attempt to log a user on to the local computer";
+	trace < L"ProcessAsUser::Attempt to log a user on to the local computer";
 	trace < L"::LogonUser";
 
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -30,7 +29,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
 	}	
 	
-	trace < L"Initialize a new security descriptor";
+	trace < L"ProcessAsUser::Initialize a new security descriptor";
 	trace < L"::InitializeSecurityDescriptor";
 	SECURITY_DESCRIPTOR securityDescriptor = {};
 	if (!InitializeSecurityDescriptor(
@@ -50,7 +49,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"SetSecurityDescriptorDacl"));
 	}
 
-	trace < L"Creates a new access primary token that duplicates new process's token";
+	trace < L"ProcessAsUser::Creates a new access primary token that duplicates new process's token";
 	auto primaryNewUserSecurityTokenHandle = Handle(L"Primary new user security token");
 	SECURITY_ATTRIBUTES processSecAttributes = {};
 	processSecAttributes.lpSecurityDescriptor = &securityDescriptor;
@@ -90,14 +89,14 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
 	}
 
-	auto newProcessEnvironmentResult = GetEnvironment(primaryNewUserSecurityTokenHandle, settings.GetInheritanceMode());
+	auto newProcessEnvironmentResult = GetEnvironment(primaryNewUserSecurityTokenHandle, settings.GetInheritanceMode(), trace);
 	if (newProcessEnvironmentResult.HasError())
 	{
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
 		return Result<ExitCode>(newProcessEnvironmentResult.GetErrorCode(), newProcessEnvironmentResult.GetErrorDescription());
 	}
 	
-	trace < L"Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
+	trace < L"ProcessAsUser::Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
 	auto cmdLine = settings.GetCommandLine();
 	trace < L"::CreateProcessAsUser";
@@ -125,11 +124,11 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 
-	trace < L"Create a job";
+	trace < L"ProcessAsUser::Create a job";
 	Job job;
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobObjectInfo = {};
 	jobObjectInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-	trace < L"Configure all child processes associated with the job to terminate when the parent is terminated";
+	trace < L"ProcessAsUser::Configure all child processes associated with the job to terminate when the parent is terminated";
 	trace < L"Job::SetInformation";
 	job.SetInformation(JobObjectExtendedLimitInformation, jobObjectInfo);
 
@@ -140,21 +139,27 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	return exitCode;
 }
 
-Result<Environment> ProcessAsUser::GetEnvironment(Handle& userToken, const InheritanceMode inheritanceMode)
+Result<Environment> ProcessAsUser::GetEnvironment(Handle& userToken, const InheritanceMode inheritanceMode, Trace& trace)
 {
-	Environment callingProcessEnvironment;
+	auto callingProcessEnvironmentResult = Environment::CreateForCurrentProcess(trace);
+	if(callingProcessEnvironmentResult.HasError())
+	{
+		return callingProcessEnvironmentResult;
+	}
+
+	auto callingProcessEnvironment = callingProcessEnvironmentResult.GetResultValue();
 	if (inheritanceMode == INHERITANCE_MODE_ON)
 	{
 		return callingProcessEnvironment;
 	}
 
 	// Get target user's environment
-	auto targetUserEnvironmentResult = Environment::CreateForUser(userToken, false);
+	auto targetUserEnvironmentResult = Environment::CreateForUser(userToken, false, trace);
 	if (inheritanceMode == INHERITANCE_MODE_OFF || targetUserEnvironmentResult.HasError())
 	{
 		return targetUserEnvironmentResult;
 	}
 	
 	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
-	return Environment::Override(callingProcessEnvironment, targetUserEnvironment);	
+	return Environment::Override(callingProcessEnvironment, targetUserEnvironment, trace);
 }

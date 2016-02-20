@@ -27,6 +27,8 @@ Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 		{
 			break;
 		}
+
+		trace < L"ProcessRunner::Select other type of process";
 	}
 
 	return runResult;	
