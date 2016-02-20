@@ -12,6 +12,7 @@ static const wregex EnvVarRegex = wregex(L"(.+)=(.*)");
 static const set<wstring> AutoOverrides = {
 	L"APPDATA",
 	L"HOMEPATH",
+	L"HOMEDRIVE",
 	L"LOCALAPPDATA",
 	L"USERDOMAIN",
 	L"USERDOMAIN_ROAMINGPROFILE",
