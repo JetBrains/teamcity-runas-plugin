@@ -83,10 +83,11 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	securityAttributes.bInheritHandle = true;
 
 	STARTUPINFO startupInfo = {};
+	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
 	PROCESS_INFORMATION processInformation = {};
 
 	trace < L"ProcessTracker::Initialize";
-	processTracker.Initialize(securityAttributes, startupInfo);
+	processTracker.Initialize(securityAttributes, startupInfo);	
 	auto cmdLine = settings.GetCommandLine();
 
 	trace < L"::CreateProcessWithLogonW";

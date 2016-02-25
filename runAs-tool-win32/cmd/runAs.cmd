@@ -3,9 +3,9 @@ SETLOCAL
 SET /A ARGS_COUNT=0    
 FOR %%A in (%*) DO SET /A "ARGS_COUNT+=1"
 IF %ARGS_COUNT% NEQ 2 (
-	@ECHO Invalid arguments.
-	@ECHO Usage: runAs.cmd credentials_file command
-	@EXIT -1
+	ECHO Invalid arguments.
+	ECHO Usage: runAs.cmd credentials_file command
+	EXIT /B -1
 )
 ENDLOCAL
 

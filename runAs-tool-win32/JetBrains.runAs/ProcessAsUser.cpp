@@ -105,6 +105,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 
 	trace < L"ProcessAsUser::Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
+	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
 	auto cmdLine = settings.GetCommandLine();
 	trace < L"::CreateProcessAsUser";
 	if (!CreateProcessAsUser(
