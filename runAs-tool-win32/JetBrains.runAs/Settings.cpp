@@ -14,8 +14,9 @@ Settings::Settings(
 	const wstring executable,
 	const wstring workingDirectory,
 	int exitCodeBase,
-	list<wstring> args,
-	const InheritanceMode inheritanceMode)
+	const list<wstring> args,
+	const InheritanceMode inheritanceMode,
+	const IntegrityLevel integrityLevel)
 {
 	_userName = userName;
 	_domain = domain;
@@ -25,6 +26,7 @@ Settings::Settings(
 	_exitCodeBase = exitCodeBase;
 	_args = list<wstring>(args);
 	_inheritanceMode = inheritanceMode;
+	_integrityLevel = integrityLevel;
 }
 
 wstring Settings::GetUserName() const
@@ -84,6 +86,11 @@ LogLevel Settings::GetLogLevel() const
 void Settings::SetLogLevel(LogLevel logLevel)
 {
 	_logLevel = logLevel;
+}
+
+IntegrityLevel Settings::GetIntegrityLevel() const
+{
+	return _integrityLevel;
 }
 
 wstring Settings::AddQuotes(wstring str)

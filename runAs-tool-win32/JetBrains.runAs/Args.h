@@ -10,3 +10,4 @@
 #define ARG_EXIT_COMMAND_LINE_ARGS	TEXT("command_line_args")
 #define ARG_INHERITANCE_MODE		TEXT("inheritance_mode")
 #define ARG_LOG_LEVEL				TEXT("log_level")
+#define ARG_INTEGRITY_LEVEL			TEXT("integrity_level")

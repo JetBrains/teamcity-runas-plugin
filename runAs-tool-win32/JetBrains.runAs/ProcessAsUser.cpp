@@ -8,6 +8,7 @@
 #include "Environment.h"
 #include "Trace.h"
 #include "Job.h"
+#include "IntegrityLevelManager.h"
 class Trace;
 class ProcessTracker;
 
@@ -58,14 +59,14 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	trace < L"::DuplicateTokenEx";
 	if (!DuplicateTokenEx(
 		newUserSecurityTokenHandle,
-		0,
+		0, // MAXIMUM_ALLOWED
 		&processSecAttributes,
 		SecurityImpersonation,
 		TokenPrimary,
 		&primaryNewUserSecurityTokenHandle))
 	{
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
-	}
+	}	
 
 	SECURITY_ATTRIBUTES threadSecAttributes = {};
 	threadSecAttributes.lpSecurityDescriptor = nullptr;
@@ -95,7 +96,13 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
 		return Result<ExitCode>(newProcessEnvironmentResult.GetErrorCode(), newProcessEnvironmentResult.GetErrorDescription());
 	}
-	
+
+	auto setIntegrityLevelResult = IntegrityLevelManager::SetIntegrityLevel(settings.GetIntegrityLevel(), primaryNewUserSecurityTokenHandle, trace);
+	if (setIntegrityLevelResult.HasError())
+	{
+		return Result<ExitCode>(setIntegrityLevelResult.GetErrorCode(), setIntegrityLevelResult.GetErrorDescription());
+	}
+
 	trace < L"ProcessAsUser::Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
 	auto cmdLine = settings.GetCommandLine();
@@ -118,6 +125,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return result;
 	}
 
+	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	auto processHandle = Handle(L"Service Process");
 	processHandle = processInformation.hProcess;
 	

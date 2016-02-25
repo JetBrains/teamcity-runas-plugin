@@ -5,4 +5,5 @@ public class Constants {
     public static final String RUN_AS_TOOL_NAME = "runAs";
     public static final String USER_VAR = "run_as_user";
     public static final String PASSWORD_VAR = "run_as_password";
+    public static final String ADDITIONAL_ARGS_VAR = "run_as_additional_args";
 }

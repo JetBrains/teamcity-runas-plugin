@@ -95,9 +95,6 @@
     <ClInclude Include="StubWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tracer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Trace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,6 +102,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IntegrityLevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IntegrityLevelManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -170,6 +173,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IntegrityLevelManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

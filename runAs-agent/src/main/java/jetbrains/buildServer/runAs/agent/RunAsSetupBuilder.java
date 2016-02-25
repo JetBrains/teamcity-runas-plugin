@@ -12,13 +12,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String TOOL_FILE_NAME = "runAs.cmd";
-  static final String CREDENTIALS_EXT = ".cred";
+  static final String CREDENTIALS_EXT = ".args";
   static final String CMD_EXT = ".cmd";
   private final RunnerParametersService myParametersService;
   private final BuildFeatureParametersService myBuildFeatureParametersService;
   private final FileService myFileService;
   private final ResourcePublisher mySettingsPublisher;
-  private final ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
+  private final ResourceGenerator<Settings> mySettingsGenerator;
   private final ResourceGenerator<RunAsCmdSettings> myRunAsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
 
@@ -27,14 +27,14 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     @NotNull final BuildFeatureParametersService buildFeatureParametersService,
     @NotNull final FileService fileService,
     @NotNull final ResourcePublisher settingsPublisher,
-    @NotNull final ResourceGenerator<CredentialsSettings> credentialsGenerator,
+    @NotNull final ResourceGenerator<Settings> settingsGenerator,
     @NotNull final ResourceGenerator<RunAsCmdSettings> runAsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myParametersService = parametersService;
     myBuildFeatureParametersService = buildFeatureParametersService;
     myFileService = fileService;
     mySettingsPublisher = settingsPublisher;
-    myCredentialsGenerator = credentialsGenerator;
+    mySettingsGenerator = settingsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
     myCommandLineArgumentsService = commandLineArgumentsService;
   }
@@ -59,13 +59,18 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
       return Collections.singleton(commandLineSetup);
     }
 
+    String additionalArgs = myParametersService.tryGetConfigParameter(Constants.ADDITIONAL_ARGS_VAR);
+    if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
+      additionalArgs = "";
+    }
+
     // Resources
     final ArrayList<CommandLineResource> resources = new ArrayList<CommandLineResource>();
     resources.addAll(commandLineSetup.getResources());
 
-    // Credentials
+    // Settings
     final File credentialsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), myCredentialsGenerator.create(new CredentialsSettings(userName, password))));
+    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), mySettingsGenerator.create(new Settings(userName, password, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs)))));
 
     // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();

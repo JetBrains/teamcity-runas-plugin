@@ -8,7 +8,7 @@ class Trace
 	Console _console;
 
 public:
-	Trace(const LogLevel& logLevel);
+	explicit Trace(const LogLevel& logLevel);
 	void WritePrefix();
 	Trace& operator < (const wstring& text);
 	Trace& operator << (const wstring& text);

@@ -42,7 +42,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			settings.GetWorkingDirectory(),
 			DEFAULT_EXIT_CODE_BASE,
 			{ L"/U", L"/C", L"SET" },
-			INHERITANCE_MODE_OFF);
+			INHERITANCE_MODE_OFF,
+			INTEGRITY_LEVEL_AUTO);
 
 		if(settings.GetLogLevel() == LOG_LEVEL_DEBUG)
 		{
@@ -105,9 +106,11 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessWithLogonW"));
 	}
 
+	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	auto processHandle = Handle(L"Process");
 	processHandle = processInformation.hProcess;
 
+	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 

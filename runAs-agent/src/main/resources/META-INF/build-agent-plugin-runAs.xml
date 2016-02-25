@@ -7,7 +7,7 @@
   <bean class="jetbrains.buildServer.runAs.agent.BuildFeatureParametersServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
   <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
-  <bean class="jetbrains.buildServer.runAs.agent.CredentialsGenerator" id="credentialsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.SettingsGenerator" id="credentialsGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsCmdGenerator" id="runAsCmdGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
     <constructor-arg ref="settingsPublisher"/>

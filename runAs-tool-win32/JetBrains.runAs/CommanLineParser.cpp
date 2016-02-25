@@ -31,9 +31,10 @@ Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCo
 	wstring workingDirectory;
 	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
 	list<wstring> commandLineArgs;
-	auto _inheritanceMode = INHERITANCE_MODE_AUTO;
+	auto inheritanceMode = INHERITANCE_MODE_AUTO;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	*logLevel = LOG_LEVEL_NORMAL;
+	IntegrityLevel integrityLevel = INTEGRITY_LEVEL_AUTO;
 	
 	while (actualArgs.size() > 0)
 	{
@@ -151,19 +152,19 @@ Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCo
 		{		
 			if (argValueInLowCase == INHERITANCE_MODE_OFF)
 			{
-				_inheritanceMode = INHERITANCE_MODE_OFF;
+				inheritanceMode = INHERITANCE_MODE_OFF;
 				continue;
 			}
 
 			if (argValueInLowCase == INHERITANCE_MODE_ON)
 			{
-				_inheritanceMode = INHERITANCE_MODE_ON;
+				inheritanceMode = INHERITANCE_MODE_ON;
 				continue;
 			}
 
 			if (argValueInLowCase == INHERITANCE_MODE_AUTO)
 			{
-				_inheritanceMode = INHERITANCE_MODE_AUTO;
+				inheritanceMode = INHERITANCE_MODE_AUTO;
 				continue;
 			}
 		}
@@ -194,6 +195,46 @@ Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCo
 				*logLevel = LOG_LEVEL_OFF;
 				continue;
 			}			
+		}
+
+		// Integrity level
+		if (argNameInLowCase == L"il")
+		{
+			if (argValueInLowCase == INTEGRITY_LEVEL_AUTO)
+			{
+				integrityLevel = INTEGRITY_LEVEL_AUTO;
+				continue;
+			}			
+
+			if (argValueInLowCase == INTEGRITY_LEVEL_UNTRUSTED)
+			{
+				integrityLevel = INTEGRITY_LEVEL_UNTRUSTED;
+				continue;
+			}
+
+			if (argValueInLowCase == INTEGRITY_LEVEL_LOW)
+			{
+				integrityLevel = INTEGRITY_LEVEL_LOW;
+				continue;
+			}
+
+			if (argValueInLowCase == INTEGRITY_LEVEL_MEDIUM)
+			{
+				integrityLevel = INTEGRITY_LEVEL_MEDIUM;
+				continue;
+			}
+
+			if (argValueInLowCase == INTEGRITY_LEVEL_MEDIUM_PLUS)
+			{
+				integrityLevel = INTEGRITY_LEVEL_MEDIUM_PLUS;
+				continue;
+			}
+
+			if (argValueInLowCase == INTEGRITY_LEVEL_HIGH)
+			{
+				integrityLevel = INTEGRITY_LEVEL_HIGH;
+				continue;
+			}
 		}
 
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
@@ -238,7 +279,8 @@ Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCo
 		workingDirectory,
 		*exitCodeBase,
 		commandLineArgs, 
-		_inheritanceMode);
+		inheritanceMode,
+		integrityLevel);
 
 	settings.SetLogLevel(*logLevel);
 	return settings;

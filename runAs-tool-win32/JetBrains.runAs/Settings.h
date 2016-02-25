@@ -3,6 +3,7 @@
 #include <list>
 #include "LogLevel.h"
 #include "InheritanceMode.h"
+#include "IntegrityLevel.h"
 
 class Settings
 {
@@ -15,6 +16,7 @@ class Settings
 	int _exitCodeBase = 0;
 	InheritanceMode _inheritanceMode = INHERITANCE_MODE_AUTO;
 	LogLevel _logLevel = LOG_LEVEL_NORMAL;
+	IntegrityLevel _integrityLevel = INTEGRITY_LEVEL_AUTO;
 
 	static wstring AddQuotes(wstring str);
 
@@ -28,7 +30,8 @@ public:
 		const wstring workingDirectory,
 		int exitCodeBase,
 		const list<wstring> args,
-		const InheritanceMode inheritanceMode);
+		const InheritanceMode inheritanceMode,
+		const IntegrityLevel integrityLevel);
 	wstring GetUserName() const;
 	wstring GetDomain() const;
 	wstring GetPassword() const;
@@ -39,4 +42,5 @@ public:
 	InheritanceMode GetInheritanceMode() const;
 	LogLevel GetLogLevel() const;
 	void SetLogLevel(LogLevel logLevel);
+	IntegrityLevel GetIntegrityLevel() const;
 };

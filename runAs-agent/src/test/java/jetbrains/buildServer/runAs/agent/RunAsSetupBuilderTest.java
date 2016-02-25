@@ -21,7 +21,7 @@ public class RunAsSetupBuilderTest {
   private FileService myFileService;
   private RunnerParametersService myRunnerParametersService;
   private ResourcePublisher myResourcePublisher;
-  private ResourceGenerator<CredentialsSettings> myCredentialsGenerator;
+  private ResourceGenerator<Settings> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsCmdSettings> myArgsGenerator;
@@ -37,7 +37,7 @@ public class RunAsSetupBuilderTest {
     myFileService = myCtx.mock(FileService.class);
     myResourcePublisher = myCtx.mock(ResourcePublisher.class);
     //noinspection unchecked
-    myCredentialsGenerator = (ResourceGenerator<CredentialsSettings>)myCtx.mock(ResourceGenerator.class, "CredentialsGenerator");
+    myCredentialsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class, "SettingsGenerator");
     //noinspection unchecked
     myArgsGenerator = (ResourceGenerator<RunAsCmdSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
     //noinspection unchecked
@@ -63,6 +63,7 @@ public class RunAsSetupBuilderTest {
     final String cmdContent = "args content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings("cmd line", checkoutDir.getAbsolutePath());
+    final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
@@ -73,18 +74,25 @@ public class RunAsSetupBuilderTest {
       oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
       will(returnValue(Arrays.asList(password, "aaa")));
 
+      oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.ADDITIONAL_ARGS_VAR);
+      will(returnValue("args"));
+
       oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CREDENTIALS_EXT);
       will(returnValue(credentialsFile));
 
       oneOf(myFileService).getTempFileName(RunAsSetupBuilder.CMD_EXT);
       will(returnValue(cmdFile));
 
-      oneOf(myCredentialsGenerator).create(with(new CredentialsSettings(user, password)));
+      oneOf(myCommandLineArgumentsService).parseCommandLineArguments("args");
+      will(returnValue(additionalArgs));
+
+      oneOf(myCredentialsGenerator).create(with(new Settings(user, password, additionalArgs)));
       will(returnValue(credentialsContent));
 
       //noinspection unchecked
       oneOf(myCommandLineArgumentsService).createCommandLineString(with(any(List.class)));
       will(returnValue("cmd line"));
+
 
       oneOf(myFileService).getCheckoutDirectory();
       will(returnValue(checkoutDir));

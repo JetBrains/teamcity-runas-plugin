@@ -98,6 +98,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		console << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetStringValue(settings.GetWorkingDirectory());
 		console << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << to_wstring(settings.GetExitCodeBase());
 		console << endl << L"\t" << ARG_LOG_LEVEL << L":\t\t" << logLevel;
+		console << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << settings.GetIntegrityLevel();
 		console << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << settings.GetInheritanceMode();
 		console << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetStringValue(settings.GetExecutable());
 		console << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetStringValue(settings.GetCommandLine());

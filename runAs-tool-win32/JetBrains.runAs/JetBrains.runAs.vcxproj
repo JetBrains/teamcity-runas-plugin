@@ -186,6 +186,8 @@
     <ClInclude Include="ErrorUtilities.h" />
     <ClInclude Include="ExitCode.h" />
     <ClInclude Include="InheritanceMode.h" />
+    <ClInclude Include="IntegrityLevel.h" />
+    <ClInclude Include="IntegrityLevelManager.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="LogLevel.h" />
     <ClInclude Include="PrivilegeManager.h" />
@@ -208,7 +210,6 @@
     <ClInclude Include="StubWriter.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Trace.h" />
-    <ClInclude Include="Tracer.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +217,7 @@
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Environment.cpp" />
     <ClCompile Include="ErrorUtilities.cpp" />
+    <ClCompile Include="IntegrityLevelManager.cpp" />
     <ClCompile Include="Job.cpp" />
     <ClCompile Include="PrivilegeManager.cpp" />
     <ClCompile Include="ProcessRunner.cpp" />
