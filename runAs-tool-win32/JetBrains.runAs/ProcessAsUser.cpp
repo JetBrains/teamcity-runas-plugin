@@ -106,6 +106,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	trace < L"ProcessAsUser::Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+	startupInfo.wShowWindow = SW_HIDE;
 	auto cmdLine = settings.GetCommandLine();
 	trace < L"::CreateProcessAsUser";
 	if (!CreateProcessAsUser(
@@ -115,7 +116,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		&processSecAttributes,
 		&threadSecAttributes,
 		true,
-		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+		CREATE_UNICODE_ENVIRONMENT,
 		newProcessEnvironmentResult.GetResultValue().CreateEnvironment(),
 		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,

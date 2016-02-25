@@ -84,6 +84,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 
 	STARTUPINFO startupInfo = {};
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+	startupInfo.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION processInformation = {};
 
 	trace < L"ProcessTracker::Initialize";
@@ -98,7 +99,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		LOGON_WITH_PROFILE,
 		nullptr,
 		const_cast<LPWSTR>(cmdLine.c_str()),
-		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+		CREATE_UNICODE_ENVIRONMENT,
 		environment.CreateEnvironment(),
 		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
