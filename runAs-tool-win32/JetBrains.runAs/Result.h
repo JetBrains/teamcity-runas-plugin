@@ -12,8 +12,8 @@ class Result
 
 public:
 	Result<T>();
-	Result<T>(T resultValue);
-	Result<T>(int errorCode, wstring errorDescription);
+	Result<T>(const T resultValue);
+	Result<T>(const int errorCode, const wstring& errorDescription);
 
 	bool HasError() const;
 	T GetResultValue() const;
@@ -27,7 +27,7 @@ Result<T>::Result() : _hasError(false), _errorCode(ERROR_CODE_UNKOWN), _errorDes
 }
 
 template<typename T>
-Result<T>::Result(T resultValue)
+Result<T>::Result(const T resultValue)
 {
 	_resultValue = resultValue;
 	_hasError = false;
@@ -35,7 +35,7 @@ Result<T>::Result(T resultValue)
 }
 
 template<typename T>
-Result<T>::Result(int errorCode, wstring errorDescription)
+Result<T>::Result(const int errorCode, const wstring& errorDescription)
 {
 	_errorCode = errorCode;
 	_errorDescription = errorDescription;

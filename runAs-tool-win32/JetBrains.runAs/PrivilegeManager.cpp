@@ -41,16 +41,7 @@ const list<wstring> AllPrivilegies = {
 	SE_CREATE_SYMBOLIC_LINK_NAME
 };
 
-PrivilegeManager::PrivilegeManager()
-{
-}
-
-
-PrivilegeManager::~PrivilegeManager()
-{
-}
-
-void PrivilegeManager::TrySetAllPrivileges(bool enablePrivileges)
+void PrivilegeManager::TrySetAllPrivileges(const bool enablePrivileges)
 {
 	Handle token(L"Current process token");
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
@@ -64,7 +55,7 @@ void PrivilegeManager::TrySetAllPrivileges(bool enablePrivileges)
 	}
 }
 
-Result<bool> PrivilegeManager::SetPrivileges(list<wstring> privileges, bool enablePrivileges)
+Result<bool> PrivilegeManager::SetPrivileges(const list<wstring>& privileges, const bool enablePrivileges)
 {
 	Handle token(L"Current process token");
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
@@ -75,7 +66,7 @@ Result<bool> PrivilegeManager::SetPrivileges(list<wstring> privileges, bool enab
 	return SetPrivileges(token, privileges, enablePrivileges);
 }
 
-Result<bool> PrivilegeManager::SetPrivileges(Handle& token, list<wstring> privileges, bool enablePrivileges)
+Result<bool> PrivilegeManager::SetPrivileges(const Handle& token, const list<wstring>& privileges, const bool enablePrivileges)
 {
 	auto tokenPrivileges = static_cast<PTOKEN_PRIVILEGES>(_alloca(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (privileges.size() - 1)));
 	tokenPrivileges->PrivilegeCount = static_cast<DWORD>(privileges.size());	
@@ -107,7 +98,7 @@ Result<bool> PrivilegeManager::SetPrivileges(Handle& token, list<wstring> privil
 	return true;
 }
 
-Result<LUID> PrivilegeManager::LookupPrivilegeValue(wstring privilegeName)
+Result<LUID> PrivilegeManager::LookupPrivilegeValue(const wstring& privilegeName)
 {
 	LUID luid;
 	if (!::LookupPrivilegeValue(

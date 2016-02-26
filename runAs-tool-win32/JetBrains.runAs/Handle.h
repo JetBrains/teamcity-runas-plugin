@@ -7,7 +7,7 @@ class Handle
 	HANDLE _handle = nullptr;	
 
 public:
-	explicit Handle(wstring name);
+	explicit Handle(const wstring& name);
 	~Handle();	
 	operator HANDLE() const;
 	Handle& operator = (const HANDLE handle);

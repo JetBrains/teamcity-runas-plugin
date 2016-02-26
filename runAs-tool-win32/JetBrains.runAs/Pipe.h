@@ -10,7 +10,7 @@ class Pipe
 	wstring _name;
 
 public:
-	explicit Pipe(wstring name);
+	explicit Pipe(const wstring& name);
 	Result<bool> Initialize(SECURITY_ATTRIBUTES& securityAttributes);
 	Handle& GetReader();
 	Handle& GetWriter();

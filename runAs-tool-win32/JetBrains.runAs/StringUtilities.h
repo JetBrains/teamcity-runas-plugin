@@ -5,7 +5,7 @@
 class StringUtilities
 {
 public:
-	static vector<wstring> Split(wstring &str, const wstring separator);
-	static wstring Convert(wstring str, int(* converter)(int));
+	static vector<wstring> Split(const wstring &str, const wstring& separator);
+	static wstring Convert(const wstring& str, int(*const converter)(int));
 };
 

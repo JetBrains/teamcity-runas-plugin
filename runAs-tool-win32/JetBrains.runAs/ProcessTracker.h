@@ -13,11 +13,11 @@ class ProcessTracker
 	IStreamWriter& _outputWriter;
 	IStreamWriter& _errorWriter;
 
-	static Result<bool> RedirectStream(HANDLE hPipeRead, IStreamWriter& writer);
+	static Result<bool> RedirectStream(const HANDLE hPipeRead, IStreamWriter& writer);
 
 public:
 	ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& errorWriter);
 	Result<bool> Initialize(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo);
-	Result<ExitCode> WaiteForExit(HANDLE processHandle);
+	Result<ExitCode> WaiteForExit(const HANDLE processHandle);
 };
 

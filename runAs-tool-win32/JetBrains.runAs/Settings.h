@@ -23,15 +23,16 @@ class Settings
 public:
 	Settings();
 	Settings(
-		const wstring userName,
-		const wstring domain,
-		const wstring password,
-		const wstring executable,
-		const wstring workingDirectory,
-		int exitCodeBase,
-		const list<wstring> args,
-		const InheritanceMode inheritanceMode,
-		const IntegrityLevel integrityLevel);
+		const wstring& userName,
+		const wstring& domain,
+		const wstring& password,
+		const wstring& executable,
+		const wstring& workingDirectory,
+		const int exitCodeBase,
+		const list<wstring>& args,
+		const InheritanceMode& inheritanceMode,
+		const IntegrityLevel& integrityLevel);
+
 	wstring GetUserName() const;
 	wstring GetDomain() const;
 	wstring GetPassword() const;
@@ -41,6 +42,6 @@ public:
 	int GetExitCodeBase() const;
 	InheritanceMode GetInheritanceMode() const;
 	LogLevel GetLogLevel() const;
-	void SetLogLevel(LogLevel logLevel);
+	void SetLogLevel(const LogLevel& logLevel);
 	IntegrityLevel GetIntegrityLevel() const;
 };

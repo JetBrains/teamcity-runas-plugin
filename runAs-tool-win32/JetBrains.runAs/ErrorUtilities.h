@@ -7,7 +7,7 @@ class ErrorUtilities
 	ErrorUtilities();
 	
 public:	
-	static wstring GetLastErrorMessage(wstring targetAction);	
-	static wstring GetActionName(wstring targetAction, wstring arg);
+	static wstring GetLastErrorMessage(const wstring& targetAction);
+	static wstring GetActionName(const wstring& targetAction, const wstring& arg);
 	static ErrorCode GetErrorCode();
 };

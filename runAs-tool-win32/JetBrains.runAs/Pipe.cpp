@@ -3,7 +3,7 @@
 #include "ErrorUtilities.h"
 #include "Result.h"
 
-Pipe::Pipe(wstring name): 
+Pipe::Pipe(const wstring& name):
 	_readHandle(L"Pipe \"" + name + L"\" handle for read"),
 	_writeHandle(L"Pipe \"" + name + L"\" handle for write")
 {	

@@ -38,7 +38,7 @@ Result<Environment> Environment::CreateForCurrentProcess(Trace& trace)
 	return newEnvironment;
 }
 
-Result<Environment> Environment::CreateForUser(Handle& token, bool inherit, Trace& trace)
+Result<Environment> Environment::CreateForUser(const Handle& token, bool inherit, Trace& trace)
 {
 	trace < L"Environment::CreateForUser";
 	Environment newEnvironment;
@@ -60,7 +60,7 @@ Result<Environment> Environment::CreateForUser(Handle& token, bool inherit, Trac
 	return newEnvironment;
 }
 
-Environment Environment::CreateFormString(wstring variables, Trace& trace)
+Environment Environment::CreateFormString(const wstring& variables, Trace& trace)
 {
 	trace < L"Environment::CreateFormString";
 	auto vars = StringUtilities::Split(variables, L"\n");
@@ -196,7 +196,7 @@ LPVOID* Environment::CreateEnvironment()
 	return environment;
 }
 
-wstring Environment::TryGetValue(wstring variableName)
+wstring Environment::TryGetValue(const wstring& variableName)
 {
 	auto curVarNameInLowCase = StringUtilities::Convert(variableName, tolower);
 	for (auto varsIterator = _vars.begin(); varsIterator != _vars.end(); ++varsIterator)

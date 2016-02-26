@@ -24,7 +24,7 @@ ErrorCode ErrorUtilities::GetErrorCode()
 	return ERROR_WIN32;	
 }
 
-wstring ErrorUtilities::GetLastErrorMessage(wstring targetAction)
+wstring ErrorUtilities::GetLastErrorMessage(const wstring& targetAction)
 {
 	auto errorCode = GetLastError();	
 	if (errorCode != 0)
@@ -55,7 +55,7 @@ wstring ErrorUtilities::GetLastErrorMessage(wstring targetAction)
 	return L"";
 }
 
-wstring ErrorUtilities::GetActionName(wstring targetAction, wstring arg)
+wstring ErrorUtilities::GetActionName(const wstring& targetAction, const wstring& arg)
 {
 	return targetAction + L"(" + arg + L")";
 }

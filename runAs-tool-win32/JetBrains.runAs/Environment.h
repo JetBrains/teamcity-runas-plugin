@@ -19,11 +19,11 @@ class Environment
 
 public:
 	static Result<Environment> CreateForCurrentProcess(Trace& trace);
-	static Result<Environment> CreateForUser(Handle& token, bool inherit, Trace& trace);
-	static Environment CreateFormString(wstring variables, Trace& trace);
+	static Result<Environment> CreateForUser(const Handle& token, bool inherit, Trace& trace);
+	static Environment CreateFormString(const wstring& variables, Trace& trace);
 	static Environment Override(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace);
 	~Environment();
 	LPVOID* CreateEnvironment();
-	wstring TryGetValue(wstring variableName);
+	wstring TryGetValue(const wstring& variableName);
 	static set<wstring> GetAutoOverrides();	
 };

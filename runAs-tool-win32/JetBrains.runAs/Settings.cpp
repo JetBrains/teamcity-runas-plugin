@@ -8,15 +8,15 @@ Settings::Settings(): _exitCodeBase(DEFAULT_EXIT_CODE_BASE)
 }
 
 Settings::Settings(
-	const wstring userName,
-	const wstring domain,
-	const wstring password,
-	const wstring executable,
-	const wstring workingDirectory,
-	int exitCodeBase,
-	const list<wstring> args,
-	const InheritanceMode inheritanceMode,
-	const IntegrityLevel integrityLevel)
+	const wstring& userName,
+	const wstring& domain,
+	const wstring& password,
+	const wstring& executable,
+	const wstring& workingDirectory,
+	const int exitCodeBase,
+	const list<wstring>& args,
+	const InheritanceMode& inheritanceMode,
+	const IntegrityLevel& integrityLevel)
 {
 	_userName = userName;
 	_domain = domain;
@@ -83,7 +83,7 @@ LogLevel Settings::GetLogLevel() const
 	return _logLevel;
 }
 
-void Settings::SetLogLevel(LogLevel logLevel)
+void Settings::SetLogLevel(const LogLevel& logLevel)
 {
 	_logLevel = logLevel;
 }

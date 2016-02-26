@@ -68,7 +68,7 @@ Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
 	return exitCode;
 }
 
-Result<bool> ProcessTracker::RedirectStream(HANDLE hPipeRead, IStreamWriter& writer)
+Result<bool> ProcessTracker::RedirectStream(const HANDLE hPipeRead, IStreamWriter& writer)
 {
 	CHAR buffer[0xffff];
 	DWORD bytesReaded;

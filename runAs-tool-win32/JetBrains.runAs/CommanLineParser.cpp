@@ -16,11 +16,7 @@ static const wregex UserRegex = wregex(L"^([^@\\\\]+)@([^@\\\\]+)$|^([^@\\\\]+)\
 static const wstring TrueStr = L"true";
 static const wstring FalseStr = L"false";
 
-CommanLineParser::CommanLineParser()
-{
-}
-
-Result<Settings> CommanLineParser::TryParse(list<wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const
+Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode* exitCodeBase, LogLevel* logLevel) const
 {
 	auto actualArgs = list<wstring>(args);
 

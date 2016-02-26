@@ -9,6 +9,5 @@ class Settings;
 class CommanLineParser
 {		
 public:
-	CommanLineParser();	
-	Result<Settings> TryParse(list<wstring> args, ExitCode* exitCodeBase, LogLevel* logLevel) const;
+	Result<Settings> TryParse(const list<wstring>& args, ExitCode* exitCodeBase, LogLevel* logLevel) const;
 };

@@ -2,7 +2,7 @@
 #include "StringUtilities.h"
 #include <algorithm>
 
-vector<wstring> StringUtilities::Split(wstring &str, const wstring separator)
+vector<wstring> StringUtilities::Split(const wstring& str, const wstring& separator)
 {
 	vector<wstring> strs;
 	auto separatorSize = separator.size();
@@ -23,7 +23,7 @@ vector<wstring> StringUtilities::Split(wstring &str, const wstring separator)
 	return strs;
 }
 
-wstring StringUtilities::Convert(wstring str, int(* converter)(int))
+wstring StringUtilities::Convert(const wstring& str, int(*const converter)(int))
 {
 	wstring convertedStr;
 	convertedStr.resize(str.size());

@@ -9,8 +9,8 @@ class Job
 	
 public:
 	Job();
-	Result<bool> SetInformation(JOBOBJECTINFOCLASS infoClass, JOBOBJECT_EXTENDED_LIMIT_INFORMATION& information) const;
-	Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION> QueryInformation(JOBOBJECTINFOCLASS infoClass) const;
-	Result<bool> AssignProcessToJob(Handle& process) const;
+	Result<bool> SetInformation(const JOBOBJECTINFOCLASS& infoClass, JOBOBJECT_EXTENDED_LIMIT_INFORMATION& information) const;
+	Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION> QueryInformation(const JOBOBJECTINFOCLASS& infoClass) const;
+	Result<bool> AssignProcessToJob(const Handle& process) const;
 };
 

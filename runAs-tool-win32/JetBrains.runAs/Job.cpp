@@ -7,7 +7,7 @@ Job::Job()
 	_handle = CreateJobObject(nullptr, nullptr);
 }
 
-Result<bool> Job::SetInformation(JOBOBJECTINFOCLASS infoClass, JOBOBJECT_EXTENDED_LIMIT_INFORMATION& information) const
+Result<bool> Job::SetInformation(const JOBOBJECTINFOCLASS& infoClass, JOBOBJECT_EXTENDED_LIMIT_INFORMATION& information) const
 {		
 	if(_handle.IsInvalid())
 	{
@@ -22,7 +22,7 @@ Result<bool> Job::SetInformation(JOBOBJECTINFOCLASS infoClass, JOBOBJECT_EXTENDE
 	return true;
 }
 
-Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION> Job::QueryInformation(JOBOBJECTINFOCLASS infoClass) const
+Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION> Job::QueryInformation(const JOBOBJECTINFOCLASS& infoClass) const
 {
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION information{};
 	if (_handle.IsInvalid())
@@ -39,7 +39,7 @@ Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION> Job::QueryInformation(JOBOBJECTINFO
 	return information;
 }
 
-Result<bool> Job::AssignProcessToJob(Handle& process) const
+Result<bool> Job::AssignProcessToJob(const Handle& process) const
 {
 	if (_handle.IsInvalid())
 	{
