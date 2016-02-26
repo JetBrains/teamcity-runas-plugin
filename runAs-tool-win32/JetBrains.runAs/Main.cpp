@@ -49,6 +49,10 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		
 		if (!result.HasError())
 		{		
+			// Show header
+			Trace trace(settings.GetLogLevel());
+			trace < HelpUtilities::GeTitle();
+
 			ProcessRunner runner;
 			result = runner.Run(settings);			
 		}
@@ -56,7 +60,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	catch(...)
 	{
 		result = Result<ExitCode>(ERROR_CODE_UNKOWN, L"Unknown error");
-	}
+	}	
 
 	Trace trace(settings.GetLogLevel());
 	if (!result.HasError())

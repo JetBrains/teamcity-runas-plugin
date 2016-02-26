@@ -7,15 +7,14 @@
 #include "LogLevel.h"
 #include "ExitCode.h"
 #include "InheritanceMode.h"
-#include "Environment.h"
 #include "IntegrityLevel.h"
 
 HelpUtilities::HelpUtilities()
 {
 }
 
-wstring HelpUtilities::GetHeader()
-{	
+wstring HelpUtilities::GeTitle()
+{
 	wstringstream header;
 	header << VER_PRODUCTNAME_STR;
 #if defined(_M_X64) || defined(x86_64)
@@ -24,7 +23,13 @@ wstring HelpUtilities::GetHeader()
 	header << L" x86";
 #endif
 	header << L" " << VER_FILE_VERSION_STR;
+	return header.str();
+}
 
+wstring HelpUtilities::GetHeader()
+{	
+	wstringstream header;
+	header << GeTitle();
 	header << endl << VER_COPYRIGHT_STR;
 	header << endl << VER_FILE_DESCRIPTION_STR;
 	return header.str();
@@ -43,20 +48,6 @@ wstring HelpUtilities::GetHelp()
 	help << endl << L"\t-l:" << ARG_LOG_LEVEL << "\t\t- logging level (" << LOG_LEVEL_DEBUG << L"|" << LOG_LEVEL_NORMAL << L"|" << LOG_LEVEL_ERRORS << L"|" << LOG_LEVEL_OFF << L"), it is optional and \"" << LOG_LEVEL_NORMAL << L"\" by default.";
 	help << endl << L"\t-il:" << ARG_INTEGRITY_LEVEL << "\t- integrity level (" << INTEGRITY_LEVEL_AUTO << L"|" << INTEGRITY_LEVEL_UNTRUSTED << L"|" << INTEGRITY_LEVEL_LOW << L"|" << INTEGRITY_LEVEL_MEDIUM L"|" << INTEGRITY_LEVEL_MEDIUM_PLUS L"|" << INTEGRITY_LEVEL_HIGH << L"), it is optional and \"" << INTEGRITY_LEVEL_AUTO << L"\" by default.";
 	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\t- set \"" << INHERITANCE_MODE_ON << L"\" when the environment variables should be inherited from a parent process, set \"" << INHERITANCE_MODE_AUTO << L"\" when the some environment variables should be inherited from a parent process, set to \"" << INHERITANCE_MODE_OFF << L"\" when environment variables should not be inherited from a parent process, it is optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
-	help << L" The list of environment variables which are overridden in the \"" << INHERITANCE_MODE_AUTO << L"\" mode:";
-
-	auto overrides = Environment::GetAutoOverrides();
-	for (auto overridesIterrator = overrides.begin(); overridesIterrator != overrides.end(); ++overridesIterrator)
-	{
-		if (overridesIterrator != overrides.begin())
-		{
-			help << L",";
-		}
-
-		help << L" ";
-		help << *overridesIterrator;
-	}
-
 	help << endl << L"\t-c:" << ARG_CONFIGURATION_FILE << L"\t- text file, containing the any configuration arguments, it is optional.";
 	help << endl << L"\t" << ARG_EXECUTABLE << "\t\t- executable file.";
 	help << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << "\t- command line arguments, it is optional and empty by default. The maximum total length of \"" << ARG_EXECUTABLE << L"\" and \"" << ARG_EXIT_COMMAND_LINE_ARGS << L"\" is 1024 characters.";

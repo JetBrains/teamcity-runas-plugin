@@ -1,20 +1,17 @@
 #include "stdafx.h"
 #include "Environment.h"
 #include <regex>
-#include <set>
 #include "Handle.h"
 #include "ErrorUtilities.h"
 #include "StringUtilities.h"
 #include "Trace.h"
+#include <set>
 
 static const wregex EnvVarRegex = wregex(L"(.+)=(.*)");
-
+static const wstring UserProfileEnvVarName = L"USERPROFILE";
+static const wstring PathEnvVarName = L"PATH";
 // In upper case
 static const set<wstring> AutoOverrides = {
-	L"APPDATA",
-	L"HOMEPATH",
-	L"HOMEDRIVE",
-	L"LOCALAPPDATA",
 	L"USERDOMAIN",
 	L"USERDOMAIN_ROAMINGPROFILE",
 	L"USERNAME",
@@ -74,7 +71,7 @@ Environment Environment::CreateFormString(const wstring& variables, Trace& trace
 			continue;
 		}
 
-		auto envName = matchResult._At(1).str();
+		auto envName = StringUtilities::Convert(matchResult._At(1).str(), toupper);
 		auto envValue = matchResult._At(2).str();
 		environment._vars[envName] = envValue;
 		environment._empty = false;
@@ -87,28 +84,44 @@ Environment Environment::CreateFormString(const wstring& variables, Trace& trace
 Environment Environment::Override(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace)
 {
 	trace < L"Environment::Override";
-	trace < L"Copy environment variables from base environment";
-	Environment targetEnvironment;
+	trace < L"Environment::Copy environment variables from base environment";
+	Environment overridedEnvironment;
 	for (auto varsIterator = baseEnvironment._vars.begin(); varsIterator != baseEnvironment._vars.end(); ++varsIterator)
 	{
-		targetEnvironment._vars[varsIterator->first] = varsIterator->second;
-		targetEnvironment._empty = false;
+		overridedEnvironment._vars[varsIterator->first] = varsIterator->second;
+		overridedEnvironment._empty = false;
 		TraceVarible(trace, varsIterator->first, varsIterator->second);		
 	}
 
-	trace < L"Override environment variables from source environment";
-	auto autoOverrides = GetAutoOverrides();
+	auto userProfileInLowCase = StringUtilities::Convert(overridedEnvironment._vars[UserProfileEnvVarName], tolower);
+
+	trace < L"Environment::Override environment variables from source environment";
 	for (auto varsIterator = sourceEnvironment._vars.begin(); varsIterator != sourceEnvironment._vars.end(); ++varsIterator)
 	{
-		auto varNameInLowCase = StringUtilities::Convert(varsIterator->first, toupper);
-		if (autoOverrides.find(varNameInLowCase) != autoOverrides.end())
+		auto name = varsIterator->first;
+		auto value = varsIterator->second;
+		auto overridedValue = overridedEnvironment._vars[name];
+		auto valueInLowCase = StringUtilities::Convert(value, tolower);
+		auto overridedValueInLowCase = StringUtilities::Convert(overridedValue, tolower);
+		
+		// Concat paths
+		if (name == PathEnvVarName)
 		{
-			targetEnvironment._vars[varsIterator->first] = varsIterator->second;
-			TraceVarible(trace, varsIterator->first, varsIterator->second);
+			value = value + (overridedValue.length() > 0 && value.length() > 0 ? L";" : L"") + overridedValue;
+			overridedEnvironment._vars[name] = value;
+			TraceVarible(trace, name, value);
+			continue;
+		}
+		
+		// Override values when AutoOverrides all value containts a path to userProfile
+		if (AutoOverrides.find(name) != AutoOverrides.end() || overridedValueInLowCase.find(userProfileInLowCase) != wstring::npos)
+		{
+			overridedEnvironment._vars[name] = value;
+			TraceVarible(trace, name, value);
 		}
 	}
 
-	return targetEnvironment;
+	return overridedEnvironment;
 }
 
 Environment::~Environment()
@@ -143,7 +156,7 @@ void Environment::CreateVariableMap(LPVOID environment, Trace& trace)
 			continue;
 		}
 
-		auto envName = matchResult._At(1).str();
+		auto envName = StringUtilities::Convert(matchResult._At(1).str(), toupper);;
 		auto envValue = matchResult._At(2).str();
 		_vars[envName] = envValue;
 		TraceVarible(trace, envName, envValue);
@@ -194,26 +207,6 @@ LPVOID* Environment::CreateEnvironment()
 	auto environment = CreateEnvironmentFromMap();
 	_environmentBlocks.push_back(environment);
 	return environment;
-}
-
-wstring Environment::TryGetValue(const wstring& variableName)
-{
-	auto curVarNameInLowCase = StringUtilities::Convert(variableName, tolower);
-	for (auto varsIterator = _vars.begin(); varsIterator != _vars.end(); ++varsIterator)
-	{
-		auto varNameInLowCase = StringUtilities::Convert(varsIterator->first, tolower);
-		if (varNameInLowCase == curVarNameInLowCase)
-		{
-			return varsIterator->second;
-		}
-	}
-
-	return L"";
-}
-
-set<wstring> Environment::GetAutoOverrides()
-{
-	return AutoOverrides;
 }
 
 void Environment::TraceVarible(Trace& trace, const wstring& key, const wstring& value)

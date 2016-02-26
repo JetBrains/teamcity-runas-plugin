@@ -3,7 +3,6 @@
 #include <map>
 #include "Result.h"
 #include "Handle.h"
-#include <set>
 
 class Trace;
 
@@ -12,7 +11,6 @@ class Environment
 	list<LPVOID*> _environmentBlocks;
 	map<wstring, wstring> _vars;
 	bool _empty = true;
-
 	void CreateVariableMap(LPVOID environment, Trace& trace);
 	LPVOID* CreateEnvironmentFromMap();
 	static void Environment::TraceVarible(Trace& trace, const wstring& key, const wstring& value);
@@ -23,7 +21,5 @@ public:
 	static Environment CreateFormString(const wstring& variables, Trace& trace);
 	static Environment Override(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace);
 	~Environment();
-	LPVOID* CreateEnvironment();
-	wstring TryGetValue(const wstring& variableName);
-	static set<wstring> GetAutoOverrides();	
+	LPVOID* CreateEnvironment();	
 };
