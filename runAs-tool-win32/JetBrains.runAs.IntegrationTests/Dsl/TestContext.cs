@@ -6,8 +6,8 @@
 	internal class TestContext
 	{
 		public TestContext()
-		{			
-			SandboxPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GetSandboxName()));
+		{
+			SandboxPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(new Uri(GetType().Assembly.CodeBase).LocalPath), GetSandboxName()));
 			CurrentDirectory = SandboxPath;
 			CommandLineSetup = new CommandLineSetup { WorkingDirectory = SandboxPath };
 			RunAsEnvironment.Prepare(SandboxPath, CommandLineSetup);
