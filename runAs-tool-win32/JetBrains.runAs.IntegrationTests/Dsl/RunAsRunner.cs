@@ -43,8 +43,11 @@
 			process.Start();
 			process.BeginOutputReadLine();
 			process.BeginErrorReadLine();
-			process.WaitForExit();			
-			return new TestSession(ctx, process.ExitCode, output.ToString(), errors.ToString());
+			process.WaitForExit();
+			var outputStr = output.ToString();
+			var errorsStr = errors.ToString();
+			Console.WriteLine(outputStr);
+			return new TestSession(ctx, process.ExitCode, outputStr, errorsStr);
 		}
 	}
 }
