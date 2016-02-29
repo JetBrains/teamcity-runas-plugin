@@ -31,9 +31,9 @@ Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 		if (runResult.HasError())
 		{
 			trace < L"ProcessRunner::Run failed";
-			trace < L"ProcessRunner::Run error code:";
+			trace < L"ProcessRunner::Run error code: ";
 			trace << runResult.GetErrorCode();
-			trace < L"ProcessRunner::Run error description:";
+			trace < L"ProcessRunner::Run error description: ";
 			trace << runResult.GetErrorDescription();
 			continue;
 		}
