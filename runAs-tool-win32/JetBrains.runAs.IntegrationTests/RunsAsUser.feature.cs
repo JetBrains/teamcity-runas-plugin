@@ -73,7 +73,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 4
  testRunner.Given("I have appended the file command.cmd by the line WhoAmI.exe", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 5
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 6
  testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 7
@@ -88,7 +88,7 @@ this.ScenarioSetup(scenarioInfo);
             table1.AddRow(new string[] {
                         "WhoAmI.exe"});
             table1.AddRow(new string[] {
-                        ".+\\\\TestUser"});
+                        ".+\\\\RunAsTestUser"});
 #line 10
  testRunner.And("the output should contain:", ((string)(null)), table1, "And ");
 #line hidden
@@ -116,7 +116,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 16
  testRunner.Given(string.Format("I have appended the file {0} by the line WhoAmI.exe", cmdFileName), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 17
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 18
  testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 19
@@ -137,7 +137,7 @@ this.ScenarioSetup(scenarioInfo);
             table2.AddRow(new string[] {
                         "WhoAmI.exe"});
             table2.AddRow(new string[] {
-                        ".+\\\\TestUser"});
+                        ".+\\\\RunAsTestUser"});
 #line 25
  testRunner.And("the output should contain:", ((string)(null)), table2, "And ");
 #line hidden
@@ -166,7 +166,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 45
  testRunner.Given(string.Format("I have appended the file {0} by the line WhoAmI.exe", cmdFileName), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 46
- testRunner.And("I have appended the file args.txt by the line -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 47
  testRunner.And("I have appended the file args.txt by the line -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 48
@@ -189,7 +189,7 @@ this.ScenarioSetup(scenarioInfo);
             table3.AddRow(new string[] {
                         "WhoAmI.exe"});
             table3.AddRow(new string[] {
-                        ".+\\\\TestUser"});
+                        ".+\\\\RunAsTestUser"});
 #line 55
  testRunner.And("the output should contain:", ((string)(null)), table3, "And ");
 #line hidden
@@ -210,7 +210,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 78
  testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 79
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 80
  testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 81
@@ -223,7 +223,7 @@ this.ScenarioSetup(scenarioInfo);
             table4.AddRow(new string[] {
                         "WhoAmI.exe"});
             table4.AddRow(new string[] {
-                        ".+\\\\TestUser"});
+                        ".+\\\\RunAsTestUser"});
 #line 83
  testRunner.And("the output should contain:", ((string)(null)), table4, "And ");
 #line hidden
@@ -240,7 +240,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 89
  testRunner.Given("I have appended the file command.cmd by the line @echo %1 %2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 90
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 91
  testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 92
@@ -280,7 +280,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 105
  testRunner.And("I have appended the file args.txt by the line \"world !!!\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 106
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 107
  testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 108
@@ -316,7 +316,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 119
  testRunner.And("I have appended the file args.txt by the line world !!!", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 120
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 121
  testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 122
@@ -353,7 +353,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 131
  testRunner.And(string.Format("I have appended the file command.cmd by the line @exit {0} /B", exitCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 132
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 133
  testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 134
@@ -368,7 +368,7 @@ this.ScenarioSetup(scenarioInfo);
             table8.AddRow(new string[] {
                         "WhoAmI.exe"});
             table8.AddRow(new string[] {
-                        ".+\\\\TestUser"});
+                        ".+\\\\RunAsTestUser"});
 #line 137
  testRunner.And("the output should contain:", ((string)(null)), table8, "And ");
 #line hidden
@@ -416,7 +416,7 @@ this.ScenarioSetup(scenarioInfo);
  testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
                     "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 163
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 164
  testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 165
@@ -476,7 +476,7 @@ this.ScenarioSetup(scenarioInfo);
  testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
                     "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 183
- testRunner.And("I\'ve added the argument -u:TestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 184
  testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 185

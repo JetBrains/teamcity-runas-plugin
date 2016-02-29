@@ -12,7 +12,7 @@ Scenario: RunAs returns -201 exit code and shows error message when user runs wi
 
 Scenario: RunAs returns -201 exit code and shows error message when user runs without execurable arg
 	Given I have appended the file command.cmd by the line WhoAmI.exe
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	When I run RunAs tool
 	Then the exit code should be -100001
@@ -27,13 +27,13 @@ Scenario: RunAs returns -201 exit code and shows error message when user add cmd
 	And I have appended the file args.txt by the line hello
 	And I have appended the file args.txt by the line "world !!!"
 	And I've added the argument -c:args.txt	
-	And I've added the argument -u:TestUser	
+	And I've added the argument -u:RunAsTestUser	
 	When I run RunAs tool
 	Then the exit code should be -100001
 
 Scenario: RunAs returns -201 exit code and shows error message when user add cmd args not in the
 	Given I have appended the file command.cmd by the line @echo %1 %2
-	And I've added the argument -u:TestUser	
+	And I've added the argument -u:RunAsTestUser	
 	And I've added the argument -c:args.txt	
 	And I've added the argument hello
 	And I've added the argument command.cmd
@@ -59,7 +59,7 @@ Examples:
 Scenario Outline: User runs the command whith invalid arg for the inherited environment
 	Given I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%
 	And I've defined the TestEnvVar environment variable by the value TestValue
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument -i:<inhetritEnvironment>
 	And I've added the argument command.cmd

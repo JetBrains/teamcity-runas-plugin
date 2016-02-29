@@ -2,7 +2,7 @@
 
 Scenario: User runs the command under the specific user account
 	Given I have appended the file command.cmd by the line WhoAmI.exe
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument command.cmd
 	When I run RunAs tool
@@ -10,11 +10,11 @@ Scenario: User runs the command under the specific user account
 	And the output should contain:
 	|                |
 	| WhoAmI.exe     |
-	| .+\\\\TestUser |
+	| .+\\\\RunAsTestUser |
 
 Scenario Outline: User runs the command which contains spaces in the path
 	Given I have appended the file <cmdFileName> by the line WhoAmI.exe
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument cmd.exe
 	And I've added the argument /C
@@ -25,7 +25,7 @@ Scenario Outline: User runs the command which contains spaces in the path
 	And the output should contain:
 	|                |
 	| WhoAmI.exe     |
-	| .+\\\\TestUser |
+	| .+\\\\RunAsTestUser |
 
 Examples:
 	| cmdFileName            | args         |
@@ -43,7 +43,7 @@ Examples:
 
 Scenario Outline: User runs the command which contains spaces in the path via config file for args
 	Given I have appended the file <cmdFileName> by the line WhoAmI.exe
-	And I have appended the file args.txt by the line -u:TestUser
+	And I have appended the file args.txt by the line -u:RunAsTestUser
 	And I have appended the file args.txt by the line -p:aaa
 	And I have appended the file args.txt by the line cmd.exe
 	And I have appended the file args.txt by the line /S
@@ -55,7 +55,7 @@ Scenario Outline: User runs the command which contains spaces in the path via co
 	And the output should contain:
 	|                |
 	| WhoAmI.exe     |
-	| .+\\\\TestUser |
+	| .+\\\\RunAsTestUser |
 
 Examples:
 	| cmdFileName            | args         |
@@ -76,18 +76,18 @@ Scenario: User runs using config file for args
 	Given I have appended the file command.cmd by the line WhoAmI.exe
 	And I have appended the file args.txt by the line -p:aaa
 	And I have appended the file args.txt by the line command.cmd
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -c:args.txt	
 	When I run RunAs tool
 	Then the exit code should be 0
 	And the output should contain:
 	|                |
 	| WhoAmI.exe     |
-	| .+\\\\TestUser |
+	| .+\\\\RunAsTestUser |
 
 Scenario: User runs the command with cmd args
 	Given I have appended the file command.cmd by the line @echo %1 %2
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument command.cmd
 	And I've added the argument hello
@@ -103,7 +103,7 @@ Scenario: User runs the command with cmd args via config file for args
 	And I have appended the file args.txt by the line command.cmd
 	And I have appended the file args.txt by the line hello
 	And I have appended the file args.txt by the line "world !!!"
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument -c:args.txt		
 	When I run RunAs tool
@@ -117,7 +117,7 @@ Scenario: User runs the command with cmd args via config file with unquoted args
 	And I have appended the file args.txt by the line command.cmd
 	And I have appended the file args.txt by the line hello
 	And I have appended the file args.txt by the line world !!!
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument -c:args.txt		
 	When I run RunAs tool
@@ -129,7 +129,7 @@ Scenario: User runs the command with cmd args via config file with unquoted args
 Scenario Outline: RunAs returns the exit code from the target command
 	Given I have appended the file command.cmd by the line WhoAmI.exe
 	And I have appended the file command.cmd by the line @exit <exitCode> /B
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument command.cmd
 	When I run RunAs tool
@@ -137,7 +137,7 @@ Scenario Outline: RunAs returns the exit code from the target command
 	And the output should contain:
 	|                |
 	| WhoAmI.exe     |
-	| .+\\\\TestUser |
+	| .+\\\\RunAsTestUser |
 
 Examples:
 	| exitCode  |
@@ -160,7 +160,7 @@ Scenario: User runs with long args
 	And I have appended the file args.txt by the line 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 	And I have appended the file args.txt by the line 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 	And I have appended the file args.txt by the line 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -c:args.txt	
 	When I run RunAs tool
 	Then the exit code should be 0
@@ -180,7 +180,7 @@ Scenario: The tool returns ERROR_CODE_INVALID_USAGE exit code when command line 
 	And I have appended the file args.txt by the line 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 	And I have appended the file args.txt by the line 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 	And I have appended the file args.txt by the line 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -c:args.txt	
 	When I run RunAs tool
 	Then the exit code should be -100001	

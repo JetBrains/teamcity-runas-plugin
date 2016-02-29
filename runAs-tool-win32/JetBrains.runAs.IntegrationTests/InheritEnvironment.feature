@@ -3,7 +3,7 @@
 Scenario: User runs the command whith the inherited environment by default
 	Given I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%
 	And I've defined the TestEnvVar environment variable by the value TestValue
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument command.cmd
 	When I run RunAs tool
@@ -15,7 +15,7 @@ Scenario: User runs the command whith the inherited environment by default
 Scenario Outline: User runs the command whith the inherited environment
 	Given I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%
 	And I've defined the TestEnvVar environment variable by the value TestValue
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument -i:<inhetritEnvironment>
 	And I've added the argument command.cmd
@@ -34,7 +34,7 @@ Examples:
 Scenario Outline: User runs the command whith the not inherited environment
 	Given I have appended the file command.cmd by the line @echo TestEnvVar=%TestEnvVar%
 	And I've defined the TestEnvVar environment variable by the value TestValue
-	And I've added the argument -u:TestUser
+	And I've added the argument -u:RunAsTestUser
 	And I've added the argument -p:aaa
 	And I've added the argument -i:<inhetritEnvironment>
 	And I've added the argument command.cmd
