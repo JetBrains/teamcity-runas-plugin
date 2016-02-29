@@ -21,14 +21,26 @@ Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 	auto runResult = Result<ExitCode>(ERROR_CODE_UNKOWN, L"The processes are not available.");
 	for (auto processIterrator = _processes.begin(); processIterrator != _processes.end(); ++processIterrator)
 	{
+		if (processIterrator != _processes.begin())
+		{
+			trace < L"ProcessRunner::Select other type of process";
+		}
+
 		ProcessTracker processTracker(stdOutput, stdError);
 		runResult = (*processIterrator)->Run(settings, processTracker);
+		if (runResult.HasError())
+		{
+			trace < L"ProcessRunner::Run failed";
+			trace < L"ProcessRunner::Run error code:";
+			trace << runResult.GetErrorCode();
+			trace < L"ProcessRunner::Run error description:";
+			trace << runResult.GetErrorDescription();
+		}
+		
 		if (!runResult.HasError() && runResult.GetResultValue() != STATUS_DLL_INIT_FAILED)
 		{
 			break;
 		}
-
-		trace < L"ProcessRunner::Select other type of process";
 	}
 
 	return runResult;	
