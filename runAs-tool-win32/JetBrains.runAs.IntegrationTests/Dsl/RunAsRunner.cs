@@ -12,9 +12,11 @@
 		public TestSession Run(TestContext ctx, CommandLineSetup setup)
 		{
 			var lines = new List<string>();
+			var cmdArgs = setup.Arguments.ToList();
+			cmdArgs.Insert(0, "-l:debug");
 			lines.AddRange(ctx.CommandLineSetup.EnvVariables.Select(envVar => $"@SET \"{envVar.Key}={envVar.Value}\""));
 			lines.Add($"@pushd \"{ctx.CurrentDirectory}\"");
-			lines.Add($"@\"{setup.ToolName}\" " + string.Join(" ", setup.Arguments));
+			lines.Add($"@\"{setup.ToolName}\" " + string.Join(" ", cmdArgs));
 			lines.Add("@set exitCode=%errorlevel%");
 			lines.Add("@popd");
 			lines.Add("@exit /b %exitCode%");
