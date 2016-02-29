@@ -35,9 +35,10 @@ Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 			trace << runResult.GetErrorCode();
 			trace < L"ProcessRunner::Run error description:";
 			trace << runResult.GetErrorDescription();
+			continue;
 		}
 		
-		if (!runResult.HasError() && runResult.GetResultValue() != STATUS_DLL_INIT_FAILED)
+		if (runResult.GetResultValue() != STATUS_DLL_INIT_FAILED)
 		{
 			break;
 		}
