@@ -13,11 +13,10 @@
 			const string Build = "Release";
 #endif
 
-			var platform = "x86";
-			if (IntPtr.Size == 8)
-			{
-				platform = "x64";
-			}
+			var platform = "x64";
+#if x86
+			platform = "x86";
+#endif
 
 			if (Directory.Exists(targetDirectory))
 			{
