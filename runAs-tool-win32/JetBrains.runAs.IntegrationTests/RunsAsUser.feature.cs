@@ -426,66 +426,6 @@ this.ScenarioSetup(scenarioInfo);
 #line hidden
             this.ScenarioCleanup();
         }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("The tool returns ERROR_CODE_INVALID_USAGE exit code when command line is too long" +
-            "")]
-        public virtual void TheToolReturnsERROR_CODE_INVALID_USAGEExitCodeWhenCommandLineIsTooLong()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("The tool returns ERROR_CODE_INVALID_USAGE exit code when command line is too long" +
-                    "", ((string[])(null)));
-#line 168
-this.ScenarioSetup(scenarioInfo);
-#line 169
- testRunner.Given("I have appended the file command.cmd by the line echo %*", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 170
- testRunner.And("I have appended the file args.txt by the line -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 171
- testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 172
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 173
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 174
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 175
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 176
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 177
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 178
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 179
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 180
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 181
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 182
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 183
- testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 184
- testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 185
- testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 186
- testRunner.Then("the exit code should be -100001", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            this.ScenarioCleanup();
-        }
     }
 }
 #pragma warning restore
