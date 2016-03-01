@@ -1,3 +1,4 @@
 Import-Module .\userRights.ps1
 
-Grant-UserRight RunAsTestUser SeAssignPrimaryTokenPrivilege
+$userName = [Environment]::UserName
+Grant-UserRight $userName SeAssignPrimaryTokenPrivilege

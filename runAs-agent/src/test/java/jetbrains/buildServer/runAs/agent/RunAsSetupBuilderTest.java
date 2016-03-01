@@ -74,6 +74,9 @@ public class RunAsSetupBuilderTest {
       oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
       will(returnValue(Arrays.asList(password, "aaa")));
 
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.ADDITIONAL_ARGS_VAR);
+      will(returnValue(Arrays.asList()));
+
       oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.ADDITIONAL_ARGS_VAR);
       will(returnValue("args"));
 
@@ -147,9 +150,6 @@ public class RunAsSetupBuilderTest {
 
       oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
       will(returnValue(Arrays.asList(userName)));
-
-      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
-      will(returnValue(Arrays.asList(password)));
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -173,10 +173,10 @@ public class RunAsSetupBuilderTest {
       oneOf(myRunnerParametersService).isRunningUnderWindows();
       will(returnValue(true));
 
-      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
-      will(returnValue(Arrays.asList()));
+      oneOf(myRunnerParametersService).tryGetConfigParameter(Constants.USER_VAR);
+      will(returnValue(null));
 
-      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
+      oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
       will(returnValue(Arrays.asList()));
     }});
 

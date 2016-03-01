@@ -8,7 +8,10 @@ import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.StringUtil;
+import org.apache.xpath.operations.Equals;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.util.StringUtils;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String TOOL_FILE_NAME = "runAs.cmd";
@@ -47,19 +50,17 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     }
 
     // Get parameters
-    final List<String> userNames = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
-    final List<String> passwords = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.PASSWORD_VAR);
-    if(userNames.size() == 0 || passwords.size() == 0) {
+    final String userName = tryGetParameter(Constants.USER_VAR);
+    if(StringUtil.isEmptyOrSpaces(userName)) {
       return Collections.singleton(commandLineSetup);
     }
 
-    final String userName = userNames.get(0);
-    final String password = passwords.get(0);
-    if(StringUtil.isEmptyOrSpaces(userName) || password == null) {
-      return Collections.singleton(commandLineSetup);
+    String password = tryGetParameter(Constants.PASSWORD_VAR);
+    if(password == null) {
+      password = "";
     }
 
-    String additionalArgs = myParametersService.tryGetConfigParameter(Constants.ADDITIONAL_ARGS_VAR);
+    String additionalArgs = tryGetParameter(Constants.ADDITIONAL_ARGS_VAR);
     if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
       additionalArgs = "";
     }
@@ -91,6 +92,17 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
           new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
           new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER)),
         resources));
+  }
+
+  @Nullable
+  private String tryGetParameter(@NotNull final String paramName)
+  {
+    final List<String> paramValues = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, paramName);
+    if (paramValues.size() == 0) {
+      return myParametersService.tryGetConfigParameter(paramName);
+    }
+
+    return paramValues.get(0);
   }
 
   private File getTool() {
