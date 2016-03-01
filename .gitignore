@@ -21,3 +21,6 @@ runAs-tool-win32/temp/
 runAs-tool-win32/ipch/
 runAs-tool-win32/packages/
 runAs-tool-win32/JetBrains.runAs.IntegrationTests/obj/
+runAs-tool-win32/JetBrains.runAs/temp/
+runAs-tool-win32/JetBrains.getOSBitness/temp/
+TestResult.xml
