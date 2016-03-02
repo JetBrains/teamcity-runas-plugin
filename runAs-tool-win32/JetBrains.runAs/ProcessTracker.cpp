@@ -77,13 +77,10 @@ Result<bool> ProcessTracker::RedirectStream(const HANDLE hPipeRead, IStreamWrite
 
 	if (!PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesReaded, &totalBytesAvail, &bytesLeftThisMessage))
 	{
-		if (GetLastError() == ERROR_BROKEN_PIPE)
+		if (GetLastError() != ERROR_BROKEN_PIPE)
 		{
-			// Pipe done - normal exit path.
-			return true;
+			return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"PeekNamedPipe"));
 		}
-
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"PeekNamedPipe"));
 	}
 
 	if (totalBytesAvail == 0)

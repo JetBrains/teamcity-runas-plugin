@@ -1,5 +1,12 @@
 #include "stdafx.h"
 #include "Handle.h"
+#include "Result.h"
+#include "ErrorUtilities.h"
+
+Handle::Handle()
+	:Handle(L"")
+{
+}
 
 Handle::Handle(const wstring& name)
 {
@@ -34,4 +41,23 @@ PHANDLE Handle::operator&()
 bool Handle::IsInvalid() const
 {
 	return _handle == INVALID_HANDLE_VALUE;
+}
+
+Result<Handle> Handle::Duplicate(const Handle& sourceProcess, const Handle& targetProcess, DWORD desiredAccess, bool inheritHandle, DWORD options) const
+{
+	Handle targetHandle(L"Duplicated handle");
+	if (DuplicateHandle(
+		sourceProcess,
+		_handle,
+		targetProcess,
+		&targetHandle,
+		desiredAccess,
+		inheritHandle,
+		options
+		))
+	{
+		return Result<Handle>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+	}
+
+	return targetHandle;
 }
