@@ -42,6 +42,7 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			settings.GetWorkingDirectory(),
 			DEFAULT_EXIT_CODE_BASE,
 			{ L"/U", L"/C", L"SET" },
+			{ },
 			INHERITANCE_MODE_OFF,
 			INTEGRITY_LEVEL_AUTO);
 
@@ -72,7 +73,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 	{
 		environment = Environment::Override(callingProcessEnvironment, targetUserEnvironment, trace);
 	}
-	
+
+	environment = Environment::Apply(environment, Environment::CreateFormList(settings.GetEnvironmentVariables(), trace), trace);	
 	return RunInternal(trace, settings, processTracker, environment);
 }
 

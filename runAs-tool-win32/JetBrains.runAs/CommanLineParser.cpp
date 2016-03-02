@@ -27,6 +27,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 	wstring workingDirectory;
 	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
 	list<wstring> commandLineArgs;
+	list<wstring> envVars;
 	auto inheritanceMode = INHERITANCE_MODE_AUTO;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	*logLevel = LOG_LEVEL_NORMAL;
@@ -233,6 +234,13 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			}
 		}
 
+		// Environment variable
+		if (argNameInLowCase == L"e")
+		{
+			envVars.push_back(argValue);
+			continue;
+		}
+
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
@@ -274,7 +282,8 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		executable,
 		workingDirectory,
 		*exitCodeBase,
-		commandLineArgs, 
+		commandLineArgs,
+		envVars,
 		inheritanceMode,
 		integrityLevel);
 

@@ -96,17 +96,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
 	{
 		// Show settings
-		console << endl << endl << L"Settings:";
-		console << endl << L"\t" << ARG_USER_NAME << L":\t\t" << GetStringValue(settings.GetUserName());
-		console << endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetStringValue(settings.GetDomain());
-		console << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetStringValue(settings.GetWorkingDirectory());
-		console << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << to_wstring(settings.GetExitCodeBase());
-		console << endl << L"\t" << ARG_LOG_LEVEL << L":\t\t" << logLevel;
-		console << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << settings.GetIntegrityLevel();
-		console << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << settings.GetInheritanceMode();
-		console << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetStringValue(settings.GetExecutable());
-		console << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetStringValue(settings.GetCommandLine());
-
+		console << endl << endl << L"Settings:" << endl << settings.ToString();
 		if (result.GetErrorCode() == ERROR_CODE_INVALID_USAGE)
 		{
 			console << endl << HelpUtilities::GetHelp();

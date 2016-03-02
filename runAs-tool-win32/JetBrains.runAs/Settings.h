@@ -12,7 +12,8 @@ class Settings
 	wstring _password = L"";
 	wstring _executable = L"";
 	wstring _workingDirectory = L"";
-	list<wstring> _args;
+	list<wstring> _args = {};
+	list<wstring> _envVars = {};
 	int _exitCodeBase = 0;
 	InheritanceMode _inheritanceMode = INHERITANCE_MODE_AUTO;
 	LogLevel _logLevel = LOG_LEVEL_NORMAL;
@@ -30,6 +31,7 @@ public:
 		const wstring& workingDirectory,
 		const int exitCodeBase,
 		const list<wstring>& args,
+		const list<wstring>& envVars,
 		const InheritanceMode& inheritanceMode,
 		const IntegrityLevel& integrityLevel);
 
@@ -39,9 +41,11 @@ public:
 	wstring GetExecutable() const;
 	wstring GetCommandLine() const;
 	wstring GetWorkingDirectory() const;
+	list<wstring> GetEnvironmentVariables() const;
 	int GetExitCodeBase() const;
 	InheritanceMode GetInheritanceMode() const;
 	LogLevel GetLogLevel() const;
 	void SetLogLevel(const LogLevel& logLevel);
 	IntegrityLevel GetIntegrityLevel() const;
+	wstring ToString() const;
 };

@@ -90,7 +90,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
 	}
 
-	auto newProcessEnvironmentResult = GetEnvironment(primaryNewUserSecurityTokenHandle, settings.GetInheritanceMode(), trace);
+	auto newProcessEnvironmentResult = GetEnvironment(settings, primaryNewUserSecurityTokenHandle, settings.GetInheritanceMode(), trace);
 	if (newProcessEnvironmentResult.HasError())
 	{
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
@@ -149,7 +149,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	return exitCode;
 }
 
-Result<Environment> ProcessAsUser::GetEnvironment(Handle& userToken, const InheritanceMode inheritanceMode, Trace& trace)
+Result<Environment> ProcessAsUser::GetEnvironment(const Settings& settings, Handle& userToken, const InheritanceMode inheritanceMode, Trace& trace)
 {
 	auto callingProcessEnvironmentResult = Environment::CreateForCurrentProcess(trace);
 	if(callingProcessEnvironmentResult.HasError())
@@ -171,5 +171,6 @@ Result<Environment> ProcessAsUser::GetEnvironment(Handle& userToken, const Inher
 	}
 	
 	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
-	return Environment::Override(callingProcessEnvironment, targetUserEnvironment, trace);
+	auto environment = Environment::Override(callingProcessEnvironment, targetUserEnvironment, trace);
+	return Environment::Apply(environment, Environment::CreateFormList(settings.GetEnvironmentVariables(), trace), trace);
 }

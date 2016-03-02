@@ -45,7 +45,7 @@
         {
 			var ctx = ScenarioContext.Current.GetTestContext();
 			var runner = new RunAsRunner();
-			var testSession = runner.Run(ctx, ctx.CommandLineSetup);
+			var testSession = runner.Run(ctx);
 			ctx.TestSession = testSession;
 		}
 

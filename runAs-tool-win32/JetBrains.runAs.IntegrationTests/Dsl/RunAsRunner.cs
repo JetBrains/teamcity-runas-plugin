@@ -9,14 +9,14 @@
 
 	internal class RunAsRunner
 	{
-		public TestSession Run(TestContext ctx, CommandLineSetup setup)
+		public TestSession Run(TestContext ctx)
 		{
 			var lines = new List<string>();
-			var cmdArgs = setup.Arguments.ToList();
-			cmdArgs.Insert(0, "-l:debug");
+			var cmdArgs = ctx.CommandLineSetup.Arguments.ToList();
+			// cmdArgs.Insert(0, "-l:debug");
 			lines.AddRange(ctx.CommandLineSetup.EnvVariables.Select(envVar => $"@SET \"{envVar.Key}={envVar.Value}\""));
 			lines.Add($"@pushd \"{ctx.CurrentDirectory}\"");
-			lines.Add($"@\"{setup.ToolName}\" " + string.Join(" ", cmdArgs));
+			lines.Add($"@\"{ctx.CommandLineSetup.ToolName}\" " + string.Join(" ", cmdArgs));
 			lines.Add("@set exitCode=%errorlevel%");
 			lines.Add("@popd");
 			lines.Add("@exit /b %exitCode%");
@@ -34,12 +34,6 @@
 			process.StartInfo.RedirectStandardError = true;
 			process.OutputDataReceived += (sender, args) => { output.AppendLine(args.Data); };
 			process.ErrorDataReceived += (sender, args) => { errors.AppendLine(args.Data); };
-
-			foreach (var envVariable in setup.EnvVariables)
-			{
-				process.StartInfo.EnvironmentVariables.Add(envVariable.Key, envVariable.Value);
-			}
-
 			process.Start();
 			process.BeginOutputReadLine();
 			process.BeginErrorReadLine();

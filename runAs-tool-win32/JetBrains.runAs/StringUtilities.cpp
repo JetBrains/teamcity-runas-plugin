@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "StringUtilities.h"
 #include <algorithm>
+#include <list>
 
-vector<wstring> StringUtilities::Split(const wstring& str, const wstring& separator)
+list<wstring> StringUtilities::Split(const wstring& str, const wstring& separator)
 {
-	vector<wstring> strs;
+	list<wstring> strs;
 	auto separatorSize = separator.size();
 	size_t start = 0;
 	size_t pos;

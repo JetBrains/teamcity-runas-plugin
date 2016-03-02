@@ -19,7 +19,9 @@ public:
 	static Result<Environment> CreateForCurrentProcess(Trace& trace);
 	static Result<Environment> CreateForUser(const Handle& token, bool inherit, Trace& trace);
 	static Environment CreateFormString(const wstring& variables, Trace& trace);
+	static Environment CreateFormList(const list<wstring>& variables, Trace& trace);
 	static Environment Override(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace);
+	static Environment Apply(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace);
 	~Environment();
 	LPVOID* CreateEnvironment();	
 };

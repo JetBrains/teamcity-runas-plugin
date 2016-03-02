@@ -244,9 +244,6 @@
   <ItemGroup>
     <ResourceCompile Include="JetBrains.runAs.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="StringWriter.cpp.rej" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

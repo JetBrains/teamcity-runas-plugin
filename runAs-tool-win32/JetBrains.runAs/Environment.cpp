@@ -60,11 +60,15 @@ Result<Environment> Environment::CreateForUser(const Handle& token, bool inherit
 Environment Environment::CreateFormString(const wstring& variables, Trace& trace)
 {
 	trace < L"Environment::CreateFormString";
-	auto vars = StringUtilities::Split(variables, L"\n");
+	return CreateFormList(StringUtilities::Split(variables, L"\n"), trace);
+}
 
+Environment Environment::CreateFormList(const list<wstring>& variables, Trace& trace)
+{
+	trace < L"Environment::CreateFormList";
 	Environment environment;
 	wsmatch matchResult;
-	for (auto varsIterrator = vars.begin(); varsIterrator != vars.end(); ++varsIterrator)
+	for (auto varsIterrator = variables.begin(); varsIterrator != variables.end(); ++varsIterrator)
 	{
 		if (!regex_search(*varsIterrator, matchResult, EnvVarRegex))
 		{
@@ -122,6 +126,27 @@ Environment Environment::Override(const Environment& baseEnvironment, const Envi
 	}
 
 	return overridedEnvironment;
+}
+
+Environment Environment::Apply(const Environment& baseEnvironment, const Environment& sourceEnvironment, Trace& trace)
+{
+	trace < L"Environment::Apply";
+	Environment newEnvironment;
+
+	for (auto varsIterator = baseEnvironment._vars.begin(); varsIterator != baseEnvironment._vars.end(); ++varsIterator)
+	{
+		newEnvironment._vars[varsIterator->first] = varsIterator->second;
+		newEnvironment._empty = false;
+	}
+
+	for (auto varsIterator = sourceEnvironment._vars.begin(); varsIterator != sourceEnvironment._vars.end(); ++varsIterator)
+	{
+		newEnvironment._vars[varsIterator->first] = varsIterator->second;
+		newEnvironment._empty = false;
+		TraceVarible(trace, varsIterator->first, varsIterator->second);
+	}
+
+	return newEnvironment;
 }
 
 Environment::~Environment()

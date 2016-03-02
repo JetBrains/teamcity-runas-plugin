@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "ExitCode.h"
 #include <sstream>
+#include "Args.h"
 
 Settings::Settings(): _exitCodeBase(DEFAULT_EXIT_CODE_BASE)
 {
@@ -15,6 +16,7 @@ Settings::Settings(
 	const wstring& workingDirectory,
 	const int exitCodeBase,
 	const list<wstring>& args,
+	const list<wstring>& envVars,
 	const InheritanceMode& inheritanceMode,
 	const IntegrityLevel& integrityLevel)
 {
@@ -25,6 +27,7 @@ Settings::Settings(
 	_workingDirectory = workingDirectory;
 	_exitCodeBase = exitCodeBase;
 	_args = list<wstring>(args);
+	_envVars = list<wstring>(envVars);
 	_inheritanceMode = inheritanceMode;
 	_integrityLevel = integrityLevel;
 }
@@ -68,6 +71,11 @@ wstring Settings::GetWorkingDirectory() const
 	return _workingDirectory;
 }
 
+list<wstring> Settings::GetEnvironmentVariables() const
+{
+	return _envVars;
+}
+
 int Settings::GetExitCodeBase() const
 {
 	return _exitCodeBase;
@@ -101,4 +109,24 @@ wstring Settings::AddQuotes(wstring str)
 	}
 
 	return str;
+}
+
+wstring Settings::ToString() const
+{
+	wstringstream text;
+	text << endl << L"\t" << ARG_USER_NAME << L":\t\t" << GetUserName();
+	text << endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetDomain();
+	text << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetWorkingDirectory();
+	text << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetWorkingDirectory();
+	for (auto envVarsIterrator = _envVars.begin(); envVarsIterrator != _envVars.end(); ++envVarsIterrator)
+	{
+		text << endl << L"\t" << ARG_ENV_VAR << L":\t\t" << *envVarsIterrator;
+	}
+	
+	text << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << GetExitCodeBase();
+	text << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << GetIntegrityLevel();
+	text << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << GetInheritanceMode();
+	text << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetExecutable();
+	text << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetCommandLine();
+	return text.str();
 }
