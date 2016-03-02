@@ -2,6 +2,7 @@
 #include "PrivilegeManager.h"
 #include "ErrorUtilities.h"
 #include "Handle.h"
+#include "StringBuffer.h"
 
 const list<wstring> AllPrivilegies = {
 	SE_CREATE_TOKEN_NAME,
@@ -100,11 +101,12 @@ Result<bool> PrivilegeManager::SetPrivileges(const Handle& token, const list<wst
 
 Result<LUID> PrivilegeManager::LookupPrivilegeValue(const wstring& privilegeName)
 {
+	StringBuffer privilegeNameBuf(privilegeName);
 	LUID luid;
 	if (!::LookupPrivilegeValue(
-		nullptr,					// lookup privilege on local system
-		privilegeName.c_str(),		// privilege to lookup 
-		&luid))						// receives LUID of privilege
+		nullptr,						// lookup privilege on local system
+		privilegeNameBuf.GetPointer(),	// privilege to lookup 
+		&luid))							// receives LUID of privilege
 	{	
 		return Result<LUID>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LookupPrivilegeValue"));
 	}
