@@ -18,15 +18,11 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	trace < L"ProcessAsUser::Attempt to log a user on to the local computer";
 	trace < L"::LogonUser";
 
-	auto userName = settings.GetUserName().c_str();
-	auto domain = settings.GetDomain().c_str();
-	auto password = settings.GetPassword().c_str();
-
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
-		userName,
-		domain,
-		password,
+		settings.GetUserName().c_str(),
+		settings.GetDomain().c_str(),
+		settings.GetPassword().c_str(),
 		LOGON32_LOGON_NETWORK,
 		LOGON32_PROVIDER_DEFAULT,
 		&newUserSecurityTokenHandle))
@@ -88,7 +84,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	trace < L"::LoadUserProfile";
 	PROFILEINFO profileInfo = {};
 	profileInfo.dwSize = sizeof(PROFILEINFO);
-	profileInfo.lpUserName = const_cast<LPWSTR>(userName);
+	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
 	if (!LoadUserProfile(primaryNewUserSecurityTokenHandle, &profileInfo))
 	{
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
@@ -111,19 +107,18 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	PROCESS_INFORMATION processInformation = {};
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
 	startupInfo.wShowWindow = SW_HIDE;
-	auto cmdLine = settings.GetCommandLine().c_str();
-	auto workingDirectory = settings.GetWorkingDirectory().c_str();
+	auto cmdLine = settings.GetCommandLine();
 	trace < L"::CreateProcessAsUser";
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,
 		nullptr,
-		const_cast<LPWSTR>(cmdLine),
+		const_cast<LPWSTR>(cmdLine.c_str()),
 		&processSecAttributes,
 		&threadSecAttributes,
 		true,
 		CREATE_UNICODE_ENVIRONMENT,
 		newProcessEnvironmentResult.GetResultValue().CreateEnvironment(),
-		workingDirectory,
+		settings.GetWorkingDirectory().c_str(),
 		&startupInfo,
 		&processInformation))
 	{		
