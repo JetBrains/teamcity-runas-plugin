@@ -157,20 +157,44 @@ Result<Environment> ProcessAsUser::GetEnvironment(const Settings& settings, Hand
 		return callingProcessEnvironmentResult;
 	}
 
-	auto callingProcessEnvironment = callingProcessEnvironmentResult.GetResultValue();
 	if (inheritanceMode == INHERITANCE_MODE_ON)
 	{
-		return callingProcessEnvironment;
+		return GetEnvironmentWithSpecifiedByCaller(
+			settings, 
+			callingProcessEnvironmentResult.GetResultValue(), 
+			trace);
 	}
 
 	// Get target user's environment
 	auto targetUserEnvironmentResult = Environment::CreateForUser(userToken, false, trace);
-	if (inheritanceMode == INHERITANCE_MODE_OFF || targetUserEnvironmentResult.HasError())
+	if (targetUserEnvironmentResult.HasError())
 	{
 		return targetUserEnvironmentResult;
 	}
+
+	if (inheritanceMode == INHERITANCE_MODE_OFF)
+	{
+		return GetEnvironmentWithSpecifiedByCaller(
+			settings, 
+			targetUserEnvironmentResult.GetResultValue(), 
+			trace);
+	}
 	
-	auto targetUserEnvironment = targetUserEnvironmentResult.GetResultValue();
-	auto environment = Environment::Override(callingProcessEnvironment, targetUserEnvironment, trace);
-	return Environment::Apply(environment, Environment::CreateFormList(settings.GetEnvironmentVariables(), trace), trace);
+	return GetEnvironmentWithSpecifiedByCaller(
+		settings, 
+		Environment::Override(
+			callingProcessEnvironmentResult.GetResultValue(), 
+			targetUserEnvironmentResult.GetResultValue(), 
+			trace),
+		trace);
+}
+
+Result<Environment> ProcessAsUser::GetEnvironmentWithSpecifiedByCaller(const Settings& settings, const Environment& environment, Trace& trace)
+{
+	return Environment::Apply(
+		environment, 
+		Environment::CreateFormList(
+			settings.GetEnvironmentVariables(), 
+			trace), 
+		trace);
 }
