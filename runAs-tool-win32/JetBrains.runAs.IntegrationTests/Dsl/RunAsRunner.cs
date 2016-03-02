@@ -13,7 +13,7 @@
 		{
 			var lines = new List<string>();
 			var cmdArgs = ctx.CommandLineSetup.Arguments.ToList();
-			// cmdArgs.Insert(0, "-l:debug");
+			cmdArgs.Insert(0, "-l:debug");
 			lines.AddRange(ctx.CommandLineSetup.EnvVariables.Select(envVar => $"@SET \"{envVar.Key}={envVar.Value}\""));
 			lines.Add($"@pushd \"{ctx.CurrentDirectory}\"");
 			lines.Add($"@\"{ctx.CommandLineSetup.ToolName}\" " + string.Join(" ", cmdArgs));
