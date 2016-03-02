@@ -179,6 +179,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Args.h" />
+    <ClInclude Include="StringBuffer.h" />
     <ClInclude Include="CommanLineParser.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Environment.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="CommanLineParser.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Environment.cpp" />

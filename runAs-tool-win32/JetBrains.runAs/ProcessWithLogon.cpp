@@ -11,6 +11,7 @@
 #include <sstream>
 #include "Trace.h"
 #include "Job.h"
+#include "StringBuffer.h"
 
 Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
@@ -91,19 +92,24 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 
 	trace < L"ProcessTracker::Initialize";
 	processTracker.Initialize(securityAttributes, startupInfo);	
-	auto cmdLine = settings.GetCommandLine();
+
+	StringBuffer userName(settings.GetUserName());
+	StringBuffer domain(settings.GetDomain());
+	StringBuffer password(settings.GetPassword());
+	StringBuffer workingDirectory(settings.GetWorkingDirectory());
+	StringBuffer commandLine(settings.GetCommandLine());
 
 	trace < L"::CreateProcessWithLogonW";
 	if (!CreateProcessWithLogonW(
-		settings.GetUserName().c_str(),
-		settings.GetDomain().c_str(),
-		settings.GetPassword().c_str(),
+		userName.GetPointer(),
+		domain.GetPointer(),
+		password.GetPointer(),
 		LOGON_WITH_PROFILE,
 		nullptr,
-		const_cast<LPWSTR>(cmdLine.c_str()),
+		commandLine.GetPointer(),
 		CREATE_UNICODE_ENVIRONMENT,
 		environment.CreateEnvironment(),
-		settings.GetWorkingDirectory().c_str(),
+		workingDirectory.GetPointer(),
 		&startupInfo,
 		&processInformation))
 	{

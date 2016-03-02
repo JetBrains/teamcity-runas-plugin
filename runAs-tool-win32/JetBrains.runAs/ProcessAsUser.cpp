@@ -9,6 +9,7 @@
 #include "Trace.h"
 #include "Job.h"
 #include "IntegrityLevelManager.h"
+#include "StringBuffer.h"
 class Trace;
 class ProcessTracker;
 
@@ -17,12 +18,18 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	Trace trace(settings.GetLogLevel());
 	trace < L"ProcessAsUser::Attempt to log a user on to the local computer";
 	trace < L"::LogonUser";
+	
+	StringBuffer userName(settings.GetUserName());
+	StringBuffer domain(settings.GetDomain());
+	StringBuffer password(settings.GetPassword());
+	StringBuffer workingDirectory(settings.GetWorkingDirectory());
+	StringBuffer commandLine(settings.GetCommandLine());
 
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
-		settings.GetUserName().c_str(),
-		settings.GetDomain().c_str(),
-		settings.GetPassword().c_str(),
+		userName.GetPointer(),
+		domain.GetPointer(),
+		password.GetPointer(),
 		LOGON32_LOGON_NETWORK,
 		LOGON32_PROVIDER_DEFAULT,
 		&newUserSecurityTokenHandle))
@@ -84,7 +91,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	trace < L"::LoadUserProfile";
 	PROFILEINFO profileInfo = {};
 	profileInfo.dwSize = sizeof(PROFILEINFO);
-	profileInfo.lpUserName = const_cast<LPWSTR>(settings.GetUserName().c_str());
+	profileInfo.lpUserName = userName.GetPointer();
 	if (!LoadUserProfile(primaryNewUserSecurityTokenHandle, &profileInfo))
 	{
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
@@ -112,13 +119,13 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,
 		nullptr,
-		const_cast<LPWSTR>(cmdLine.c_str()),
+		commandLine.GetPointer(),
 		&processSecAttributes,
 		&threadSecAttributes,
 		true,
 		CREATE_UNICODE_ENVIRONMENT,
 		newProcessEnvironmentResult.GetResultValue().CreateEnvironment(),
-		settings.GetWorkingDirectory().c_str(),
+		workingDirectory.GetPointer(),
 		&startupInfo,
 		&processInformation))
 	{		
