@@ -12,12 +12,12 @@ class ProcessTracker
 	Pipe _stdInPipe = Pipe(L"StdIn");	
 	IStreamWriter& _outputWriter;
 	IStreamWriter& _errorWriter;
-
+	
 	static Result<bool> RedirectStream(const HANDLE hPipeRead, IStreamWriter& writer);
 
 public:
 	ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& errorWriter);
-	Result<bool> Initialize(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo);
+	Result<bool> InitializeConsoleRedirection(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo);
 	Result<ExitCode> WaiteForExit(const HANDLE processHandle);
 };
 

@@ -10,6 +10,7 @@
 #include "Job.h"
 #include "IntegrityLevelManager.h"
 #include "StringBuffer.h"
+#include "ShowModeConverter.h"
 class Trace;
 class ProcessTracker;
 
@@ -37,7 +38,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
 	}	
 	
-	trace < L"ProcessAsUser::Initialize a new security descriptor";
+	trace < L"ProcessAsUser::InitializeConsoleRedirection a new security descriptor";
 	trace < L"::InitializeSecurityDescriptor";
 	SECURITY_DESCRIPTOR securityDescriptor = {};
 	if (!InitializeSecurityDescriptor(
@@ -81,8 +82,8 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	threadSecAttributes.bInheritHandle = false;	
 	STARTUPINFO startupInfo = {};	
 
-	trace < L"ProcessTracker::Initialize";
-	auto error = processTracker.Initialize(processSecAttributes, startupInfo);
+	trace < L"ProcessTracker::InitializeConsoleRedirection";
+	auto error = processTracker.InitializeConsoleRedirection(processSecAttributes, startupInfo);
 	if(error.HasError())
 	{
 		return Result<ExitCode>(error.GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
@@ -113,7 +114,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	trace < L"ProcessAsUser::Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
 	PROCESS_INFORMATION processInformation = {};
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-	startupInfo.wShowWindow = SW_HIDE;
+	startupInfo.wShowWindow = ShowModeConverter::ToShowWindowFlag(settings.GetShowMode());
 	auto cmdLine = settings.GetCommandLine();
 	trace < L"::CreateProcessAsUser";
 	if (!CreateProcessAsUser(

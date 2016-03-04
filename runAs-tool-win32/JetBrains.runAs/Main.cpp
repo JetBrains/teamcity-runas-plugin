@@ -6,7 +6,6 @@
 #include "Result.h"
 #include <iostream>
 #include "ProcessRunner.h"
-#include "Args.h"
 #include "Trace.h"
 
 wstring GetStringValue(wstring value)

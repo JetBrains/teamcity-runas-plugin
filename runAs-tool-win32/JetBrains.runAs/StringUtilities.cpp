@@ -2,6 +2,7 @@
 #include "StringUtilities.h"
 #include <algorithm>
 #include <list>
+#include <sstream>
 
 list<wstring> StringUtilities::Split(const wstring& str, const wstring& separator)
 {
@@ -30,4 +31,25 @@ wstring StringUtilities::Convert(const wstring& str, int(*const converter)(int))
 	convertedStr.resize(str.size());
 	transform(str.begin(), str.end(), convertedStr.begin(), converter);
 	return convertedStr;
+}
+
+wstring StringUtilities::Join(const list<wstring> strings, const wstring& separator)
+{
+	wstringstream result;
+	auto first = true;
+	for (auto stringIterrator = strings.begin(); stringIterrator != strings.end(); ++stringIterrator)
+	{
+		if (first)
+		{
+			first = false;
+		}
+		else
+		{
+			result << separator;
+		}
+		
+		result << *stringIterrator;		
+	}
+
+	return result.str();
 }

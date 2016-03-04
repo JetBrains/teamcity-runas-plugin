@@ -8,6 +8,8 @@
 #include "ExitCode.h"
 #include "InheritanceMode.h"
 #include "IntegrityLevel.h"
+#include "StringUtilities.h"
+#include "ShowMode.h"
 
 HelpUtilities::HelpUtilities()
 {
@@ -46,8 +48,9 @@ wstring HelpUtilities::GetHelp()
 	help << endl << L"\t-w:" << ARG_WORKING_DIRECTORY << "\t- current directory, it is optional and empty by default.";
 	help << endl << L"\t-b:" << ARG_EXIT_CODE_BASE << "\t- base number for exit code, it is optional and " << DEFAULT_EXIT_CODE_BASE << L" by default.";
 	help << endl << L"\t-e:" << ARG_ENV_VAR << "\t- set an environment variable in the format \"name=value\".";
-	help << endl << L"\t-l:" << ARG_LOG_LEVEL << "\t\t- logging level (" << LOG_LEVEL_DEBUG << L"|" << LOG_LEVEL_NORMAL << L"|" << LOG_LEVEL_ERRORS << L"|" << LOG_LEVEL_OFF << L"), it is optional and \"" << LOG_LEVEL_NORMAL << L"\" by default.";
-	help << endl << L"\t-il:" << ARG_INTEGRITY_LEVEL << "\t- integrity level (" << INTEGRITY_LEVEL_AUTO << L"|" << INTEGRITY_LEVEL_UNTRUSTED << L"|" << INTEGRITY_LEVEL_LOW << L"|" << INTEGRITY_LEVEL_MEDIUM L"|" << INTEGRITY_LEVEL_MEDIUM_PLUS L"|" << INTEGRITY_LEVEL_HIGH << L"), it is optional and \"" << INTEGRITY_LEVEL_AUTO << L"\" by default.";
+	help << endl << L"\t-l:" << ARG_LOG_LEVEL << "\t\t- logging level (" << StringUtilities::Join(LogLevels, L"|") << L"), it is optional and \"" << LOG_LEVEL_NORMAL << L"\" by default.";
+	help << endl << L"\t-il:" << ARG_INTEGRITY_LEVEL << "\t- integrity level (" << StringUtilities::Join(IntegrityLevels, L"|") << L"), it is optional and \"" << INTEGRITY_LEVEL_AUTO << L"\" by default.";
+	help << endl << L"\t-s:" << ARG_SHOW_MODE << "\t\t- show mode (" << StringUtilities::Join(ShowModes, L"|") << L"), it is optional and \"" << SHOW_MODE_HIDE << L"\" by default.";
 	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\t- set \"" << INHERITANCE_MODE_ON << L"\" when the environment variables should be inherited from a parent process, set \"" << INHERITANCE_MODE_AUTO << L"\" when the some environment variables should be inherited from a parent process, set to \"" << INHERITANCE_MODE_OFF << L"\" when environment variables should not be inherited from a parent process, it is optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
 	help << endl << L"\t-c:" << ARG_CONFIGURATION_FILE << L"\t- text file, containing the any configuration arguments, it is optional.";
 	help << endl << L"\t" << ARG_EXECUTABLE << "\t\t- executable file.";

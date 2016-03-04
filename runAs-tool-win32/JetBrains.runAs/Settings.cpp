@@ -18,7 +18,8 @@ Settings::Settings(
 	const list<wstring>& args,
 	const list<wstring>& envVars,
 	const InheritanceMode& inheritanceMode,
-	const IntegrityLevel& integrityLevel)
+	const IntegrityLevel& integrityLevel,
+	const ShowMode& showMode)
 {
 	_userName = userName;
 	_domain = domain;
@@ -30,6 +31,7 @@ Settings::Settings(
 	_envVars = list<wstring>(envVars);
 	_inheritanceMode = inheritanceMode;
 	_integrityLevel = integrityLevel;
+	_showMode = showMode;
 }
 
 wstring Settings::GetUserName() const
@@ -86,6 +88,11 @@ InheritanceMode Settings::GetInheritanceMode() const
 	return _inheritanceMode;
 }
 
+ShowMode Settings::GetShowMode() const
+{
+	return _showMode;
+}
+
 LogLevel Settings::GetLogLevel() const
 {
 	return _logLevel;
@@ -126,6 +133,7 @@ wstring Settings::ToString() const
 	text << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << GetExitCodeBase();
 	text << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << GetIntegrityLevel();
 	text << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << GetInheritanceMode();
+	text << endl << L"\t" << ARG_SHOW_MODE << L":\t\t" << GetShowMode();
 	text << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetExecutable();
 	text << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetCommandLine();
 	return text.str();

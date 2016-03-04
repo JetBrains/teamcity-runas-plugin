@@ -12,6 +12,7 @@
 #include "Trace.h"
 #include "Job.h"
 #include "StringBuffer.h"
+#include "ShowModeConverter.h"
 
 Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
@@ -45,7 +46,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			{ L"/U", L"/C", L"SET" },
 			{ },
 			INHERITANCE_MODE_OFF,
-			INTEGRITY_LEVEL_AUTO);
+			INTEGRITY_LEVEL_AUTO,
+			SHOW_MODE_HIDE);
 
 		if(settings.GetLogLevel() == LOG_LEVEL_DEBUG)
 		{
@@ -87,11 +89,11 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 
 	STARTUPINFO startupInfo = {};
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-	startupInfo.wShowWindow = SW_HIDE;
+	startupInfo.wShowWindow = ShowModeConverter::ToShowWindowFlag(settings.GetShowMode());
 	PROCESS_INFORMATION processInformation = {};
 
-	trace < L"ProcessTracker::Initialize";
-	processTracker.Initialize(securityAttributes, startupInfo);	
+	trace < L"ProcessTracker::InitializeConsoleRedirection";
+	processTracker.InitializeConsoleRedirection(securityAttributes, startupInfo);	
 
 	StringBuffer userName(settings.GetUserName());
 	StringBuffer domain(settings.GetDomain());

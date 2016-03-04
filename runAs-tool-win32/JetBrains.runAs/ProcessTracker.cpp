@@ -11,7 +11,7 @@ ProcessTracker::ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& error
 {	
 }
 
-Result<bool> ProcessTracker::Initialize(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo)
+Result<bool> ProcessTracker::InitializeConsoleRedirection(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo)
 {
 	auto error = _stdOutPipe.Initialize(securityAttributes);
 	if (error.HasError() || !error.GetResultValue())

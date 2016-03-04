@@ -179,6 +179,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Args.h" />
+    <ClInclude Include="ShowMode.h" />
+    <ClInclude Include="ShowModeConverter.h" />
     <ClInclude Include="StringBuffer.h" />
     <ClInclude Include="CommanLineParser.h" />
     <ClInclude Include="Console.h" />
@@ -214,6 +216,7 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ShowModeConverter.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="CommanLineParser.cpp" />
     <ClCompile Include="Console.cpp" />

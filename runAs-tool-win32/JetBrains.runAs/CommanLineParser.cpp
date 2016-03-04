@@ -19,7 +19,6 @@ static const wstring FalseStr = L"false";
 Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode* exitCodeBase, LogLevel* logLevel) const
 {
 	auto actualArgs = list<wstring>(args);
-
 	wstring userName;
 	wstring domain;
 	wstring password;
@@ -28,10 +27,11 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
 	list<wstring> commandLineArgs;
 	list<wstring> envVars;
-	auto inheritanceMode = INHERITANCE_MODE_AUTO;
+	wstring inheritanceMode = INHERITANCE_MODE_AUTO;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	*logLevel = LOG_LEVEL_NORMAL;
 	IntegrityLevel integrityLevel = INTEGRITY_LEVEL_AUTO;
+	ShowMode showMode = SHOW_MODE_HIDE;
 	
 	while (actualArgs.size() > 0)
 	{
@@ -147,91 +147,28 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		// Inherite environment
 		if (argNameInLowCase == L"i")
 		{		
-			if (argValueInLowCase == INHERITANCE_MODE_OFF)
+			if (TryGetValue(InheritanceModes, argValueInLowCase, &inheritanceMode))
 			{
-				inheritanceMode = INHERITANCE_MODE_OFF;
 				continue;
-			}
-
-			if (argValueInLowCase == INHERITANCE_MODE_ON)
-			{
-				inheritanceMode = INHERITANCE_MODE_ON;
-				continue;
-			}
-
-			if (argValueInLowCase == INHERITANCE_MODE_AUTO)
-			{
-				inheritanceMode = INHERITANCE_MODE_AUTO;
-				continue;
-			}
+			}			
 		}
 
 		// Log level
 		if (argNameInLowCase == L"l")
 		{
-			if (argValueInLowCase == LOG_LEVEL_DEBUG)
+			if (TryGetValue(LogLevels, argValueInLowCase, logLevel))
 			{
-				*logLevel = LOG_LEVEL_DEBUG;
 				continue;
 			}
-
-			if (argValueInLowCase == LOG_LEVEL_NORMAL)
-			{
-				*logLevel = LOG_LEVEL_NORMAL;
-				continue;
-			}
-
-			if (argValueInLowCase == LOG_LEVEL_ERRORS)
-			{
-				*logLevel = LOG_LEVEL_ERRORS;
-				continue;
-			}
-
-			if (argValueInLowCase == LOG_LEVEL_OFF)
-			{
-				*logLevel = LOG_LEVEL_OFF;
-				continue;
-			}			
 		}
 
 		// Integrity level
 		if (argNameInLowCase == L"il")
 		{
-			if (argValueInLowCase == INTEGRITY_LEVEL_AUTO)
+			if (TryGetValue(IntegrityLevels, argValueInLowCase, &integrityLevel))
 			{
-				integrityLevel = INTEGRITY_LEVEL_AUTO;
 				continue;
 			}			
-
-			if (argValueInLowCase == INTEGRITY_LEVEL_UNTRUSTED)
-			{
-				integrityLevel = INTEGRITY_LEVEL_UNTRUSTED;
-				continue;
-			}
-
-			if (argValueInLowCase == INTEGRITY_LEVEL_LOW)
-			{
-				integrityLevel = INTEGRITY_LEVEL_LOW;
-				continue;
-			}
-
-			if (argValueInLowCase == INTEGRITY_LEVEL_MEDIUM)
-			{
-				integrityLevel = INTEGRITY_LEVEL_MEDIUM;
-				continue;
-			}
-
-			if (argValueInLowCase == INTEGRITY_LEVEL_MEDIUM_PLUS)
-			{
-				integrityLevel = INTEGRITY_LEVEL_MEDIUM_PLUS;
-				continue;
-			}
-
-			if (argValueInLowCase == INTEGRITY_LEVEL_HIGH)
-			{
-				integrityLevel = INTEGRITY_LEVEL_HIGH;
-				continue;
-			}
 		}
 
 		// Environment variable
@@ -239,6 +176,15 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		{
 			envVars.push_back(argValue);
 			continue;
+		}
+
+		// Show mode
+		if (argNameInLowCase == L"s")
+		{
+			if (TryGetValue(ShowModes, argValueInLowCase, &showMode))
+			{
+				continue;
+			}			
 		}
 
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
@@ -285,8 +231,25 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		commandLineArgs,
 		envVars,
 		inheritanceMode,
-		integrityLevel);
+		integrityLevel,
+		showMode);
 
 	settings.SetLogLevel(*logLevel);
 	return settings;
+}
+
+bool CommanLineParser::TryGetValue(const list<wstring>& values, const wstring& str, wstring* value) const
+{	
+	auto strInLowerCase = StringUtilities::Convert(str, tolower);
+	for (auto valueIterrator = values.begin(); valueIterrator != values.end(); ++valueIterrator)
+	{
+		auto valueFromListInLowerCase = StringUtilities::Convert(*valueIterrator, tolower);
+		if(strInLowerCase == valueFromListInLowerCase)
+		{
+			*value = *valueIterrator;
+			return true;
+		}
+	}
+
+	return false;
 }
