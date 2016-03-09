@@ -5,6 +5,7 @@
 #include <chrono>
 #include "Result.h"
 #include "ExitCode.h"
+#include "Trace.h"
 
 ProcessTracker::ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& errorWriter)
 	: _outputWriter(outputWriter), _errorWriter(errorWriter)
@@ -38,8 +39,10 @@ Result<bool> ProcessTracker::InitializeConsoleRedirection(SECURITY_ATTRIBUTES& s
 	return true;
 }
 
-Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
+Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle, Trace& trace)
 {
+	trace < L"ProcessTracker::WaiteForExit";
+
 	DWORD exitCode;
 	bool hasData;
 	do
@@ -65,6 +68,7 @@ Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle)
 	}
 	while (exitCode == STILL_ACTIVE || hasData);
 
+	trace < L"ProcessTracker::WaiteForExit finished";
 	return exitCode;
 }
 

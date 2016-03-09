@@ -7,7 +7,6 @@
 #include "ExitCode.h"
 #include "Environment.h"
 #include "Trace.h"
-#include "Job.h"
 #include "IntegrityLevelManager.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
@@ -142,16 +141,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 
-	trace < L"ProcessAsUser::Create a job";
-	Job job;
-	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobObjectInfo = {};
-	jobObjectInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-	trace < L"ProcessAsUser::Configure all child processes associated with the job to terminate when the parent is terminated";
-	trace < L"Job::SetInformation";
-	job.SetInformation(JobObjectExtendedLimitInformation, jobObjectInfo);
-
-	trace < L"ProcessTracker::WaiteForExit";
-	auto exitCode = processTracker.WaiteForExit(processInformation.hProcess);
+	auto exitCode = processTracker.WaiteForExit(processInformation.hProcess, trace);
 	UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);	
 
 	return exitCode;

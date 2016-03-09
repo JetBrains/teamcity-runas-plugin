@@ -10,7 +10,6 @@
 #include "StringWriter.h"
 #include <sstream>
 #include "Trace.h"
-#include "Job.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
 
@@ -126,18 +125,5 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	auto threadHandle = Handle(L"Thread");
 	threadHandle = processInformation.hThread;
 
-	trace < L"ProcessWithLogon::Create a job";
-	Job job;
-	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobObjectInfo = {};
-	jobObjectInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-	trace < L"ProcessWithLogon::Configure all child processes associated with the job to terminate when the parent is terminated";
-	trace < L"Job::SetInformation";
-	job.SetInformation(JobObjectExtendedLimitInformation, jobObjectInfo);
-
-	trace < L"ProcessWithLogon::Assign the new process to the job";
-	trace < L"Job::AssignProcessToJob";
-	job.AssignProcessToJob(processHandle);
-
-	trace < L"ProcessTracker::WaiteForExit";
-	return processTracker.WaiteForExit(processInformation.hProcess);
+	return processTracker.WaiteForExit(processInformation.hProcess, trace);
 }

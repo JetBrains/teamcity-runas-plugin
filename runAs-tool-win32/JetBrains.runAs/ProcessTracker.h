@@ -3,6 +3,7 @@
 #include "ExitCode.h"
 #include "IStreamWriter.h"
 
+class Trace;
 class IStreamWriter;
 
 class ProcessTracker
@@ -18,6 +19,6 @@ class ProcessTracker
 public:
 	ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& errorWriter);
 	Result<bool> InitializeConsoleRedirection(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo);
-	Result<ExitCode> WaiteForExit(const HANDLE processHandle);
+	Result<ExitCode> WaiteForExit(const HANDLE processHandle, Trace& trace);
 };
 
