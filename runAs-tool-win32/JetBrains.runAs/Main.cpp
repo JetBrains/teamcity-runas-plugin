@@ -7,6 +7,7 @@
 #include <iostream>
 #include "ProcessRunner.h"
 #include "Trace.h"
+#include "Job.h"
 
 wstring GetStringValue(wstring value)
 {
@@ -20,6 +21,7 @@ wstring GetStringValue(wstring value)
 
 int _tmain(int argc, _TCHAR *argv[]) {
 	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOOPENFILEERRORBOX);
+	Job job;
 	
 	list<wstring> args;
 	for (auto argIndex = 1; argIndex < argc; argIndex++)
@@ -53,7 +55,9 @@ int _tmain(int argc, _TCHAR *argv[]) {
 			trace < HelpUtilities::GeTitle();
 
 			ProcessRunner runner;
-			result = runner.Run(settings);			
+			trace < L"main::Run starting";			
+			result = runner.Run(settings, job);
+			trace < L"main::Run finished";
 		}
 	}
 	catch(...)
@@ -62,11 +66,13 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	}	
 
 	Trace trace(settings.GetLogLevel());
+	trace < L"main::Create results";
+
 	if (!result.HasError())
 	{
 		trace < L"Exit code: ";
 		trace << result.GetResultValue();
-		return result.GetResultValue();
+		ExitProcess(result.GetResultValue());
 	}
 
 	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)

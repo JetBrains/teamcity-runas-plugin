@@ -3,6 +3,8 @@
 #include "ProcessAsUser.h"
 #include "ProcessWithLogon.h"
 
+class Job;
+
 class ProcessRunner
 {
 	ProcessAsUser _processAsUserToRun;
@@ -11,5 +13,5 @@ class ProcessRunner
 
 public:
 	ProcessRunner();
-	Result<ExitCode> Run(const Settings& settings) const;
+	Result<ExitCode> Run(const Settings& settings, Job& job) const;
 };
