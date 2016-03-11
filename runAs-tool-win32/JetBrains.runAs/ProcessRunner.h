@@ -13,5 +13,5 @@ class ProcessRunner
 
 public:
 	ProcessRunner();
-	Result<ExitCode> Run(const Settings& settings, Job& job) const;
+	Result<ExitCode> Run(const Settings& settings) const;
 };

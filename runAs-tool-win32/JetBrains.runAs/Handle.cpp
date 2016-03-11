@@ -14,12 +14,17 @@ Handle::Handle(const wstring& name)
 	_handle = INVALID_HANDLE_VALUE;
 }
 
-Handle::~Handle()
+void Handle::Close()
 {
 	if (_handle != nullptr && !IsInvalid())
 	{
 		CloseHandle(_handle);
 	}
+}
+
+Handle::~Handle()
+{
+	Close();
 }
 
 Handle::operator HANDLE() const
@@ -29,6 +34,7 @@ Handle::operator HANDLE() const
 
 Handle& Handle::operator=(const HANDLE handle)
 {
+	Close();
 	_handle = handle;
 	return *this;
 }
@@ -60,4 +66,11 @@ Result<Handle> Handle::Duplicate(const Handle& sourceProcess, const Handle& targ
 	}
 
 	return targetHandle;
+}
+
+HANDLE Handle::Detach()
+{
+	auto handle = _handle;
+	_handle = INVALID_HANDLE_VALUE;
+	return handle;
 }

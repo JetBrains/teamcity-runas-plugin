@@ -10,15 +10,16 @@ ProcessRunner::ProcessRunner()
 	_processes.push_back(&_processWithLogonToRun);
 }
 
-Result<ExitCode> ProcessRunner::Run(const Settings& settings, Job& job) const
+Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 {		
 	Trace trace(settings.GetLogLevel());
 
 	trace < L"ProcessWithLogon::Create a job";	
+	Job job(false);
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobObjectInfo = {};
 	jobObjectInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	trace < L"ProcessWithLogon::Configure all child processes associated with the job to terminate when the parent is terminated";
-	trace < L"Job::SetInformation";
+	trace < L"Job::SetInformation";	
 	job.SetInformation(JobObjectExtendedLimitInformation, jobObjectInfo);
 
 	trace < L"ProcessWithLogon::Assign the current process to the job";

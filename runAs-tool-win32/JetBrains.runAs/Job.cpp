@@ -2,9 +2,18 @@
 #include "Job.h"
 #include "ErrorUtilities.h"
 
-Job::Job()
+Job::Job(bool autoClose)
 {
 	_handle = CreateJobObject(nullptr, nullptr);
+	_autoClose = autoClose;
+}
+
+Job::~Job()
+{
+	if (!_autoClose)
+	{
+		_handle.Detach();
+	}
 }
 
 Result<bool> Job::SetInformation(const JOBOBJECTINFOCLASS& infoClass, JOBOBJECT_EXTENDED_LIMIT_INFORMATION& information) const
