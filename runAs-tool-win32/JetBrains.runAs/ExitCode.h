@@ -4,5 +4,7 @@ typedef int ExitCode;
 
 enum ExitCodes: ExitCode
 {
-	DEFAULT_EXIT_CODE_BASE = -100000
+	EXIT_CODE_BASE							= -100000,
+	EXIT_CODE_NO_ADMIN						= 1,
+	EXIT_CODE_NO_ASSIGN_PRIMARY_TOKEN_PRIV	= 2
 };

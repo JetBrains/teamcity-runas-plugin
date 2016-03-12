@@ -4,7 +4,7 @@
 #include <sstream>
 #include "Args.h"
 
-Settings::Settings(): _exitCodeBase(DEFAULT_EXIT_CODE_BASE)
+Settings::Settings(): _exitCodeBase(EXIT_CODE_BASE)
 {
 }
 

@@ -28,7 +28,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 
 	auto result = Result<ExitCode>();
 	Settings settings;
-	ExitCode exitCodeBase = DEFAULT_EXIT_CODE_BASE;
+	ExitCode exitCodeBase = EXIT_CODE_BASE;
 	LogLevel logLevel;
 	Console console;
 	wstring endl = L"\n\r";

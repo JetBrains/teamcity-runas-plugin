@@ -3,6 +3,7 @@
 #include "Result.h"
 #include "Trace.h"
 #include <memory>
+#include <set>
 
 class Handle;
 
@@ -17,8 +18,8 @@ public:
 		const list<wstring>& privileges,  // names of privileges to enable/disable
 		const bool enablePrivileges   // to enable or disable privilege
 		);
-	Result<Handle> OpenProcessToken(DWORD desiredAccess) const;
 	Result<shared_ptr<void>> GetTokenInformation(Trace& trace, const Handle& token, _TOKEN_INFORMATION_CLASS tokenInformationClass) const;
 	Result<list<SID_AND_ATTRIBUTES>> GetTokenGroups(Trace& trace, const Handle& token) const;
+	Result<set<wstring>> GetPrivilegies(Trace& trace, const Handle& token) const;
 };
 

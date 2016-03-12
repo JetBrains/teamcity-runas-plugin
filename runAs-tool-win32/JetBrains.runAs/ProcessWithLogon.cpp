@@ -41,7 +41,7 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			settings.GetPassword(),
 			L"cmd.exe",
 			settings.GetWorkingDirectory(),
-			DEFAULT_EXIT_CODE_BASE,
+			EXIT_CODE_BASE,
 			{ L"/U", L"/C", L"SET" },
 			{ },
 			INHERITANCE_MODE_OFF,

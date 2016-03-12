@@ -4,7 +4,6 @@
 
 class Handle
 {
-	int* _refCounter;
 	wstring _name;
 	HANDLE _handle = nullptr;	
 	void Close();

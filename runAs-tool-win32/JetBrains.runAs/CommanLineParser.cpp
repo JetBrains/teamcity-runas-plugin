@@ -24,7 +24,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 	wstring password;
 	wstring executable;
 	wstring workingDirectory;
-	*exitCodeBase = DEFAULT_EXIT_CODE_BASE;
+	*exitCodeBase = EXIT_CODE_BASE;
 	list<wstring> commandLineArgs;
 	list<wstring> envVars;
 	wstring inheritanceMode = INHERITANCE_MODE_AUTO;

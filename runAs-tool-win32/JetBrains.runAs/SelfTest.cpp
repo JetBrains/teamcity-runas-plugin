@@ -4,17 +4,18 @@
 #include "ExitCode.h"
 #include "Settings.h"
 #include "SecurityManager.h"
+#include "ErrorUtilities.h"
 
 Result<ExitCode> SelfTest::Run(const Settings& settings) const
 {
 	Trace trace(settings.GetLogLevel());
-	auto processTokenResult = _securityManager.OpenProcessToken(TOKEN_ALL_ACCESS);
-	if (processTokenResult.HasError())
+	Handle processToken(L"Process token");
+	if (!::OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &processToken))
 	{
-		return Result<ExitCode>(processTokenResult.GetErrorCode(), processTokenResult.GetErrorDescription());
+		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken"));
 	}
 
-	auto hasLogonSIDResult = HasLogonSID(trace, processTokenResult.GetResultValue());
+	auto hasLogonSIDResult = HasLogonSID(trace, processToken);
 	if (hasLogonSIDResult.HasError())
 	{
 		return Result<ExitCode>(hasLogonSIDResult.GetErrorCode(), hasLogonSIDResult.GetErrorDescription());
@@ -26,7 +27,7 @@ Result<ExitCode> SelfTest::Run(const Settings& settings) const
 		return Result<ExitCode>(hasAdministrativePrivilegesResult.GetErrorCode(), hasAdministrativePrivilegesResult.GetErrorDescription());
 	}
 
-	auto hasSeAssignPrimaryTokenPrivilegeResult = HasSeAssignPrimaryTokenPrivilege(trace, processTokenResult.GetResultValue());
+	auto hasSeAssignPrimaryTokenPrivilegeResult = HasSeAssignPrimaryTokenPrivilege(trace, processToken);
 	if (hasSeAssignPrimaryTokenPrivilegeResult.HasError())
 	{
 		return Result<ExitCode>(hasSeAssignPrimaryTokenPrivilegeResult.GetErrorCode(), hasSeAssignPrimaryTokenPrivilegeResult.GetErrorDescription());
@@ -35,12 +36,17 @@ Result<ExitCode> SelfTest::Run(const Settings& settings) const
 	if (!hasLogonSIDResult.GetResultValue())
 	{		
 		// Windows service
-	}
-	else
-	{
-		// Console mode
-	}
+		if (!hasAdministrativePrivilegesResult.GetResultValue())
+		{
+			return EXIT_CODE_NO_ADMIN;
+		}
 
+		if (!hasSeAssignPrimaryTokenPrivilegeResult.GetResultValue())
+		{
+			return EXIT_CODE_NO_ASSIGN_PRIMARY_TOKEN_PRIV;
+		}
+	}
+	
 	return Is64OS() ? 64 : 32;
 }
 
@@ -74,6 +80,12 @@ Result<bool> SelfTest::HasAdministrativePrivileges(Trace& trace) const
 
 Result<bool> SelfTest::HasSeAssignPrimaryTokenPrivilege(Trace& trace, const Handle& token) const
 {
+	auto tokenGroupsResult = _securityManager.GetPrivilegies(trace, token);
+	if (tokenGroupsResult.HasError())
+	{
+		return Result<bool>(tokenGroupsResult.GetErrorCode(), tokenGroupsResult.GetErrorDescription());
+	}
+
 	return true;
 }
 

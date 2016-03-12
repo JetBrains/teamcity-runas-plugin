@@ -5,6 +5,7 @@
 #include "StringBuffer.h"
 #include <memory>
 #include "Trace.h"
+#include <set>
 
 const list<wstring> AllPrivilegies = {
 	SE_CREATE_TOKEN_NAME,
@@ -99,17 +100,6 @@ Result<LUID> SecurityManager::LookupPrivilegeValue(const wstring& privilegeName)
 	return luid;
 }
 
-Result<Handle> SecurityManager::OpenProcessToken(DWORD desiredAccess) const
-{
-	Handle processToken(L"Process token");
-	if (!::OpenProcessToken(GetCurrentProcess(), desiredAccess, &processToken))
-	{
-		return Result<Handle>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken"));
-	}
-
-	return processToken;
-}
-
 Result<shared_ptr<void>> SecurityManager::GetTokenInformation(Trace& trace, const Handle& token, _TOKEN_INFORMATION_CLASS tokenInformationClass) const
 {
 	trace < L"SecurityManager::GetTokenInformation - Get the required buffer size and allocate the _TOKEN_INFORMATION_CLASS buffer.";
@@ -149,6 +139,30 @@ Result<list<SID_AND_ATTRIBUTES>> SecurityManager::GetTokenGroups(Trace& trace, c
 	for (DWORD index = 0; index < groupsInfo->GroupCount; index++)
 	{
 		result.push_back(groupsInfo->Groups[index]);
+	}
+
+	return result;
+}
+
+Result<set<wstring>> SecurityManager::GetPrivilegies(Trace& trace, const Handle& token) const
+{
+	auto tokenPrivilegiesResult = GetTokenInformation(trace, token, TokenPrivileges);
+	if (tokenPrivilegiesResult.HasError())
+	{
+		return Result<set<wstring>>(tokenPrivilegiesResult.GetErrorCode(), tokenPrivilegiesResult.GetErrorDescription());
+	}
+
+	wchar_t buf [256];
+	WORD bufSize = 256 * sizeof(wchar_t);
+	set<wstring> result;
+	auto privilegiesInfo = reinterpret_cast<PTOKEN_PRIVILEGES>(tokenPrivilegiesResult.GetResultValue().get());
+	for (DWORD index = 0; index < privilegiesInfo->PrivilegeCount; index++)
+	{
+		DWORD nameSize = bufSize;
+		if (LookupPrivilegeNameW(nullptr, &privilegiesInfo->Privileges[index].Luid, buf, &nameSize))
+		{
+			result.insert(wstring(buf));
+		}
 	}
 
 	return result;
