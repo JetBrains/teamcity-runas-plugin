@@ -1,8 +1,10 @@
 #include "stdafx.h"
-#include "PrivilegeManager.h"
+#include "SecurityManager.h"
 #include "ErrorUtilities.h"
 #include "Handle.h"
 #include "StringBuffer.h"
+#include <memory>
+#include "Trace.h"
 
 const list<wstring> AllPrivilegies = {
 	SE_CREATE_TOKEN_NAME,
@@ -42,32 +44,15 @@ const list<wstring> AllPrivilegies = {
 	SE_CREATE_SYMBOLIC_LINK_NAME
 };
 
-void PrivilegeManager::TrySetAllPrivileges(const bool enablePrivileges)
+void SecurityManager::TrySetAllPrivileges(const Handle& token, const bool enablePrivileges)
 {
-	Handle token(L"Current process token");
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
-	{
-		return;
-	}
-
 	for (auto privilegiesIterrator = AllPrivilegies.begin(); privilegiesIterrator != AllPrivilegies.end(); ++privilegiesIterrator)
 	{
 		SetPrivileges(token, { *privilegiesIterrator }, true);
 	}
 }
 
-Result<bool> PrivilegeManager::SetPrivileges(const list<wstring>& privileges, const bool enablePrivileges)
-{
-	Handle token(L"Current process token");
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
-	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken"));
-	}
-	
-	return SetPrivileges(token, privileges, enablePrivileges);
-}
-
-Result<bool> PrivilegeManager::SetPrivileges(const Handle& token, const list<wstring>& privileges, const bool enablePrivileges)
+Result<bool> SecurityManager::SetPrivileges(const Handle& token, const list<wstring>& privileges, const bool enablePrivileges)
 {
 	auto tokenPrivileges = static_cast<PTOKEN_PRIVILEGES>(_alloca(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (privileges.size() - 1)));
 	tokenPrivileges->PrivilegeCount = static_cast<DWORD>(privileges.size());	
@@ -99,7 +84,7 @@ Result<bool> PrivilegeManager::SetPrivileges(const Handle& token, const list<wst
 	return true;
 }
 
-Result<LUID> PrivilegeManager::LookupPrivilegeValue(const wstring& privilegeName)
+Result<LUID> SecurityManager::LookupPrivilegeValue(const wstring& privilegeName)
 {
 	StringBuffer privilegeNameBuf(privilegeName);
 	LUID luid;
@@ -112,4 +97,59 @@ Result<LUID> PrivilegeManager::LookupPrivilegeValue(const wstring& privilegeName
 	}
 
 	return luid;
+}
+
+Result<Handle> SecurityManager::OpenProcessToken(DWORD desiredAccess) const
+{
+	Handle processToken(L"Process token");
+	if (!::OpenProcessToken(GetCurrentProcess(), desiredAccess, &processToken))
+	{
+		return Result<Handle>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken"));
+	}
+
+	return processToken;
+}
+
+Result<shared_ptr<void>> SecurityManager::GetTokenInformation(Trace& trace, const Handle& token, _TOKEN_INFORMATION_CLASS tokenInformationClass) const
+{
+	trace < L"SecurityManager::GetTokenInformation - Get the required buffer size and allocate the _TOKEN_INFORMATION_CLASS buffer.";
+	LPVOID info = nullptr;
+	DWORD length = 0;
+	if (!::GetTokenInformation(token, tokenInformationClass, info, 0, &length))
+	{
+		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+		{
+			return Result<shared_ptr<void>>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"GetTokenInformation"));
+		}
+	}
+
+	info = reinterpret_cast<PTOKEN_GROUPS>(new byte[length]);
+	memset(info, 0, length);
+
+	trace < L"SecurityManager::GetTokenInformation - Get the token information from the access token.";
+	if (!::GetTokenInformation(token, tokenInformationClass, info, length, &length))
+	{
+		delete info;
+		return Result<shared_ptr<void>>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"GetTokenInformation"));
+	}
+
+	return shared_ptr<void>(info);
+}
+
+Result<list<SID_AND_ATTRIBUTES>> SecurityManager::GetTokenGroups(Trace& trace, const Handle& token) const
+{
+	auto tokenGroupsResult = GetTokenInformation(trace, token, TokenGroups);
+	if (tokenGroupsResult.HasError())
+	{
+		return Result<list<SID_AND_ATTRIBUTES>>(tokenGroupsResult.GetErrorCode(), tokenGroupsResult.GetErrorDescription());
+	}
+
+	list<SID_AND_ATTRIBUTES> result;
+	auto groupsInfo = reinterpret_cast<PTOKEN_GROUPS>(tokenGroupsResult.GetResultValue().get());
+	for (DWORD index = 0; index < groupsInfo->GroupCount; index++)
+	{
+		result.push_back(groupsInfo->Groups[index]);		
+	}
+
+	return result;
 }

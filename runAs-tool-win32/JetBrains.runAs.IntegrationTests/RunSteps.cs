@@ -49,11 +49,12 @@
 			ctx.TestSession = testSession;
 		}
 
-		[Then(@"the exit code should be (-?\d+)")]
-		public void VerifyExitCode(int expectedExitCode)
+		[Then(@"the exit code should be (.+)")]
+		public void VerifyExitCode(string expectedExitCodeRegexp)
 		{
 			var ctx = ScenarioContext.Current.GetTestContext();
-			Assert.AreEqual(expectedExitCode, ctx.TestSession.ExitCode, $"Invalid exit code.\nSee {ctx}");
+			var regex = new Regex(expectedExitCodeRegexp);
+			Assert.IsTrue(regex.Match(ctx.TestSession.ExitCode.ToString()).Success, $"Invalid exit code.\nSee {ctx}");
 		}
 
 		[Then(@"the output should contain:")]

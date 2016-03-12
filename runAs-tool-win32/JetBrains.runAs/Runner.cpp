@@ -1,17 +1,30 @@
 #include "stdafx.h"
-#include "ProcessRunner.h"
+#include "Runner.h"
 #include "StreamWriter.h"
 #include "Trace.h"
 #include "Job.h"
+#include "SelfTest.h"
 
-ProcessRunner::ProcessRunner()
+Runner::Runner()
 {
 	_processes.push_back(&_processAsUserToRun);
 	_processes.push_back(&_processWithLogonToRun);
 }
 
-Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
-{		
+Result<ExitCode> Runner::Run(const Settings& settings) const
+{	
+	/*
+	if (settings.GetSelfTesting())
+	{
+		SelfTest selfTest;
+		return selfTest.Run(settings);
+	}*/
+	
+	return RunProcessAsUser(settings);
+}
+
+Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
+{
 	Trace trace(settings.GetLogLevel());
 
 	trace < L"ProcessWithLogon::Create a job";	
@@ -39,17 +52,17 @@ Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 	{
 		if (processIterrator != _processes.begin())
 		{
-			trace < L"ProcessRunner::Select other type of process";
+			trace < L"Runner::Select other type of process";
 		}
 
 		ProcessTracker processTracker(stdOutput, stdError);
 		runResult = (*processIterrator)->Run(settings, processTracker);
 		if (runResult.HasError())
 		{
-			trace < L"ProcessRunner::Run failed";
-			trace < L"ProcessRunner::Run error code: ";
+			trace < L"Runner::Run failed";
+			trace < L"Runner::Run error code: ";
 			trace << runResult.GetErrorCode();
-			trace < L"ProcessRunner::Run error description: ";
+			trace < L"Runner::Run error description: ";
 			trace << runResult.GetErrorDescription();
 			continue;
 		}
@@ -60,6 +73,6 @@ Result<ExitCode> ProcessRunner::Run(const Settings& settings) const
 		}
 	}
 
-	trace < L"ProcessRunner::Run finished";
-	return runResult;	
+	trace < L"Runner::Run finished";
+	return runResult;
 }

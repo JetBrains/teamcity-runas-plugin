@@ -19,7 +19,8 @@ Settings::Settings(
 	const list<wstring>& envVars,
 	const InheritanceMode& inheritanceMode,
 	const IntegrityLevel& integrityLevel,
-	const ShowMode& showMode)
+	const ShowMode& showMode,
+	const bool selfTesting)
 {
 	_userName = userName;
 	_domain = domain;
@@ -32,6 +33,7 @@ Settings::Settings(
 	_inheritanceMode = inheritanceMode;
 	_integrityLevel = integrityLevel;
 	_showMode = showMode;
+	_selfTesting = selfTesting;
 }
 
 wstring Settings::GetUserName() const
@@ -108,6 +110,11 @@ IntegrityLevel Settings::GetIntegrityLevel() const
 	return _integrityLevel;
 }
 
+bool Settings::GetSelfTesting() const
+{
+	return _selfTesting;
+}
+
 wstring Settings::AddQuotes(wstring str)
 {
 	if (str.find(L' ') != string::npos && str.size() > 0 && !(str[0] == L'\"' && str[str.size() - 1] == L'\"'))
@@ -121,7 +128,7 @@ wstring Settings::AddQuotes(wstring str)
 wstring Settings::ToString() const
 {
 	wstringstream text;
-	text << endl << L"\t" << ARG_USER_NAME << L":\t\t" << GetUserName();
+	text << L"\t" << ARG_USER_NAME << L":\t\t" << GetUserName();
 	text << endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetDomain();
 	text << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetWorkingDirectory();
 	text << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetWorkingDirectory();
@@ -134,6 +141,7 @@ wstring Settings::ToString() const
 	text << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << GetIntegrityLevel();
 	text << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << GetInheritanceMode();
 	text << endl << L"\t" << ARG_SHOW_MODE << L":\t\t" << GetShowMode();
+	text << endl << L"\t" << ARG_SELF_TESTING << L":\t\t" << GetSelfTesting();
 	text << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetExecutable();
 	text << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetCommandLine();
 	return text.str();

@@ -46,7 +46,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			{ },
 			INHERITANCE_MODE_OFF,
 			INTEGRITY_LEVEL_AUTO,
-			SHOW_MODE_HIDE);
+			SHOW_MODE_HIDE,
+			false);
 
 		if(settings.GetLogLevel() == LOG_LEVEL_DEBUG)
 		{

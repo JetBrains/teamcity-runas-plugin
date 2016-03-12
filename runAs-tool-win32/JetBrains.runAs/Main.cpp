@@ -5,7 +5,7 @@
 #include "ErrorCode.h"
 #include "Result.h"
 #include <iostream>
-#include "ProcessRunner.h"
+#include "Runner.h"
 #include "Trace.h"
 
 wstring GetStringValue(wstring value)
@@ -52,7 +52,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 			Trace trace(settings.GetLogLevel());
 			trace < HelpUtilities::GeTitle();
 
-			ProcessRunner runner;
+			Runner runner;
 			trace < L"main::Run starting";			
 			result = runner.Run(settings);
 			trace < L"main::Run finished";

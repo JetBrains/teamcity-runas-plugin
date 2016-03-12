@@ -51,6 +51,12 @@ wstring HelpUtilities::GetHelp()
 	help << endl << L"\t-l:" << ARG_LOG_LEVEL << "\t\t- logging level (" << StringUtilities::Join(LogLevels, L"|") << L"), it is optional and \"" << LOG_LEVEL_NORMAL << L"\" by default.";
 	help << endl << L"\t-il:" << ARG_INTEGRITY_LEVEL << "\t- integrity level (" << StringUtilities::Join(IntegrityLevels, L"|") << L"), it is optional and \"" << INTEGRITY_LEVEL_AUTO << L"\" by default.";
 	help << endl << L"\t-s:" << ARG_SHOW_MODE << "\t\t- show mode (" << StringUtilities::Join(ShowModes, L"|") << L"), it is optional and \"" << SHOW_MODE_HIDE << L"\" by default.";
+	help << endl << L"\t-t" << "\t\t\t- self testing. Returns exit codes:";
+	help << endl << "\t\t\t\t	32\t- ready to work on 32-bit OS";
+	help << endl << "\t\t\t\t	64\t- ready to work on 64-bit OS";
+	help << endl << "\t\t\t\t	1\t- invoker has no administrative privileges, when running under the Windows service";
+	help << endl << "\t\t\t\t	2\t- invoker has no SeAssignPrimaryTokenPrivilege privilege, when running under the Windows service";
+	help << endl << "\t\t\t\t	3\t- invoker has no Logon SID, when running in the console mode";
 	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\t- set \"" << INHERITANCE_MODE_ON << L"\" when the environment variables should be inherited from a parent process, set \"" << INHERITANCE_MODE_AUTO << L"\" when the some environment variables should be inherited from a parent process, set to \"" << INHERITANCE_MODE_OFF << L"\" when environment variables should not be inherited from a parent process, it is optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
 	help << endl << L"\t-c:" << ARG_CONFIGURATION_FILE << L"\t- text file, containing the any configuration arguments, it is optional.";
 	help << endl << L"\t" << ARG_EXECUTABLE << "\t\t- executable file.";

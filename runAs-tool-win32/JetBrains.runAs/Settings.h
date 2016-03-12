@@ -20,6 +20,7 @@ class Settings
 	LogLevel _logLevel = LOG_LEVEL_NORMAL;
 	IntegrityLevel _integrityLevel = INTEGRITY_LEVEL_AUTO;
 	ShowMode _showMode = SHOW_MODE_HIDE;
+	bool _selfTesting;
 
 	static wstring AddQuotes(wstring str);
 
@@ -36,7 +37,8 @@ public:
 		const list<wstring>& envVars,
 		const InheritanceMode& inheritanceMode,
 		const IntegrityLevel& integrityLevel,
-		const ShowMode& showMode);
+		const ShowMode& showMode,
+		const bool selfTesting);
 
 	wstring GetUserName() const;
 	wstring GetDomain() const;
@@ -51,5 +53,6 @@ public:
 	LogLevel GetLogLevel() const;
 	void SetLogLevel(const LogLevel& logLevel);
 	IntegrityLevel GetIntegrityLevel() const;
+	bool GetSelfTesting() const;
 	wstring ToString() const;
 };

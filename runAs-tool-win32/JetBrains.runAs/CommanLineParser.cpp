@@ -11,7 +11,7 @@
 #include "Args.h"
 #include "StringUtilities.h"
 
-static const wregex ArgRegex = wregex(L"\\s*-\\s*(\\w+)\\s*:\\s*(.+)\\s*$");
+static const wregex ArgRegex = wregex(L"\\s*-\\s*(\\w+)\\s*(:\\s*(.+)|\\s*)\\s*$");
 static const wregex UserRegex = wregex(L"^([^@\\\\]+)@([^@\\\\]+)$|^([^@\\\\]+)\\\\([^@\\\\]+)$|(^[^@\\\\]+$)");
 static const wstring TrueStr = L"true";
 static const wstring FalseStr = L"false";
@@ -32,6 +32,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 	*logLevel = LOG_LEVEL_NORMAL;
 	IntegrityLevel integrityLevel = INTEGRITY_LEVEL_AUTO;
 	ShowMode showMode = SHOW_MODE_HIDE;
+	auto selfTesting = false;
 	
 	while (actualArgs.size() > 0)
 	{
@@ -62,7 +63,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		actualArgs.erase(actualArgs.begin());
 
 		auto argName = matchResult._At(1).str();
-		auto argValue = matchResult._At(2).str();		
+		auto argValue = matchResult._At(3).str();		
 		auto argNameInLowCase = StringUtilities::Convert(argName, tolower);
 		auto argValueInLowCase = StringUtilities::Convert(argValue, tolower);
 
@@ -187,6 +188,13 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			}			
 		}
 
+		// Show mode
+		if (argNameInLowCase == L"t")
+		{			
+			selfTesting = true;
+			continue;
+		}
+
 		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
@@ -208,7 +216,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		emptyArgs.push_back(ARG_EXECUTABLE);		
 	}
 
-	if (emptyArgs.size() > 0)
+	if (!selfTesting && emptyArgs.size() > 0)
 	{
 		wstringstream details;
 		details << L"The argument(s):";
@@ -232,7 +240,8 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		envVars,
 		inheritanceMode,
 		integrityLevel,
-		showMode);
+		showMode,
+		selfTesting);
 
 	settings.SetLogLevel(*logLevel);
 	return settings;

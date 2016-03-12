@@ -5,13 +5,14 @@
 
 class Job;
 
-class ProcessRunner
+class Runner
 {
 	ProcessAsUser _processAsUserToRun;
 	ProcessWithLogon _processWithLogonToRun;
 	list<IProcess*> _processes;
+	Result<ExitCode> RunProcessAsUser(const Settings& settings) const;
 
 public:
-	ProcessRunner();
+	Runner();
 	Result<ExitCode> Run(const Settings& settings) const;
 };
