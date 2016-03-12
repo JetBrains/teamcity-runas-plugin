@@ -54,7 +54,8 @@ Result<bool> SelfTest::HasLogonSID(Trace& trace, const Handle& token) const
 
 	trace < L"SelfTest::HasLogonSID - Loop through the groups to find the logon SID.";
 	auto hasLogonSID = false;	
-	for (auto groupsIterrator = tokenGroupsResult.GetResultValue().begin(); groupsIterrator != tokenGroupsResult.GetResultValue().end(); ++groupsIterrator)
+	auto tokenGroups = tokenGroupsResult.GetResultValue();
+	for (auto groupsIterrator = tokenGroups.begin(); groupsIterrator != tokenGroups.end(); ++groupsIterrator)
 	{
 		if ((groupsIterrator->Attributes & SE_GROUP_LOGON_ID) == SE_GROUP_LOGON_ID)
 		{

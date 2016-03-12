@@ -148,7 +148,7 @@ Result<list<SID_AND_ATTRIBUTES>> SecurityManager::GetTokenGroups(Trace& trace, c
 	auto groupsInfo = reinterpret_cast<PTOKEN_GROUPS>(tokenGroupsResult.GetResultValue().get());
 	for (DWORD index = 0; index < groupsInfo->GroupCount; index++)
 	{
-		result.push_back(groupsInfo->Groups[index]);		
+		result.push_back(groupsInfo->Groups[index]);
 	}
 
 	return result;

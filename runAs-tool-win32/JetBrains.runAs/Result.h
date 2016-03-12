@@ -12,7 +12,7 @@ class Result
 
 public:
 	Result<T>();
-	Result<T>(const T resultValue);
+	Result<T>(const T& resultValue);
 	Result<T>(const int errorCode, const wstring& errorDescription);
 
 	bool HasError() const;
@@ -27,7 +27,7 @@ Result<T>::Result() : _hasError(false), _errorCode(ERROR_CODE_UNKOWN), _errorDes
 }
 
 template<typename T>
-Result<T>::Result(const T resultValue)
+Result<T>::Result(const T& resultValue)
 {
 	_resultValue = resultValue;
 	_hasError = false;

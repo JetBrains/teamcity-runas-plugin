@@ -20,7 +20,6 @@ wstring GetStringValue(wstring value)
 
 int _tmain(int argc, _TCHAR *argv[]) {
 	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOOPENFILEERRORBOX);	
-	
 	list<wstring> args;
 	for (auto argIndex = 1; argIndex < argc; argIndex++)
 	{

@@ -12,6 +12,9 @@ Handle::Handle(const wstring& name)
 {
 	_name = name;
 	_handle = INVALID_HANDLE_VALUE;
+	_refCounter = new int;
+	*_refCounter = 0;
+	(*_refCounter)++;
 }
 
 void Handle::Close()
@@ -24,7 +27,12 @@ void Handle::Close()
 
 Handle::~Handle()
 {
-	Close();
+	(*_refCounter)--;
+	if(*_refCounter == 0)
+	{
+		delete _refCounter;
+		Close();
+	}
 }
 
 Handle::operator HANDLE() const
@@ -34,8 +42,17 @@ Handle::operator HANDLE() const
 
 Handle& Handle::operator=(const HANDLE handle)
 {
-	Close();
 	_handle = handle;
+	return *this;
+}
+
+Handle& Handle::operator=(const Handle handle)
+{
+	delete this->_refCounter;
+	this->_refCounter = handle._refCounter;
+	this->_name = handle._name;
+	this->_handle = handle._handle;
+	(*_refCounter)+=2;
 	return *this;
 }
 

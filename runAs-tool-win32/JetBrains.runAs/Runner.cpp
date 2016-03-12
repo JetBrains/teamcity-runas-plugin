@@ -13,12 +13,11 @@ Runner::Runner()
 
 Result<ExitCode> Runner::Run(const Settings& settings) const
 {	
-	/*
 	if (settings.GetSelfTesting())
 	{
 		SelfTest selfTest;
 		return selfTest.Run(settings);
-	}*/
+	}
 	
 	return RunProcessAsUser(settings);
 }
