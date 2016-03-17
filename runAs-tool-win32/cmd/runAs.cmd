@@ -9,6 +9,11 @@ IF %ARGS_COUNT% NEQ 2 (
 )
 ENDLOCAL
 
+REM Create user for tests
+net user RunAsTestUser /delete>NUL
+net user /add /active:yes RunAsTestUser aaa>NUL
+net localgroup Administrators RunAsTestUser /ADD>NUL
+
 REM Define OS bitness
 SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN=%~dp0"
 SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL=JetBrains.runAs.exe"
