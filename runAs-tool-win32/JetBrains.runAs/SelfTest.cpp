@@ -33,14 +33,23 @@ Result<ExitCode> SelfTest::Run(const Settings& settings) const
 		return Result<ExitCode>(hasSeAssignPrimaryTokenPrivilegeResult.GetErrorCode(), hasSeAssignPrimaryTokenPrivilegeResult.GetErrorDescription());
 	}
 
+	trace < L"SelfTest::HasLogonSID: ";
+	trace << hasLogonSIDResult.GetResultValue();
+
+	trace < L"SelfTest::HasAdministrativePrivileges: ";
+	trace << hasAdministrativePrivilegesResult.GetResultValue();
+
+	trace < L"SelfTest::HasSeAssignPrimaryTokenPrivilege: ";
+	trace << hasSeAssignPrimaryTokenPrivilegeResult.GetResultValue();
+
 	if (!hasLogonSIDResult.GetResultValue())
-	{		
-		// Windows service
+	{	
 		if (!hasAdministrativePrivilegesResult.GetResultValue())
 		{
 			return EXIT_CODE_NO_ADMIN;
 		}
 
+		// Windows service
 		if (!hasSeAssignPrimaryTokenPrivilegeResult.GetResultValue())
 		{
 			return EXIT_CODE_NO_ASSIGN_PRIMARY_TOKEN_PRIV;
@@ -75,18 +84,19 @@ Result<bool> SelfTest::HasLogonSID(Trace& trace, const Handle& token) const
 
 Result<bool> SelfTest::HasAdministrativePrivileges(Trace& trace) const
 {
-	return IsUserAnAdmin() == TRUE;
+	return _securityManager.IsRunAsAdministrator();
 }
 
 Result<bool> SelfTest::HasSeAssignPrimaryTokenPrivilege(Trace& trace, const Handle& token) const
 {
-	auto tokenGroupsResult = _securityManager.GetPrivilegies(trace, token);
-	if (tokenGroupsResult.HasError())
+	auto privilegiesResult = _securityManager.GetPrivilegies(trace, token);
+	if (privilegiesResult.HasError())
 	{
-		return Result<bool>(tokenGroupsResult.GetErrorCode(), tokenGroupsResult.GetErrorDescription());
+		return Result<bool>(privilegiesResult.GetErrorCode(), privilegiesResult.GetErrorDescription());
 	}
 
-	return true;
+	auto privilegies = privilegiesResult.GetResultValue();
+	return privilegies.find(SE_ASSIGNPRIMARYTOKEN_NAME) != privilegies.end();
 }
 
 typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);

@@ -21,5 +21,6 @@ public:
 	Result<shared_ptr<void>> GetTokenInformation(Trace& trace, const Handle& token, _TOKEN_INFORMATION_CLASS tokenInformationClass) const;
 	Result<list<SID_AND_ATTRIBUTES>> GetTokenGroups(Trace& trace, const Handle& token) const;
 	Result<set<wstring>> GetPrivilegies(Trace& trace, const Handle& token) const;
+	Result<bool> IsRunAsAdministrator() const;
 };
 

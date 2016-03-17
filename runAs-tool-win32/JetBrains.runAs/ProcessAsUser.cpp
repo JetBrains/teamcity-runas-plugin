@@ -17,14 +17,13 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 {
 	Trace trace(settings.GetLogLevel());
 	trace < L"ProcessAsUser::Attempt to log a user on to the local computer";
-	trace < L"::LogonUser";
-	
 	StringBuffer userName(settings.GetUserName());
 	StringBuffer domain(settings.GetDomain());
 	StringBuffer password(settings.GetPassword());
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
 
+	trace < L"::LogonUser";
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
 	if (!LogonUser(
 		userName.GetPointer(),

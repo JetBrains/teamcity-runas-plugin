@@ -13,9 +13,20 @@
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
 
+ProcessWithLogon::ProcessWithLogon(DWORD logonFlags)
+	: _logonFlags(logonFlags)
+{
+}
+
 Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
 	Trace trace(settings.GetLogLevel());
+	trace < L"ProcessWithLogon::Run";
+	if (_logonFlags == LOGON_WITH_PROFILE)
+	{
+		trace << L" with profile";
+	}
+	
 	Environment callingProcessEnvironment;
 	Environment targetUserEnvironment;
 	Environment environment;
@@ -60,8 +71,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 
 		wstringstream getEnvVarsStream;
 		StringWriter getEnvVarsWriter(getEnvVarsStream);
-		StubWriter nulWriter;
-		ProcessTracker getEnvVarsProcessTracker(getEnvVarsWriter, nulWriter);
+		StubWriter nullWriter;
+		ProcessTracker getEnvVarsProcessTracker(getEnvVarsWriter, nullWriter);
 		auto getEnvVarsResult = RunInternal(trace, getEnvVarsProcessSettings, getEnvVarsProcessTracker, targetUserEnvironment);
 		if (getEnvVarsResult.HasError() || getEnvVarsResult.GetResultValue() != 0)
 		{
@@ -81,7 +92,7 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 	return RunInternal(trace, settings, processTracker, environment);
 }
 
-Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment)
+Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment) const
 {
 	SECURITY_ATTRIBUTES securityAttributes = {};
 	securityAttributes.nLength = sizeof(SECURITY_DESCRIPTOR);
@@ -101,12 +112,37 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
 
+	if (_logonFlags != LOGON_WITH_PROFILE)
+	{
+		trace < L"::LogonUser";
+		auto newUserSecurityTokenHandle = Handle(L"New user security token");
+		if (!LogonUser(
+			userName.GetPointer(),
+			domain.GetPointer(),
+			password.GetPointer(),
+			LOGON32_LOGON_NETWORK,
+			LOGON32_PROVIDER_DEFAULT,
+			&newUserSecurityTokenHandle))
+		{
+			return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
+		}
+
+		trace < L"::LoadUserProfile";
+		PROFILEINFO profileInfo = {};
+		profileInfo.dwSize = sizeof(PROFILEINFO);
+		profileInfo.lpUserName = userName.GetPointer();
+		if (!LoadUserProfile(newUserSecurityTokenHandle, &profileInfo))
+		{
+			return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
+		}
+	}
+
 	trace < L"::CreateProcessWithLogonW";
 	if (!CreateProcessWithLogonW(
 		userName.GetPointer(),
 		domain.GetPointer(),
 		password.GetPointer(),
-		LOGON_WITH_PROFILE,
+		_logonFlags,
 		nullptr,
 		commandLine.GetPointer(),
 		CREATE_UNICODE_ENVIRONMENT,

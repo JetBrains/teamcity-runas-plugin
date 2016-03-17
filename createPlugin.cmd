@@ -8,7 +8,6 @@ rd %root%plugin /s /q
 
 md %root%plugin\agent\new\bin
 copy %root%runAs-tool-win32\cmd\*.cmd %root%plugin\agent\new\bin /Y
-copy %root%runAs-tool-win32\bin\Release\x86\JetBrains.getOSBitness.exe %root%plugin\agent\new\bin /Y
 md %root%plugin\agent\new\bin\x86
 copy %root%runAs-tool-win32\bin\Release\x86\JetBrains.runAs.exe %root%plugin\agent\new\bin\x86 /Y
 md %root%plugin\agent\new\bin\x64

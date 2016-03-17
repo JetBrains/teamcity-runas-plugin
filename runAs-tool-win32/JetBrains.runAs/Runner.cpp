@@ -9,6 +9,7 @@ Runner::Runner()
 {
 	_processes.push_back(&_processAsUserToRun);
 	_processes.push_back(&_processWithLogonToRun);
+	_processes.push_back(&_processWithLogonToRunWithProfile);
 }
 
 Result<ExitCode> Runner::Run(const Settings& settings) const

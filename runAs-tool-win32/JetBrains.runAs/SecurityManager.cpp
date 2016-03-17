@@ -167,3 +167,35 @@ Result<set<wstring>> SecurityManager::GetPrivilegies(Trace& trace, const Handle&
 
 	return result;
 }
+
+Result<bool> SecurityManager::IsRunAsAdministrator() const
+{
+	if (IsUserAnAdmin())
+	{
+		return true;
+	}
+
+	auto isRunAsAdmin = FALSE;
+	PSID pAdministratorsGroup = nullptr;
+
+	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+	if (!AllocateAndInitializeSid(
+		&NtAuthority,
+		2,
+		SECURITY_BUILTIN_DOMAIN_RID,
+		DOMAIN_ALIAS_RID_ADMINS,
+		0, 0, 0, 0, 0, 0,
+		&pAdministratorsGroup))
+	{
+		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"AllocateAndInitializeSid"));
+	}
+
+	if (!CheckTokenMembership(nullptr, pAdministratorsGroup, &isRunAsAdmin))
+	{
+		FreeSid(pAdministratorsGroup);
+		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CheckTokenMembership"));
+	}
+
+	FreeSid(pAdministratorsGroup);
+	return isRunAsAdmin == TRUE;
+}

@@ -7,8 +7,10 @@ class Settings;
 
 class ProcessWithLogon : public IProcess
 {
-	static Result<ExitCode> RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment);
+	DWORD _logonFlags;
+	Result<ExitCode> RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment) const;
 
 public:
+	ProcessWithLogon(DWORD logonFlags);
 	virtual Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;	
 };

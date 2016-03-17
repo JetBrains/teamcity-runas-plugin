@@ -8,7 +8,8 @@ class Job;
 class Runner
 {
 	ProcessAsUser _processAsUserToRun;
-	ProcessWithLogon _processWithLogonToRun;
+	ProcessWithLogon _processWithLogonToRun = ProcessWithLogon(LOGON_NETCREDENTIALS_ONLY);
+	ProcessWithLogon _processWithLogonToRunWithProfile = ProcessWithLogon(LOGON_WITH_PROFILE);
 	list<IProcess*> _processes;
 	Result<ExitCode> RunProcessAsUser(const Settings& settings) const;
 
