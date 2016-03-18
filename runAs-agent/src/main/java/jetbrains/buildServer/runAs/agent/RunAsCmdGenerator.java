@@ -26,25 +26,14 @@ public class RunAsCmdGenerator implements ResourceGenerator<RunAsCmdSettings> {
     sb.append("@ECHO OFF");
 
     sb.append(LINE_SEPARATOR);
-    sb.append("PUSHD \"");
-    sb.append(settings.getWorkingDirectory());
-    sb.append("\"");
-
-    sb.append(LINE_SEPARATOR);
     sb.append("ECHO ");
     sb.append(ApplyCmdStringReplacements(new Message("Starting: " + settings.getCommandLine(), NORMAL_STATUS, null).toString()));
-    sb.append(LINE_SEPARATOR);
-    sb.append("ECHO ");
-    sb.append(ApplyCmdStringReplacements(new Message("in directory: " + settings.getWorkingDirectory(), NORMAL_STATUS, null).toString()));
 
     sb.append(LINE_SEPARATOR);
     sb.append(settings.getCommandLine());
 
     sb.append(LINE_SEPARATOR);
     sb.append("SET \"EXIT_CODE=%ERRORLEVEL%\"");
-
-    sb.append(LINE_SEPARATOR);
-    sb.append("POPD");
 
     sb.append(LINE_SEPARATOR);
     sb.append("EXIT /B %EXIT_CODE%");

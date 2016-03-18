@@ -5,6 +5,8 @@
        default-autowire="constructor">
 
   <bean class="jetbrains.buildServer.runAs.agent.BuildFeatureParametersServiceImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.CommandLineExecutorImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsPropertiesExtension" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
   <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
   <bean class="jetbrains.buildServer.runAs.agent.SettingsGenerator" id="credentialsGenerator"/>

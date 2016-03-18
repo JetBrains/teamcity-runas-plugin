@@ -34,16 +34,13 @@ public class RunAsCmdGeneratorTest {
     final RunAsCmdGenerator instance = createInstance();
 
     // When
-    final String content = instance.create(new RunAsCmdSettings(cmdLine, "w d"));
+    final String content = instance.create(new RunAsCmdSettings(cmdLine));
 
     // Then
     then(content).isEqualTo("@ECHO OFF"
-                            + LINE_SEPARATOR + "PUSHD \"w d\""
                             + LINE_SEPARATOR + "ECHO ##teamcity[message text=^'Starting: " + cmdLineInMessage + "^' status=^'NORMAL^']"
-                            + LINE_SEPARATOR + "ECHO ##teamcity[message text=^'in directory: w d^' status=^'NORMAL^']"
                             + LINE_SEPARATOR + cmdLine
                             + LINE_SEPARATOR + "SET \"EXIT_CODE=%ERRORLEVEL%\""
-                            + LINE_SEPARATOR + "POPD"
                             + LINE_SEPARATOR + "EXIT /B %EXIT_CODE%");
   }
 

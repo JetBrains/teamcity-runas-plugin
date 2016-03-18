@@ -4,23 +4,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class RunAsCmdSettings {
   private final String myCommandLine;
-  private final String myWorkingDirectory;
 
   public RunAsCmdSettings(
-    @NotNull final String commandLine,
-    @NotNull final String workingDirectory) {
+    @NotNull final String commandLine) {
     myCommandLine = commandLine;
-    myWorkingDirectory = workingDirectory;
   }
 
   @NotNull
   public String getCommandLine() {
     return myCommandLine;
-  }
-
-  @NotNull
-  public String getWorkingDirectory() {
-    return myWorkingDirectory;
   }
 
   @Override
@@ -30,15 +22,12 @@ public class RunAsCmdSettings {
 
     final RunAsCmdSettings that = (RunAsCmdSettings)o;
 
-    if (!getCommandLine().equals(that.getCommandLine())) return false;
-    return getWorkingDirectory().equals(that.getWorkingDirectory());
+    return getCommandLine().equals(that.getCommandLine());
 
   }
 
   @Override
   public int hashCode() {
-    int result = getCommandLine().hashCode();
-    result = 31 * result + getWorkingDirectory().hashCode();
-    return result;
+    return getCommandLine().hashCode();
   }
 }

@@ -25,7 +25,6 @@ public class RunAsToolProviderTest {
   private Mockery myCtx;
   private ToolProvidersRegistry myToolProvidersRegistry;
   private PluginDescriptor myPluginDescriptor;
-  private RunnerParametersService myRunnerParametersService;
 
   @BeforeMethod
   public void setUp()
@@ -33,7 +32,6 @@ public class RunAsToolProviderTest {
     myCtx = new Mockery();
     myPluginDescriptor = myCtx.mock(PluginDescriptor.class);
     myToolProvidersRegistry = myCtx.mock(ToolProvidersRegistry.class);
-    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
   }
 
   @Test
@@ -44,9 +42,6 @@ public class RunAsToolProviderTest {
 
     final List<ToolProvider> toolProviders = new ArrayList<ToolProvider>();
     myCtx.checking(new Expectations() {{
-      oneOf(myRunnerParametersService).isRunningUnderWindows();
-      will(returnValue(true));
-
       oneOf(myPluginDescriptor).getPluginRoot();
       will(returnValue(pluginRootDir));
 
@@ -73,47 +68,11 @@ public class RunAsToolProviderTest {
     then(new File(toolPath).getAbsolutePath()).isEqualTo(binPath.getAbsolutePath());
   }
 
-  @Test()
-  public void shouldThrowToolCannotBeFoundExceptionWhenIsNotRunningUnderWindows() throws IOException, ExecutionException {
-    // Given
-    final List<ToolProvider> toolProviders = new ArrayList<ToolProvider>();
-    myCtx.checking(new Expectations() {{
-      oneOf(myRunnerParametersService).isRunningUnderWindows();
-      will(returnValue(false));
-
-      oneOf(myToolProvidersRegistry).registerToolProvider(with(any(ToolProvider.class)));
-      will(new CustomAction("registerToolProvider") {
-        @Override
-        public Object invoke(final Invocation invocation) throws Throwable {
-          toolProviders.add((ToolProvider)invocation.getParameter(0));
-          return null;
-        }
-      });
-    }});
-
-    // When
-    createInstance();
-
-    boolean actualExceptionThrown = false;
-    final ToolProvider toolProvider = toolProviders.get(0);
-    try {
-      toolProvider.getPath(Constants.RUN_AS_TOOL_NAME);
-    }
-    catch (ToolCannotBeFoundException ex){
-      actualExceptionThrown = true;
-    }
-
-    // Then
-    myCtx.assertIsSatisfied();
-    then(actualExceptionThrown).isTrue();
-  }
-
   @NotNull
   private RunAsToolProvider createInstance()
   {
     return new RunAsToolProvider(
       myPluginDescriptor,
-      myToolProvidersRegistry,
-      myRunnerParametersService);
+      myToolProvidersRegistry);
   }
 }

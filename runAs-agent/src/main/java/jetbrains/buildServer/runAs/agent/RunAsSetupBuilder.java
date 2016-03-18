@@ -78,9 +78,7 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
     cmdLineArgs.addAll(commandLineSetup.getArgs());
 
-    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings(
-      myCommandLineArgumentsService.createCommandLineString(cmdLineArgs),
-      myFileService.getCheckoutDirectory().getAbsolutePath());
+    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings(myCommandLineArgumentsService.createCommandLineString(cmdLineArgs));
 
     final File cmdFile = myFileService.getTempFileName(CMD_EXT);
     resources.add(new CommandLineFile(mySettingsPublisher, cmdFile.getAbsoluteFile(), myRunAsCmdGenerator.create(runAsCmdSettings)));

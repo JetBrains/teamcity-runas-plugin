@@ -49,7 +49,6 @@ public class RunAsSetupBuilderTest {
   @Test()
   public void shouldBuildSetup() throws IOException {
     // Given
-    final File checkoutDir = new File("checkoutDir");
     final File credentialsFile = new File("credentials");
     final File cmdFile = new File("command");
     final String toolName = "my tool";
@@ -62,7 +61,7 @@ public class RunAsSetupBuilderTest {
     final String credentialsContent = "credentials content";
     final String cmdContent = "args content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
-    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings("cmd line", checkoutDir.getAbsolutePath());
+    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).isRunningUnderWindows();
@@ -96,9 +95,6 @@ public class RunAsSetupBuilderTest {
       oneOf(myCommandLineArgumentsService).createCommandLineString(with(any(List.class)));
       will(returnValue("cmd line"));
 
-
-      oneOf(myFileService).getCheckoutDirectory();
-      will(returnValue(checkoutDir));
 
       oneOf(myArgsGenerator).create(runAsCmdSettings);
       will(returnValue(cmdContent));

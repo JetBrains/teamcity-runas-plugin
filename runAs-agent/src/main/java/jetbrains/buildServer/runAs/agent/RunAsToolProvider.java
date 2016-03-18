@@ -15,8 +15,7 @@ public class RunAsToolProvider {
 
   public RunAsToolProvider(
     @NotNull final PluginDescriptor pluginDescriptor,
-    @NotNull final ToolProvidersRegistry toolProvidersRegistry,
-    @NotNull final RunnerParametersService parametersService) {
+    @NotNull final ToolProvidersRegistry toolProvidersRegistry) {
 
     toolProvidersRegistry.registerToolProvider(new jetbrains.buildServer.agent.ToolProvider() {
       @Override
@@ -29,10 +28,6 @@ public class RunAsToolProvider {
       public String getPath(@NotNull final String toolName) throws ToolCannotBeFoundException {
         if(!supports(toolName)) {
           throw new ToolCannotBeFoundException("Tool is not supported");
-        }
-
-        if (!parametersService.isRunningUnderWindows()) {
-          throw new ToolCannotBeFoundException("Tool is not supported for this OS.");
         }
 
         try
