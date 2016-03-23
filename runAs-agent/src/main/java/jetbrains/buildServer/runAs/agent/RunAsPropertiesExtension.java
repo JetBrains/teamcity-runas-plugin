@@ -61,10 +61,6 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
         final int bitness = result.getExitCode();
         if (bitness == 32 || bitness == 64)
         {
-          if(config.getConfigurationParameters().containsKey(Constants.RUN_AS_READY)) {
-            config.getConfigurationParameters().remove(Constants.RUN_AS_READY);
-          }
-
           config.addConfigurationParameter(Constants.RUN_AS_READY, "YES");
         }
       }
