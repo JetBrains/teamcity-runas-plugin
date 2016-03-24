@@ -72,18 +72,23 @@ Examples:
 	| "command Who Am I.cmd" | arg1 arg2    |
 	| "command Who Am I.cmd" | "arg 1" arg2 |
 
-Scenario: User runs using config file for args
+Scenario Outline: User runs using config file for args
 	Given I have appended the file command.cmd by the line WhoAmI.exe
-	And I have appended the file args.txt by the line -p:aaa
-	And I have appended the file args.txt by the line command.cmd
+	And I have appended the file <argsFile> by the line -p:aaa
+	And I have appended the file <argsFile> by the line command.cmd
 	And I've added the argument -u:RunAsTestUser
-	And I've added the argument -c:args.txt	
+	And I've added the argument -c:<argsFile>	
 	When I run RunAs tool
 	Then the exit code should be 0
 	And the output should contain:
 	|                |
 	| WhoAmI.exe     |
 	| .+\\\\RunAsTestUser |
+
+Examples:
+	| argsFile |
+	| args.txt |
+	| "my args.txt" |
 
 Scenario: User runs the command with cmd args
 	Given I have appended the file command.cmd by the line @echo %1 %2

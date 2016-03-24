@@ -198,21 +198,23 @@ this.ScenarioSetup(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("User runs using config file for args")]
-        public virtual void UserRunsUsingConfigFileForArgs()
+        [NUnit.Framework.TestCaseAttribute("args.txt", new string[0])]
+        [NUnit.Framework.TestCaseAttribute("\"my args.txt\"", new string[0])]
+        public virtual void UserRunsUsingConfigFileForArgs(string argsFile, string[] exampleTags)
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs using config file for args", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs using config file for args", exampleTags);
 #line 75
 this.ScenarioSetup(scenarioInfo);
 #line 76
  testRunner.Given("I have appended the file command.cmd by the line WhoAmI.exe", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 77
- testRunner.And("I have appended the file args.txt by the line -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And(string.Format("I have appended the file {0} by the line -p:aaa", argsFile), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 78
- testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And(string.Format("I have appended the file {0} by the line command.cmd", argsFile), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 79
  testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 80
- testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And(string.Format("I\'ve added the argument -c:{0}", argsFile), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 81
  testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 82
@@ -235,30 +237,30 @@ this.ScenarioSetup(scenarioInfo);
         public virtual void UserRunsTheCommandWithCmdArgs()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs the command with cmd args", ((string[])(null)));
-#line 88
-this.ScenarioSetup(scenarioInfo);
-#line 89
- testRunner.Given("I have appended the file command.cmd by the line @echo %1 %2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 90
- testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 91
- testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 92
- testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 93
- testRunner.And("I\'ve added the argument hello", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+this.ScenarioSetup(scenarioInfo);
 #line 94
- testRunner.And("I\'ve added the argument \"world !!!\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.Given("I have appended the file command.cmd by the line @echo %1 %2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 95
- testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 96
+ testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 97
+ testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 98
+ testRunner.And("I\'ve added the argument hello", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 99
+ testRunner.And("I\'ve added the argument \"world !!!\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 100
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 101
  testRunner.Then("the exit code should be 0", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         ""});
             table5.AddRow(new string[] {
                         "hello \"world !!!\""});
-#line 97
+#line 102
  testRunner.And("the output should contain:", ((string)(null)), table5, "And ");
 #line hidden
             this.ScenarioCleanup();
@@ -269,32 +271,32 @@ this.ScenarioSetup(scenarioInfo);
         public virtual void UserRunsTheCommandWithCmdArgsViaConfigFileForArgs()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs the command with cmd args via config file for args", ((string[])(null)));
-#line 101
-this.ScenarioSetup(scenarioInfo);
-#line 102
- testRunner.Given("I have appended the file command.cmd by the line @echo %1 %~2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 103
- testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 104
- testRunner.And("I have appended the file args.txt by the line hello", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 105
- testRunner.And("I have appended the file args.txt by the line \"world !!!\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 106
- testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+this.ScenarioSetup(scenarioInfo);
 #line 107
- testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.Given("I have appended the file command.cmd by the line @echo %1 %~2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 108
- testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 109
- testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.And("I have appended the file args.txt by the line hello", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 110
+ testRunner.And("I have appended the file args.txt by the line \"world !!!\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 111
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 112
+ testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 113
+ testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 114
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 115
  testRunner.Then("the exit code should be 0", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         ""});
             table6.AddRow(new string[] {
                         "hello world !!!"});
-#line 111
+#line 116
  testRunner.And("the output should contain:", ((string)(null)), table6, "And ");
 #line hidden
             this.ScenarioCleanup();
@@ -305,32 +307,32 @@ this.ScenarioSetup(scenarioInfo);
         public virtual void UserRunsTheCommandWithCmdArgsViaConfigFileWithUnquotedArgs()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs the command with cmd args via config file with unquoted args", ((string[])(null)));
-#line 115
-this.ScenarioSetup(scenarioInfo);
-#line 116
- testRunner.Given("I have appended the file command.cmd by the line @echo %1 %~2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 117
- testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 118
- testRunner.And("I have appended the file args.txt by the line hello", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 119
- testRunner.And("I have appended the file args.txt by the line world !!!", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 120
- testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+this.ScenarioSetup(scenarioInfo);
 #line 121
- testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.Given("I have appended the file command.cmd by the line @echo %1 %~2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 122
- testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 123
- testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.And("I have appended the file args.txt by the line hello", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 124
+ testRunner.And("I have appended the file args.txt by the line world !!!", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 125
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 126
+ testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 127
+ testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 128
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 129
  testRunner.Then("the exit code should be 0", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         ""});
             table7.AddRow(new string[] {
                         "hello world !!!"});
-#line 125
+#line 130
  testRunner.And("the output should contain:", ((string)(null)), table7, "And ");
 #line hidden
             this.ScenarioCleanup();
@@ -346,21 +348,21 @@ this.ScenarioSetup(scenarioInfo);
         public virtual void RunAsReturnsTheExitCodeFromTheTargetCommand(string exitCode, string[] exampleTags)
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("RunAs returns the exit code from the target command", exampleTags);
-#line 129
-this.ScenarioSetup(scenarioInfo);
-#line 130
- testRunner.Given("I have appended the file command.cmd by the line WhoAmI.exe", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 131
- testRunner.And(string.Format("I have appended the file command.cmd by the line @exit {0} /B", exitCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 132
- testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 133
- testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 134
- testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+this.ScenarioSetup(scenarioInfo);
 #line 135
- testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.Given("I have appended the file command.cmd by the line WhoAmI.exe", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 136
+ testRunner.And(string.Format("I have appended the file command.cmd by the line @exit {0} /B", exitCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 137
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 138
+ testRunner.And("I\'ve added the argument -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 139
+ testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 140
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 141
  testRunner.Then(string.Format("the exit code should be {0}", exitCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
@@ -369,7 +371,7 @@ this.ScenarioSetup(scenarioInfo);
                         "WhoAmI.exe"});
             table8.AddRow(new string[] {
                         ".+\\\\RunAsTestUser"});
-#line 137
+#line 142
  testRunner.And("the output should contain:", ((string)(null)), table8, "And ");
 #line hidden
             this.ScenarioCleanup();
@@ -380,29 +382,14 @@ this.ScenarioSetup(scenarioInfo);
         public virtual void UserRunsWithLongArgs()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User runs with long args", ((string[])(null)));
-#line 150
-this.ScenarioSetup(scenarioInfo);
-#line 151
- testRunner.Given("I have appended the file command.cmd by the line echo %*", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 152
- testRunner.And("I have appended the file args.txt by the line -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 153
- testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 154
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 155
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+this.ScenarioSetup(scenarioInfo);
 #line 156
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.Given("I have appended the file command.cmd by the line echo %*", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 157
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line -p:aaa", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 158
- testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
-                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 159
  testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
                     "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
@@ -416,12 +403,27 @@ this.ScenarioSetup(scenarioInfo);
  testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
                     "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 163
- testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
+                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 164
- testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
+                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 165
- testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
+                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 166
+ testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
+                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 167
+ testRunner.And("I have appended the file args.txt by the line 01234567890123456789012345678901234" +
+                    "56789012345678901234567890123456789012345678901234567890123456789", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 168
+ testRunner.And("I\'ve added the argument -u:RunAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 169
+ testRunner.And("I\'ve added the argument -c:args.txt", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 170
+ testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 171
  testRunner.Then("the exit code should be 0", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
