@@ -170,11 +170,6 @@ Result<set<wstring>> SecurityManager::GetPrivilegies(Trace& trace, const Handle&
 
 Result<bool> SecurityManager::IsRunAsAdministrator() const
 {
-	if (IsUserAnAdmin())
-	{
-		return true;
-	}
-
 	auto isRunAsAdmin = FALSE;
 	PSID pAdministratorsGroup = nullptr;
 
