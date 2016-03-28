@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<Target Name="Build">
-		<MSBuild Projects="JetBrains.getOSBitness\JetBrains.getOSBitness.vcxproj" Targets="Rebuild" Properties="Configuration=Release;Platform=Win32;OutDir=..\bin\Release\x86\"/>
 		<MSBuild Projects="JetBrains.runAs\JetBrains.runAs.vcxproj" Targets="Rebuild" Properties="Configuration=Release;Platform=x86;OutDir=..\bin\Release\x86\"/>
 		<MSBuild Projects="JetBrains.runAs\JetBrains.runAs.vcxproj" Targets="Rebuild" Properties="Configuration=Release;Platform=x64;OutDir=..\bin\Release\x64\"/>			
 		<MSBuild Projects="tests.proj" Targets="Tests"/>		
