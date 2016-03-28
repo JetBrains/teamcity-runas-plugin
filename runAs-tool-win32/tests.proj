@@ -3,6 +3,11 @@
 	<Import Project="nunit-utils.targets"/>
 
 	<Target Name="Tests">
+		<MSBuild Projects="tests.proj" Targets="IntegrationTests"/>
+		<MSBuild Projects="tests.proj" Targets="IntegrationTests" Properties="DefineConstants=x86"/>
+	</Target>
+
+	<Target Name="IntegrationTests">
 		<MSBuild Projects="JetBrains.runAs.IntegrationTests\JetBrains.runAs.IntegrationTests.csproj" Targets="Rebuild" Properties="Configuration=Release;Platform=AnyCPU"/>		
 
 		<GetNUnitConsolePath BaseDir="$(MSBuildProjectDirectory)\packages">
