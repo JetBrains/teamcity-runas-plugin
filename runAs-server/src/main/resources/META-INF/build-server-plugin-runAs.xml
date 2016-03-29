@@ -6,5 +6,6 @@
 
   <bean class="jetbrains.buildServer.runAs.server.RunAsBean"/>
   <bean class="jetbrains.buildServer.runAs.server.RunAsBuildFeature"/>
+  <bean class="jetbrains.buildServer.runAs.server.RunAsPasswordsProvider" id="runAsPasswordsProvider"/>
 
 </beans>
