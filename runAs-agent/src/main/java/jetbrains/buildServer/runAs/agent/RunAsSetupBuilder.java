@@ -8,10 +8,8 @@ import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.StringUtil;
-import org.apache.xpath.operations.Equals;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.util.StringUtils;
 
 public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   static final String TOOL_FILE_NAME = "runAs.cmd";
@@ -70,8 +68,8 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
     resources.addAll(commandLineSetup.getResources());
 
     // Settings
-    final File credentialsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, credentialsFile.getAbsoluteFile(), mySettingsGenerator.create(new Settings(userName, password, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs)))));
+    final File settingsFile = myFileService.getTempFileName(CREDENTIALS_EXT);
+    resources.add(new CommandLineFile(mySettingsPublisher, settingsFile.getAbsoluteFile(), mySettingsGenerator.create(new Settings(userName, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs)))));
 
     // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();
@@ -87,8 +85,9 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
       new CommandLineSetup(
         getTool().getAbsolutePath(),
         Arrays.asList(
-          new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER)),
+          new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+          new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+          new CommandLineArgument(password, CommandLineArgument.Type.PARAMETER)),
         resources));
   }
 

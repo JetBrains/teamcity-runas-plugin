@@ -88,7 +88,7 @@ public class RunAsSetupBuilderTest {
       oneOf(myCommandLineArgumentsService).parseCommandLineArguments("args");
       will(returnValue(additionalArgs));
 
-      oneOf(myCredentialsGenerator).create(with(new Settings(user, password, additionalArgs)));
+      oneOf(myCredentialsGenerator).create(with(new Settings(user, additionalArgs)));
       will(returnValue(credentialsContent));
 
       //noinspection unchecked
@@ -122,7 +122,8 @@ public class RunAsSetupBuilderTest {
 
     then(setup.getArgs()).containsExactly(
       new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
+      new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+      new CommandLineArgument(password, CommandLineArgument.Type.PARAMETER));
   }
 
   @DataProvider(name = "emptyUserNameCases")

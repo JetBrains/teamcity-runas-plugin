@@ -23,13 +23,13 @@ public class SettingsGeneratorTest {
   @Test()
   public void shouldGenerateContent() {
     // Given
-    final String expectedContent = "-u:nik" + ourlineSeparator + "-p:aa" + ourlineSeparator + "arg1" + ourlineSeparator + "arg 2";
+    final String expectedContent = "-u:nik" + ourlineSeparator + "arg1" + ourlineSeparator + "arg 2";
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
 
     final SettingsGenerator instance = createInstance();
 
     // When
-    final String content = instance.create(new Settings("nik", "aa", additionalArgs));
+    final String content = instance.create(new Settings("nik", additionalArgs));
 
     // Then
     myCtx.assertIsSatisfied();
