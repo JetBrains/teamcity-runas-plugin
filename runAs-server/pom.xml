@@ -4,7 +4,7 @@
   <parent>
     <artifactId>runAs</artifactId>
     <groupId>org.jetbrains.teamcity.plugins</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
   <artifactId>runAs-server</artifactId>
   <packaging>jar</packaging>
@@ -13,7 +13,7 @@
     <dependency>
       <groupId>org.jetbrains.teamcity.plugins</groupId>
       <artifactId>runAs-common</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0.0</version>
       <scope>compile</scope>
     </dependency>
 

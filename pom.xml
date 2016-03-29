@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jetbrains.teamcity.plugins</groupId>
   <artifactId>runAs</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
   <properties>
       <teamcity-version>10.0-SNAPSHOT</teamcity-version>

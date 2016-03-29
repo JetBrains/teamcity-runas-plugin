@@ -4,7 +4,7 @@
   <parent>
     <artifactId>runAs</artifactId>
     <groupId>org.jetbrains.teamcity.plugins</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
   <artifactId>build</artifactId>
   <packaging>pom</packaging>
@@ -18,17 +18,17 @@
       <dependency>
            <groupId>org.jetbrains.teamcity.plugins</groupId>
            <artifactId>runAs-agent</artifactId>
-           <version>1.0-SNAPSHOT</version>
+           <version>1.0.0</version>
       </dependency>
       <dependency>
            <groupId>org.jetbrains.teamcity.plugins</groupId>
            <artifactId>runAs-common</artifactId>
-           <version>1.0-SNAPSHOT</version>
+           <version>1.0.0</version>
       </dependency>
       <dependency>
            <groupId>org.jetbrains.teamcity.plugins</groupId>
            <artifactId>runAs-server</artifactId>
-           <version>1.0-SNAPSHOT</version>
+           <version>1.0.0</version>
       </dependency>
   </dependencies>
   <build>
