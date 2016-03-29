@@ -4,13 +4,13 @@
     <name>runAs</name>
     <display-name>runAs</display-name>
     <version>@Version@</version>
-    <description>Plugin description</description>
-    <download-url>Plugin download URL</download-url>
-    <email>Plugin author e-mail</email>
+    <description>Provides an ability to run builds under the specified Windows user account</description>
+    <download-url>https://github.com/JetBrains/teamcity-runas-plugin</download-url>
+    <email>Nikolay.Pianikov@jetbrains.com</email>
     <vendor>
-      <name>@VendorName@</name>
-      <url>@VendorURL@</url>
-      <logo>Plugin vendor logo URL</logo>
+      <name>JetBrains</name>
+      <url>https://www.jetbrains.com/</url>
+      <logo>https://www.jetbrains.com/company/docs/logo_jetbrains.png</logo>
     </vendor>
   </info>
   <deployment use-separate-classloader="true" />
