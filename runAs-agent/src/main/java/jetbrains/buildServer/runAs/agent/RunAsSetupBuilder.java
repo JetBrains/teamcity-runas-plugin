@@ -95,11 +95,15 @@ public class RunAsSetupBuilder implements CommandLineSetupBuilder {
   private String tryGetParameter(@NotNull final String paramName)
   {
     final List<String> paramValues = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, paramName);
-    if (paramValues.size() == 0) {
-      return myParametersService.tryGetConfigParameter(paramName);
+    if (paramValues.size() != 0) {
+      final String paramValue = paramValues.get(0);
+      if(paramValue != null)
+      {
+        return paramValue;
+      }
     }
 
-    return paramValues.get(0);
+    return myParametersService.tryGetConfigParameter(paramName);
   }
 
   private File getTool() {

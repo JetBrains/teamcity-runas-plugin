@@ -147,6 +147,9 @@ public class RunAsSetupBuilderTest {
 
       oneOf(myBuildFeatureParametersService).getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, Constants.USER_VAR);
       will(returnValue(Arrays.asList(userName)));
+
+      allowing(myRunnerParametersService).tryGetConfigParameter(Constants.USER_VAR);
+      will(returnValue(userName));
     }});
 
     final CommandLineSetupBuilder instance = createInstance();

@@ -2,17 +2,12 @@
 SETLOCAL
 SET /A ARGS_COUNT=0    
 FOR %%A in (%*) DO SET /A "ARGS_COUNT+=1"
-IF %ARGS_COUNT% NEQ 2 (
+IF %ARGS_COUNT% NEQ 3 (
 	@ECHO Invalid arguments.
-	@ECHO Usage: runAs.cmd credentials_file command
+	@ECHO Usage: runAs.cmd settings_file_name command_file_name password
 	@EXIT -1
 )
 ENDLOCAL
-
-REM Create user for tests
-net user RunAsTestUser /delete 1> NUL 2>&1
-net user /add /active:yes RunAsTestUser aaa 1> NUL 2>&1
-net localgroup Administrators RunAsTestUser /ADD 1> NUL 2>&1
 
 REM Define OS bitness
 SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN=%~dp0"
@@ -41,7 +36,7 @@ SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN="
 SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_="
 
 REM Run command line
-"%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL%" -i:auto -l:normal "-c:%~1" -b:-10000 cmd.exe /C "%~2"
+"%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL%" -i:auto -l:normal "-p:%~3" "-c:%~1" -b:-10000 cmd.exe /C "%~2"
 SET "EXIT_CODE=%ERRORLEVEL%"
 
 ECHO.
