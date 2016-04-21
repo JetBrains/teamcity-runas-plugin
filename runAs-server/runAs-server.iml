@@ -74,10 +74,10 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework.security:spring-security-aspects:3.2.7.RELEASE" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework.security:spring-security-core:3.2.7.RELEASE" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jetbrains.teamcity:server-web-api:war:10.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.assertj:assertj-core:1.6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jetbrains.teamcity:tests-support:10.0-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: jmock:jmock:1.2.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.assertj:assertj-core:1.7.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-integration:1.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-library:1.3" level="project" />
