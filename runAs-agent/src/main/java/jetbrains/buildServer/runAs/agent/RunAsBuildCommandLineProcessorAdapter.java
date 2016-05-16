@@ -11,9 +11,9 @@ public class RunAsBuildCommandLineProcessorAdapter extends BuildCommandLineProce
       @NotNull final CommandLineSetupBuilder setupBuilder,
       @NotNull final BuildRunnerContextProvider contextProvider,
       @NotNull final AgentEventDispatcher eventDispatcher,
-      @NotNull final LoggerService logger,
+      @NotNull final ExceptionHandler exceptionHandler,
       @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
-    super(setupBuilder, contextProvider, eventDispatcher, logger, commandLineArgumentsService);
+    super(setupBuilder, contextProvider, eventDispatcher, exceptionHandler, commandLineArgumentsService);
   }
 
   @NotNull
