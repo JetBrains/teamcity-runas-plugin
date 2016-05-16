@@ -56,7 +56,10 @@ wstring HelpUtilities::GetHelp()
 	help << endl << L"\t\t\t\t\t64\t- ready to work on 64-bit OS";
 	help << endl << L"\t\t\t\t\t" << EXIT_CODE_NO_ADMIN << L"\t- invoker has no administrative privileges, when running under the Windows service as LocalSystem";
 	help << endl << L"\t\t\t\t\t" << EXIT_CODE_NO_ASSIGN_PRIMARY_TOKEN_PRIV << L"\t- invoker has no SeAssignPrimaryTokenPrivilege privilege, when running under the Windows service as LocalSystem";
-	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\t- set \"" << INHERITANCE_MODE_ON << L"\" when the environment variables should be inherited from a parent process, set \"" << INHERITANCE_MODE_AUTO << L"\" when the some environment variables should be inherited from a parent process, set to \"" << INHERITANCE_MODE_OFF << L"\" when environment variables should not be inherited from a parent process, it is optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
+	help << endl << L"\t-i:" << ARG_INHERITANCE_MODE << "\"\t- inheritance mode for the creating process, optional and \"" << INHERITANCE_MODE_AUTO << L"\" by default.";
+	help << endl << L"\t\t\t\t\t\"" << INHERITANCE_MODE_ON << L"\"\t- the environment variables should be inherited from a parent process";
+	help << endl << L"\t\t\t\t\t\"" << INHERITANCE_MODE_AUTO << L"\"\t- the some environment variables should be inherited from a parent process";
+	help << endl << L"\t\t\t\t\t\"" << INHERITANCE_MODE_OFF << L"\"\t- environment variables should not be inherited from a parent process";
 	help << endl << L"\t-c:" << ARG_CONFIGURATION_FILE << L"\t- text file, containing the any configuration arguments, it is optional.";
 	help << endl << L"\t" << ARG_EXECUTABLE << "\t\t- executable file.";
 	help << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << "\t- command line arguments, it is optional and empty by default. The maximum total length of \"" << ARG_EXECUTABLE << L"\" and \"" << ARG_EXIT_COMMAND_LINE_ARGS << L"\" is 1024 characters.";

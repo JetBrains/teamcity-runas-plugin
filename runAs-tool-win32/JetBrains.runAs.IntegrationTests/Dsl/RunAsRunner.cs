@@ -23,7 +23,8 @@
 
 			var cmd = Path.Combine(ctx.SandboxPath, "run.cmd");
 			File.WriteAllText(cmd, string.Join(Environment.NewLine, lines));
-			var output = new StringBuilder();
+            var allOutput = new StringBuilder();
+            var output = new StringBuilder();
 			var errors = new StringBuilder();
 			var process = new Process();
 			process.StartInfo.FileName = cmd;
@@ -32,15 +33,15 @@
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
-			process.OutputDataReceived += (sender, args) => { output.AppendLine(args.Data); };
-			process.ErrorDataReceived += (sender, args) => { errors.AppendLine(args.Data); };
+			process.OutputDataReceived += (sender, args) => { output.AppendLine(args.Data); allOutput.AppendLine(args.Data); };
+			process.ErrorDataReceived += (sender, args) => { errors.AppendLine(args.Data); allOutput.AppendLine(args.Data); };
 			process.Start();
 			process.BeginOutputReadLine();
 			process.BeginErrorReadLine();
 			process.WaitForExit();
 			var outputStr = output.ToString();
 			var errorsStr = errors.ToString();
-			Console.WriteLine(outputStr);
+			Console.WriteLine(allOutput);
 			return new TestSession(ctx, process.ExitCode, outputStr, errorsStr);
 		}
 	}

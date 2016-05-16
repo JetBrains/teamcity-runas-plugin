@@ -54,45 +54,87 @@
 		{
 			var ctx = ScenarioContext.Current.GetTestContext();
 			var regex = new Regex(expectedExitCodeRegexp);
-			Assert.IsTrue(regex.Match(ctx.TestSession.ExitCode.ToString()).Success, $"Invalid exit code.\nSee {ctx}");
-		}
+			Assert.IsTrue(regex.Match(ctx.TestSession.ExitCode.ToString()).Success, $"Invalid exit code. Expected is: {expectedExitCodeRegexp}, actual is: {ctx.TestSession.ExitCode}. \nSee {ctx}");
+
+        }
 
 		[Then(@"the output should contain:")]
         public void CheckOutput(Table table)
         {
 			var ctx = ScenarioContext.Current.GetTestContext();
 			var testSession = ctx.TestSession;
-			CheckText(ctx, testSession.Output, table);
+			CheckText(ctx, testSession.Output, table, true);
         }
 
-		[Then(@"the errors should contain:")]
+        [Then(@"the output should not contain:")]
+        public void CheckNoOutput(Table table)
+        {
+            var ctx = ScenarioContext.Current.GetTestContext();
+            var testSession = ctx.TestSession;
+            CheckText(ctx, testSession.Output, table, false);
+        }
+
+        [Then(@"the errors should contain:")]
 		public void CheckErrors(Table table)
 		{
 			var ctx = ScenarioContext.Current.GetTestContext();
 			var testSession = ctx.TestSession;
-			CheckText(ctx, testSession.Errors, table);
+			CheckText(ctx, testSession.Errors, table, true);
 		}
 
-		private static void CheckText(TestContext ctx, string text, Table table)
+        [Then(@"the errors should not contain:")]
+        public void CheckNoErrors(Table table)
+        {
+            var ctx = ScenarioContext.Current.GetTestContext();
+            var testSession = ctx.TestSession;
+            CheckText(ctx, testSession.Errors, table, false);
+        }
+
+        private static void CheckText(TestContext ctx, string text, Table table, bool contains)
 		{
 			var separator = new[] { Environment.NewLine };
 			var lines = new List<string>(text.Split(separator, StringSplitOptions.None));
-			var parrents = new List<Regex>(table.Rows.Select(i => new Regex(i[""], RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.Compiled)));
+			var allParrents = new List<Regex>(table.Rows.Select(i => new Regex(i[""], RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.Compiled)));
+		    var notMatched = allParrents.ToList();
+            var matched = new List<Regex>();
 
-			while (lines.Count > 0 && parrents.Count > 0)
-			{
-				var line = lines[0];
-				lines.RemoveAt(0);
-				if (parrents[0].IsMatch(line))
-				{
-					parrents.RemoveAt(0);
-				}
-			}
+		    if (contains)
+		    {
+		        while (lines.Count > 0 && notMatched.Count > 0)
+		        {
+		            var line = lines[0];
+		            lines.RemoveAt(0);
+		            if (notMatched[0].IsMatch(line))
+		            {
+                        notMatched.RemoveAt(0);
+		            }
+		        }
 
-			if (parrents.Any())
-			{
-				Assert.Fail($"Patterns are not matched:\n{string.Join(Environment.NewLine, parrents)}\nOutput:\n{text}\n\nSee {ctx}");
-			}
+		        if (notMatched.Any())
+		        {
+		            Assert.Fail($"Patterns are not matched:\n{string.Join(Environment.NewLine, notMatched)}\nOutput:\n{text}\n\nSee {ctx}");
+		        }
+		    }
+		    else
+		    {
+                while (lines.Count > 0 && allParrents.Count > 0)
+                {
+                    var line = lines[0];
+                    lines.RemoveAt(0);
+                    foreach (var parrent in allParrents)
+                    {
+                        if (parrent.IsMatch(line))
+                        {
+                            matched.Add(parrent);
+                        }                    
+                    }
+                }
+
+                if (matched.Any())
+                {
+                    Assert.Fail($"Patterns are matched:\n{string.Join(Environment.NewLine, matched)}\nOutput:\n{text}\n\nSee {ctx}");
+                }
+            }  		    
 		}
 	}
 }
