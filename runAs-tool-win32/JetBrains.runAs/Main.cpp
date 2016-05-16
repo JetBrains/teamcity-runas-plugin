@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Runner.h"
 #include "Trace.h"
+#include <iomanip>
 
 wstring GetStringValue(wstring value)
 {
@@ -69,14 +70,12 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		return results.back().GetResultValue();
 	}
 
-	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
+	auto showFullInfo = logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS;
+	if (showFullInfo)
 	{
 		// Show header
 		console << HelpUtilities::GetHeader();
-	}
-	
-	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
-	{
+
 		// Show arguments
 		console << endl << endl << L"Argument(s):";
 		if (args.size() == 0)
@@ -90,10 +89,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 				console << L" " << *argsIterrator;
 			}
 		}
-	}
 
-	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
-	{
 		// Show settings
 		console << endl << endl << L"Settings:" << endl << settings.ToString();
 		if (results.back().GetError().GetCode() == ERROR_CODE_INVALID_USAGE)
@@ -109,6 +105,11 @@ int _tmain(int argc, _TCHAR *argv[]) {
 			wcerr << endl << endl << L"Error: " + results.back().GetError().GetDescription();
 		}
 	}	
+
+	if (showFullInfo)
+	{
+		wcerr << endl << results.back().GetError().GetTarget() << L" returns the error 0x" << hex << setw(8) << setfill(L'0') << results.back().GetError().GetCode() << L".";
+	}
 
 	auto exitCode = exitCodeBase > 0 ? exitCodeBase + results.back().GetError().GetCode() : exitCodeBase - results.back().GetError().GetCode();
 	trace << L"Error code:" + exitCode;
