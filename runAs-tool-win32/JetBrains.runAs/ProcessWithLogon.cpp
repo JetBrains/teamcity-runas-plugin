@@ -36,7 +36,7 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 		auto callingProcessEnvironmentResult = Environment::CreateForCurrentProcess(trace);
 		if (callingProcessEnvironmentResult.HasError())
 		{
-			return Result<ExitCode>(callingProcessEnvironmentResult.GetErrorCode(), callingProcessEnvironmentResult.GetErrorDescription());
+			return Result<ExitCode>(callingProcessEnvironmentResult.GetError());
 		}
 
 		callingProcessEnvironment = callingProcessEnvironmentResult.GetResultValue();
@@ -124,7 +124,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 			LOGON32_PROVIDER_DEFAULT,
 			&newUserSecurityTokenHandle))
 		{
-			return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
+			return Error(L"LogonUser");
 		}
 
 		trace < L"::LoadUserProfile";
@@ -133,7 +133,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		profileInfo.lpUserName = userName.GetPointer();
 		if (!LoadUserProfile(newUserSecurityTokenHandle, &profileInfo))
 		{
-			return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
+			return Error(L"LoadUserProfile");
 		}
 	}
 
@@ -151,7 +151,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		&startupInfo,
 		&processInformation))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessWithLogonW"));
+		return Error(L"CreateProcessWithLogonW");
 	}
 
 	// ReSharper disable once CppInitializedValueIsAlwaysRewritten

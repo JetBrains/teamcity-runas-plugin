@@ -68,7 +68,7 @@ Result<Handle> Handle::Duplicate(const Handle& sourceProcess, const Handle& targ
 		options
 		))
 	{
-		return Result<Handle>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+		return Error(L"DuplicateTokenEx");
 	}
 
 	return targetHandle;

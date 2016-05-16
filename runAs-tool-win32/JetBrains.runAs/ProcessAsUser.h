@@ -11,6 +11,6 @@ class ProcessAsUser: public IProcess
 {		
 	static Result<Environment> GetEnvironment(const Settings& settings, Handle& userToken, InheritanceMode inheritanceMode, Trace& trace);
 	static Result<Environment> GetEnvironmentWithSpecifiedByCaller(const Settings& settings, const Environment& environment, Trace& trace);
-public:	
-	virtual Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;
+public:
+	Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;
 };

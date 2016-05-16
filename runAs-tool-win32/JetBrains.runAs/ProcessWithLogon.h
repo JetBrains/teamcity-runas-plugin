@@ -11,6 +11,6 @@ class ProcessWithLogon : public IProcess
 	Result<ExitCode> RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment) const;
 
 public:
-	ProcessWithLogon(DWORD logonFlags);
-	virtual Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;	
+	explicit ProcessWithLogon(DWORD logonFlags);
+	Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;	
 };

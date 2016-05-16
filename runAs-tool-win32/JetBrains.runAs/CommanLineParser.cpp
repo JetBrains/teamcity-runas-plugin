@@ -72,7 +72,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		{
 			if (!regex_search(argValue, matchResult, UserRegex))
 			{
-				return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid format of user name \"" + argValue + L"\"");
+				return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, L"Invalid format of user name \"" + argValue + L"\"");
 			}
 
 			userName = matchResult._At(1).str();
@@ -130,7 +130,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			configFile.open(configFileName);
 			if (!configFile.is_open())
 			{
-				return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Unable to open file: \"" + configFileName + L"\"");
+				return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, L"Unable to open file: \"" + configFileName + L"\"");
 			}
 
 			wstring line;
@@ -195,7 +195,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			continue;
 		}
 
-		return Result<Settings>(ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
+		return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
 	if (workingDirectory == L"")
@@ -226,7 +226,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		}
 
 		details << L" should not be empty.";
-		return Result<Settings>(ERROR_CODE_INVALID_USAGE, details.str());
+		return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, details.str());
 	}	
 
 	auto settings = Settings(

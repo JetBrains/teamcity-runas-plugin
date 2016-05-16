@@ -14,22 +14,22 @@ ProcessTracker::ProcessTracker(IStreamWriter& outputWriter, IStreamWriter& error
 
 Result<bool> ProcessTracker::InitializeConsoleRedirection(SECURITY_ATTRIBUTES& securityAttributes, STARTUPINFO& startupInfo)
 {
-	auto error = _stdOutPipe.Initialize(securityAttributes);
-	if (error.HasError() || !error.GetResultValue())
+	auto errorStdOutPipe = _stdOutPipe.Initialize(securityAttributes);
+	if (errorStdOutPipe.HasError() || !errorStdOutPipe.GetResultValue())
 	{
-		return error;
+		return errorStdOutPipe;
 	}
 	
-	error = _stdErrorOutPipe.Initialize(securityAttributes);
-	if (error.HasError() || !error.GetResultValue())
+	auto errorStdErrorOutPipe = _stdErrorOutPipe.Initialize(securityAttributes);
+	if (errorStdErrorOutPipe.HasError() || !errorStdErrorOutPipe.GetResultValue())
 	{
-		return error;
+		return errorStdErrorOutPipe;
 	}
 
-	error = _stdInPipe.Initialize(securityAttributes);
-	if (error.HasError() || !error.GetResultValue())
+	auto errorStdInPipe = _stdInPipe.Initialize(securityAttributes);
+	if (errorStdInPipe.HasError() || !errorStdInPipe.GetResultValue())
 	{
-		return error;
+		return errorStdInPipe;
 	}
 
 	startupInfo.hStdOutput = _stdOutPipe.GetWriter();
@@ -51,19 +51,19 @@ Result<ExitCode> ProcessTracker::WaiteForExit(HANDLE processHandle, Trace& trace
 		auto hasData1 = RedirectStream(_stdOutPipe.GetReader(), _outputWriter);
 		if(hasData1.HasError())
 		{
-			return Result<ExitCode>(hasData1.GetErrorCode(), hasData1.GetErrorDescription());
+			return Result<ExitCode>(hasData1.GetError());
 		}
 
 		auto hasData2 = RedirectStream(_stdErrorOutPipe.GetReader(), _errorWriter);
 		if (hasData2.HasError())
 		{
-			return Result<ExitCode>(hasData2.GetErrorCode(), hasData2.GetErrorDescription());
+			return Result<ExitCode>(hasData2.GetError());
 		}
 
 		hasData = hasData1.GetResultValue() | hasData2.GetResultValue();
 		if (!GetExitCodeProcess(processHandle, &exitCode))
 		{
-			return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"GetExitCodeProcess"));
+			return Error(L"GetExitCodeProcess");
 		}
 	}
 	while (exitCode == STILL_ACTIVE || hasData);
@@ -83,7 +83,7 @@ Result<bool> ProcessTracker::RedirectStream(const HANDLE hPipeRead, IStreamWrite
 	{
 		if (GetLastError() != ERROR_BROKEN_PIPE)
 		{
-			return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"PeekNamedPipe"));
+			return Error(L"PeekNamedPipe");
 		}
 	}
 
@@ -100,12 +100,12 @@ Result<bool> ProcessTracker::RedirectStream(const HANDLE hPipeRead, IStreamWrite
 			return false;
 		}
 
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"ReadFile"));
+		return Error(L"ReadFile");
 	}
 
 	if (!writer.WriteFile(buffer, bytesReaded))
 	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"WriteConsole"));
+		return Error(L"WriteConsole");
 	}
 
 	return true;

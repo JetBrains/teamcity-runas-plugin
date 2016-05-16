@@ -1,45 +1,38 @@
 #pragma once
-#include <string>
-#include "ErrorCode.h"
+#include "Error.h"
 
 template<typename T>
 class Result
 {
 	bool _hasError;
 	T _resultValue;
-	int _errorCode;
-	wstring _errorDescription;		
+	Error _error;	
 
 public:
 	Result<T>();
 	Result<T>(const T& resultValue);
-	Result<T>(const int errorCode, const wstring& errorDescription);
+	Result<T>(const Error& error);	
 
 	bool HasError() const;
 	T GetResultValue() const;
-	int GetErrorCode() const;
-	wstring GetErrorDescription() const;
+	Error GetError() const;	
 };
 
 template<typename T>
-Result<T>::Result() : _hasError(false), _errorCode(ERROR_CODE_UNKOWN), _errorDescription(L"")
+Result<T>::Result() : _hasError(false), _error(Error())
 {
 }
 
 template<typename T>
 Result<T>::Result(const T& resultValue)
-{
-	_resultValue = resultValue;
-	_hasError = false;
-	_errorCode = ERROR_CODE_UNKOWN;
+	: _hasError(false), _resultValue(resultValue), _error(Error())
+{	
 }
 
 template<typename T>
-Result<T>::Result(const int errorCode, const wstring& errorDescription)
-{
-	_errorCode = errorCode;
-	_errorDescription = errorDescription;
-	_hasError = true;
+Result<T>::Result(const Error& error)
+	:_hasError(true), _error(error)
+{	 
 }
 
 template<typename T>
@@ -55,13 +48,7 @@ T Result<T>::GetResultValue() const
 }
 
 template<typename T>
-int Result<T>::GetErrorCode() const
+Error Result<T>::GetError() const
 {
-	return _errorCode;
-}
-
-template<typename T>
-wstring Result<T>::GetErrorDescription() const
-{
-	return _errorDescription;
+	return _error;
 }

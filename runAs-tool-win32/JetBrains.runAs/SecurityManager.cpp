@@ -63,7 +63,7 @@ Result<bool> SecurityManager::SetPrivileges(const Handle& token, const list<wstr
 		auto privilegeId = LookupPrivilegeValue(*privilegesIterrator);
 		if (privilegeId.HasError())
 		{
-			return Result<bool>(privilegeId.GetErrorCode(), privilegeId.GetErrorDescription());
+			return Result<bool>(privilegeId.GetError());
 		}
 
 		tokenPrivileges->Privileges[index].Luid = privilegeId.GetResultValue();
@@ -79,7 +79,7 @@ Result<bool> SecurityManager::SetPrivileges(const Handle& token, const list<wstr
 		static_cast<PTOKEN_PRIVILEGES>(nullptr),
 		static_cast<PDWORD>(nullptr)))
 	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"AdjustTokenPrivileges"));
+		return Error(L"AdjustTokenPrivileges");
 	}
 
 	return true;
@@ -94,7 +94,7 @@ Result<LUID> SecurityManager::LookupPrivilegeValue(const wstring& privilegeName)
 		privilegeNameBuf.GetPointer(),	// privilege to lookup 
 		&luid))							// receives LUID of privilege
 	{	
-		return Result<LUID>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LookupPrivilegeValue"));
+		return Error(L"LookupPrivilegeValue");
 	}
 
 	return luid;
@@ -109,7 +109,7 @@ Result<shared_ptr<void>> SecurityManager::GetTokenInformation(Trace& trace, cons
 	{
 		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
 		{
-			return Result<shared_ptr<void>>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"GetTokenInformation"));
+			return Error(L"GetTokenInformation");
 		}
 	}
 
@@ -120,7 +120,7 @@ Result<shared_ptr<void>> SecurityManager::GetTokenInformation(Trace& trace, cons
 	if (!::GetTokenInformation(token, tokenInformationClass, info, length, &length))
 	{
 		delete info;
-		return Result<shared_ptr<void>>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"GetTokenInformation"));
+		return Error(L"GetTokenInformation");
 	}
 
 	return shared_ptr<void>(info);
@@ -131,7 +131,7 @@ Result<list<SID_AND_ATTRIBUTES>> SecurityManager::GetTokenGroups(Trace& trace, c
 	auto tokenGroupsResult = GetTokenInformation(trace, token, TokenGroups);
 	if (tokenGroupsResult.HasError())
 	{
-		return Result<list<SID_AND_ATTRIBUTES>>(tokenGroupsResult.GetErrorCode(), tokenGroupsResult.GetErrorDescription());
+		return Result<list<SID_AND_ATTRIBUTES>>(tokenGroupsResult.GetError());
 	}
 
 	list<SID_AND_ATTRIBUTES> result;
@@ -149,7 +149,7 @@ Result<set<wstring>> SecurityManager::GetPrivilegies(Trace& trace, const Handle&
 	auto tokenPrivilegiesResult = GetTokenInformation(trace, token, TokenPrivileges);
 	if (tokenPrivilegiesResult.HasError())
 	{
-		return Result<set<wstring>>(tokenPrivilegiesResult.GetErrorCode(), tokenPrivilegiesResult.GetErrorDescription());
+		return Result<set<wstring>>(tokenPrivilegiesResult.GetError());
 	}
 
 	wchar_t buf [256];
@@ -182,13 +182,13 @@ Result<bool> SecurityManager::IsRunAsAdministrator() const
 		0, 0, 0, 0, 0, 0,
 		&pAdministratorsGroup))
 	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"AllocateAndInitializeSid"));
+		return Error(L"AllocateAndInitializeSid");
 	}
 
 	if (!CheckTokenMembership(nullptr, pAdministratorsGroup, &isRunAsAdmin))
 	{
 		FreeSid(pAdministratorsGroup);
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CheckTokenMembership"));
+		return Error(L"CheckTokenMembership");
 	}
 
 	FreeSid(pAdministratorsGroup);

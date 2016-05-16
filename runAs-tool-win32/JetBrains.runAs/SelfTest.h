@@ -18,6 +18,7 @@ class SelfTest
 	static bool IsWow64();
 	static bool Is64OS();	
 public:
+	SelfTest();
 	Result<ExitCode> Run(const Settings& settings) const;	
 };
 

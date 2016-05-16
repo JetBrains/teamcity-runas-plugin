@@ -14,7 +14,7 @@ Result<bool> Pipe::Initialize(SECURITY_ATTRIBUTES& securityAttributes)
 {
 	if (!CreatePipe(&_readHandle, &_writeHandle, &securityAttributes, 0))
 	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetActionName(L"CreatePipe", _name));
+		return Error(L"CreatePipe", _name);
 	}	
 
 	return true;

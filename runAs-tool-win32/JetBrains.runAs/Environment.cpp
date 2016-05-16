@@ -42,7 +42,7 @@ Result<Environment> Environment::CreateForUser(const Handle& token, bool inherit
 	LPVOID environment;
 	if (!CreateEnvironmentBlock(&environment, token, inherit))
 	{
-		return Result<Environment>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateEnvironmentBlock"));
+		return Error(L"CreateEnvironmentBlock");
 	}
 
 	try

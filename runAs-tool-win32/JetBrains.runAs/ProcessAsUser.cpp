@@ -33,7 +33,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		LOGON32_PROVIDER_DEFAULT,
 		&newUserSecurityTokenHandle))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LogonUser"));
+		return Error(L"LogonUser");
 	}	
 	
 	trace < L"ProcessAsUser::InitializeConsoleRedirection a new security descriptor";
@@ -43,7 +43,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		&securityDescriptor,
 		SECURITY_DESCRIPTOR_REVISION))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"InitializeSecurityDescriptor"));
+		return Error(L"InitializeSecurityDescriptor");
 	}
 
 	trace < L"::SetSecurityDescriptorDacl";
@@ -53,7 +53,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		nullptr,
 		false))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"SetSecurityDescriptorDacl"));
+		return Error(L"SetSecurityDescriptorDacl");
 	}
 
 	trace < L"ProcessAsUser::Creates a new access primary token that duplicates new process's token";
@@ -71,7 +71,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		TokenPrimary,
 		&primaryNewUserSecurityTokenHandle))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+		return Error(L"DuplicateTokenEx");
 	}	
 
 	SECURITY_ATTRIBUTES threadSecAttributes = {};
@@ -84,7 +84,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	auto error = processTracker.InitializeConsoleRedirection(processSecAttributes, startupInfo);
 	if(error.HasError())
 	{
-		return Result<ExitCode>(error.GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+		return Result<ExitCode>(error.GetError());
 	}
 
 	trace < L"::LoadUserProfile";
@@ -93,20 +93,20 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	profileInfo.lpUserName = userName.GetPointer();
 	if (!LoadUserProfile(primaryNewUserSecurityTokenHandle, &profileInfo))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"LoadUserProfile"));
+		return Error(L"LoadUserProfile");
 	}
 
 	auto newProcessEnvironmentResult = GetEnvironment(settings, primaryNewUserSecurityTokenHandle, settings.GetInheritanceMode(), trace);
 	if (newProcessEnvironmentResult.HasError())
 	{
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
-		return Result<ExitCode>(newProcessEnvironmentResult.GetErrorCode(), newProcessEnvironmentResult.GetErrorDescription());
+		return Result<ExitCode>(newProcessEnvironmentResult.GetError());
 	}
 
 	auto setIntegrityLevelResult = IntegrityLevelManager::SetIntegrityLevel(settings.GetIntegrityLevel(), primaryNewUserSecurityTokenHandle, trace);
 	if (setIntegrityLevelResult.HasError())
 	{
-		return Result<ExitCode>(setIntegrityLevelResult.GetErrorCode(), setIntegrityLevelResult.GetErrorDescription());
+		return Result<ExitCode>(setIntegrityLevelResult.GetError());
 	}
 
 	trace < L"ProcessAsUser::Create a new process and its primary thread. The new process runs in the security context of the user represented by the specified token.";
@@ -128,7 +128,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		&startupInfo,
 		&processInformation))
 	{		
-		auto result = Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"CreateProcessAsUser"));
+		auto result = Error(L"CreateProcessAsUser");
 		UnloadUserProfile(primaryNewUserSecurityTokenHandle, profileInfo.hProfile);
 		return result;
 	}

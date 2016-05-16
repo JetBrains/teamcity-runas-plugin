@@ -26,7 +26,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		args.push_back(argv[argIndex]);
 	}
 
-	auto result = Result<ExitCode>();
+	list<Result<ExitCode>> results;
 	Settings settings;
 	ExitCode exitCodeBase = EXIT_CODE_BASE;
 	LogLevel logLevel;
@@ -36,40 +36,37 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	{
 		CommanLineParser commanLineParser;
 		auto settingsResult = commanLineParser.TryParse(args, &exitCodeBase, &logLevel);
-		if (settingsResult.HasError())
-		{
-			result = Result<ExitCode>(settingsResult.GetErrorCode(), settingsResult.GetErrorDescription());
-		}
-		else
+		if (!settingsResult.HasError())
 		{
 			settings = settingsResult.GetResultValue();
-		}
-		
-		if (!result.HasError())
-		{		
+				
 			// Show header
 			Trace trace(settings.GetLogLevel());
 			trace < HelpUtilities::GeTitle();
 
 			Runner runner;
 			trace < L"main::Run starting";			
-			result = runner.Run(settings);
+			results.push_back(runner.Run(settings));
 			trace < L"main::Run finished";
+		}
+		else
+		{
+			results.push_back(settingsResult.GetError());
 		}
 	}
 	catch(...)
 	{
-		result = Result<ExitCode>(ERROR_CODE_UNKOWN, L"Unknown error");
+		results.push_back(Error());
 	}	
 
 	Trace trace(settings.GetLogLevel());
 	trace < L"main::Create results";
 
-	if (!result.HasError())
+	if (!results.back().HasError())
 	{
 		trace < L"Exit code: ";
-		trace << result.GetResultValue();
-		return result.GetResultValue();
+		trace << results.back().GetResultValue();
+		return results.back().GetResultValue();
 	}
 
 	if (logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS)
@@ -99,7 +96,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	{
 		// Show settings
 		console << endl << endl << L"Settings:" << endl << settings.ToString();
-		if (result.GetErrorCode() == ERROR_CODE_INVALID_USAGE)
+		if (results.back().GetError().GetCode() == ERROR_CODE_INVALID_USAGE)
 		{
 			console << endl << HelpUtilities::GetHelp();
 		}
@@ -107,13 +104,13 @@ int _tmain(int argc, _TCHAR *argv[]) {
 
 	if (logLevel != LOG_LEVEL_OFF)
 	{
-		if (result.GetErrorDescription() != L"")
+		if (results.back().GetError().GetDescription() != L"")
 		{
-			wcerr << endl << endl << L"Error: " + result.GetErrorDescription();
+			wcerr << endl << endl << L"Error: " + results.back().GetError().GetDescription();
 		}
 	}	
 
-	auto exitCode = exitCodeBase > 0 ? exitCodeBase + result.GetErrorCode() : exitCodeBase - result.GetErrorCode();
+	auto exitCode = exitCodeBase > 0 ? exitCodeBase + results.back().GetError().GetCode() : exitCodeBase - results.back().GetError().GetCode();
 	trace << L"Error code:" + exitCode;
 	return exitCode;
 }

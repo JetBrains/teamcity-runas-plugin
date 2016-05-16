@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "Result.h"
 #include <list>
 #include "ExitCode.h"

@@ -47,7 +47,7 @@ Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 	StreamWriter stdOutput(GetStdHandle(STD_OUTPUT_HANDLE));
 	trace < L"::GetStdHandle(STD_ERROR_HANDLE)";
 	StreamWriter stdError(GetStdHandle(STD_ERROR_HANDLE));
-	auto runResult = Result<ExitCode>(ERROR_CODE_UNKOWN, L"The processes are not available.");
+	list<Result<ExitCode>> results;
 	for (auto processIterrator = _processes.begin(); processIterrator != _processes.end(); ++processIterrator)
 	{
 		if (processIterrator != _processes.begin())
@@ -55,24 +55,29 @@ Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 			trace < L"Runner::Select other type of process";
 		}
 
-		ProcessTracker processTracker(stdOutput, stdError);
-		runResult = (*processIterrator)->Run(settings, processTracker);
-		if (runResult.HasError())
+		ProcessTracker processTracker(stdOutput, stdError);		
+		results.push_back((*processIterrator)->Run(settings, processTracker));		
+		if (results.back().HasError())
 		{
 			trace < L"Runner::Run failed";
 			trace < L"Runner::Run error code: ";
-			trace << runResult.GetErrorCode();
+			trace << results.back().GetError().GetCode();
 			trace < L"Runner::Run error description: ";
-			trace << runResult.GetErrorDescription();
+			trace << results.back().GetError().GetDescription();
 			continue;
 		}
 		
-		if (runResult.GetResultValue() != STATUS_DLL_INIT_FAILED)
+		if (results.back().GetResultValue() != STATUS_DLL_INIT_FAILED)
 		{
 			break;
 		}
 	}
 
 	trace < L"Runner::Run finished";
-	return runResult;
+	if (results.size() == 0)
+	{
+		return Result<ExitCode>(Error(L"RunProcessAsUser", ERROR_CODE_UNKOWN, L"The processes are not available."));		
+	}
+
+	return results.back();	
 }

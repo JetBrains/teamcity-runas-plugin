@@ -25,7 +25,7 @@ Result<bool> Job::SetInformation(const JOBOBJECTINFOCLASS& infoClass, JOBOBJECT_
 
 	if (!SetInformationJobObject(_handle, infoClass, &information, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION)))
 	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+		return Error(L"DuplicateTokenEx");
 	}
 
 	return true;
@@ -42,7 +42,7 @@ Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION> Job::QueryInformation(const JOBOBJE
 	DWORD lpReturnLength = 0;
 	if (!QueryInformationJobObject(_handle, infoClass, &information, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION), &lpReturnLength))
 	{
-		return Result<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+		return Error(L"DuplicateTokenEx");
 	}
 
 	return information;
@@ -57,7 +57,7 @@ Result<bool> Job::AssignProcessToJob(const Handle& process) const
 
 	if (!AssignProcessToJobObject(_handle, process))
 	{
-		return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"DuplicateTokenEx"));
+		return Error(L"DuplicateTokenEx");
 	}
 
 	return true;

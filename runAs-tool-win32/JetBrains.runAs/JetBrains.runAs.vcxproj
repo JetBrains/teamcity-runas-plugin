@@ -183,6 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Args.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="SelfTest.h" />
     <ClInclude Include="ShowMode.h" />
     <ClInclude Include="ShowModeConverter.h" />
@@ -191,7 +192,6 @@
     <ClInclude Include="Console.h" />
     <ClInclude Include="Environment.h" />
     <ClInclude Include="ErrorCode.h" />
-    <ClInclude Include="ErrorUtilities.h" />
     <ClInclude Include="ExitCode.h" />
     <ClInclude Include="InheritanceMode.h" />
     <ClInclude Include="IntegrityLevel.h" />
@@ -221,13 +221,13 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Error.cpp" />
     <ClCompile Include="SelfTest.cpp" />
     <ClCompile Include="ShowModeConverter.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="CommanLineParser.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Environment.cpp" />
-    <ClCompile Include="ErrorUtilities.cpp" />
     <ClCompile Include="IntegrityLevelManager.cpp" />
     <ClCompile Include="Job.cpp" />
     <ClCompile Include="SecurityManager.cpp" />

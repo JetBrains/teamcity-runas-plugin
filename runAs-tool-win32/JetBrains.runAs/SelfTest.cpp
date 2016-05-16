@@ -6,31 +6,36 @@
 #include "SecurityManager.h"
 #include "ErrorUtilities.h"
 
+SelfTest::SelfTest()
+	:_securityManager(SecurityManager())
+{	
+}
+
 Result<ExitCode> SelfTest::Run(const Settings& settings) const
 {
 	Trace trace(settings.GetLogLevel());
 	Handle processToken(L"Process token");
 	if (!::OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &processToken))
 	{
-		return Result<ExitCode>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"OpenProcessToken"));
+		return Error(L"OpenProcessToken");
 	}
 
 	auto hasLogonSIDResult = HasLogonSID(trace, processToken);
 	if (hasLogonSIDResult.HasError())
 	{
-		return Result<ExitCode>(hasLogonSIDResult.GetErrorCode(), hasLogonSIDResult.GetErrorDescription());
+		return Result<ExitCode>(hasLogonSIDResult.GetError());
 	}
 
 	auto hasAdministrativePrivilegesResult = HasAdministrativePrivileges(trace);
 	if (hasAdministrativePrivilegesResult.HasError())
 	{
-		return Result<ExitCode>(hasAdministrativePrivilegesResult.GetErrorCode(), hasAdministrativePrivilegesResult.GetErrorDescription());
+		return Result<ExitCode>(hasAdministrativePrivilegesResult.GetError());
 	}
 
 	auto hasSeAssignPrimaryTokenPrivilegeResult = HasSeAssignPrimaryTokenPrivilege(trace, processToken);
 	if (hasSeAssignPrimaryTokenPrivilegeResult.HasError())
 	{
-		return Result<ExitCode>(hasSeAssignPrimaryTokenPrivilegeResult.GetErrorCode(), hasSeAssignPrimaryTokenPrivilegeResult.GetErrorDescription());
+		return Result<ExitCode>(hasSeAssignPrimaryTokenPrivilegeResult.GetError());
 	}
 
 	trace < L"SelfTest::HasLogonSID: ";
@@ -64,7 +69,7 @@ Result<bool> SelfTest::HasLogonSID(Trace& trace, const Handle& token) const
 	auto tokenGroupsResult = _securityManager.GetTokenGroups(trace, token);
 	if (tokenGroupsResult.HasError())
 	{
-		return Result<bool>(tokenGroupsResult.GetErrorCode(), tokenGroupsResult.GetErrorDescription());
+		return Result<bool>(tokenGroupsResult.GetError());
 	}
 
 	trace < L"SelfTest::HasLogonSID - Loop through the groups to find the logon SID.";
@@ -92,7 +97,7 @@ Result<bool> SelfTest::HasSeAssignPrimaryTokenPrivilege(Trace& trace, const Hand
 	auto privilegiesResult = _securityManager.GetPrivilegies(trace, token);
 	if (privilegiesResult.HasError())
 	{
-		return Result<bool>(privilegiesResult.GetErrorCode(), privilegiesResult.GetErrorDescription());
+		return Result<bool>(privilegiesResult.GetError());
 	}
 
 	auto privilegies = privilegiesResult.GetResultValue();

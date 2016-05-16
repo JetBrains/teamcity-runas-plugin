@@ -55,7 +55,7 @@ Result<bool> IntegrityLevelManager::SetIntegrityLevel(const IntegrityLevel& inte
 			&tokenIntegrityLevel,
 			sizeof(TOKEN_MANDATORY_LABEL) + GetLengthSid(&integrityLevelSid)))
 		{
-			return Result<bool>(ErrorUtilities::GetErrorCode(), ErrorUtilities::GetLastErrorMessage(L"SetTokenInformation"));
+			return Error(L"SetTokenInformation");
 		}
 
 		return true;
