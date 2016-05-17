@@ -64,10 +64,10 @@ namespace JetBrains.runAs.IntegrationTests
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("User sees header info when in the debug log mode")]
-        public virtual void UserSeesHeaderInfoWhenInTheDebugLogMode()
+        [NUnit.Framework.DescriptionAttribute("User sees header when in the debug log mode without error")]
+        public virtual void UserSeesHeaderWhenInTheDebugLogModeWithoutError()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User sees header info when in the debug log mode", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User sees header when in the debug log mode without error", ((string[])(null)));
 #line 3
 this.ScenarioSetup(scenarioInfo);
 #line 4
@@ -89,8 +89,6 @@ this.ScenarioSetup(scenarioInfo);
                         ""});
             table1.AddRow(new string[] {
                         "JetBrains RunAs"});
-            table1.AddRow(new string[] {
-                        "Settings:"});
 #line 11
  testRunner.And("the output should contain:", ((string)(null)), table1, "And ");
 #line hidden
@@ -98,25 +96,25 @@ this.ScenarioSetup(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("User sees header info when in the debug log mode and error")]
-        public virtual void UserSeesHeaderInfoWhenInTheDebugLogModeAndError()
+        [NUnit.Framework.DescriptionAttribute("User sees header and settings info when in the debug log mode and error")]
+        public virtual void UserSeesHeaderAndSettingsInfoWhenInTheDebugLogModeAndError()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User sees header info when in the debug log mode and error", ((string[])(null)));
-#line 16
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User sees header and settings info when in the debug log mode and error", ((string[])(null)));
+#line 15
 this.ScenarioSetup(scenarioInfo);
-#line 17
+#line 16
  testRunner.Given("I have appended the file command.cmd by the line echo", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 18
+#line 17
  testRunner.And("I\'ve added the argument -u:SomeAsTestUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 19
+#line 18
  testRunner.And("I\'ve added the argument -p:SomePassword", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 20
+#line 19
  testRunner.And("I\'ve added the argument -l:debug", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 21
+#line 20
  testRunner.And("I\'ve added the argument command.cmd", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 22
+#line 21
  testRunner.When("I run RunAs tool", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 23
+#line 22
  testRunner.Then("the exit code should be 0", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -125,7 +123,7 @@ this.ScenarioSetup(scenarioInfo);
                         "JetBrains RunAs"});
             table2.AddRow(new string[] {
                         "Settings:"});
-#line 24
+#line 23
  testRunner.And("the output should contain:", ((string)(null)), table2, "And ");
 #line hidden
             this.ScenarioCleanup();
