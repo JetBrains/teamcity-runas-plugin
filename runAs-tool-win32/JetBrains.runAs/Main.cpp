@@ -112,6 +112,6 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	}
 
 	auto exitCode = exitCodeBase > 0 ? exitCodeBase + results.back().GetError().GetCode() : exitCodeBase - results.back().GetError().GetCode();
-	trace << L"Error code:" + exitCode;
+	trace << endl << L"Error code: " << exitCode;
 	return exitCode;
 }

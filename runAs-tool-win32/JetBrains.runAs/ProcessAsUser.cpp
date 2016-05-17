@@ -114,7 +114,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
 	startupInfo.wShowWindow = ShowModeConverter::ToShowWindowFlag(settings.GetShowMode());
 	auto cmdLine = settings.GetCommandLine();
-	trace < L"::CreateProcessAsUser";
+	trace < L"::CreateProcessAsUser";	
 	if (!CreateProcessAsUser(
 		primaryNewUserSecurityTokenHandle,
 		nullptr,

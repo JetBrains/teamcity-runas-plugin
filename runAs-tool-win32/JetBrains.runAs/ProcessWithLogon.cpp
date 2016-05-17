@@ -135,23 +135,40 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		{
 			return Error(L"LoadUserProfile");
 		}
-	}
 
-	trace < L"::CreateProcessWithLogonW";
-	if (!CreateProcessWithLogonW(
-		userName.GetPointer(),
-		domain.GetPointer(),
-		password.GetPointer(),
-		_logonFlags,
-		nullptr,
-		commandLine.GetPointer(),
-		CREATE_UNICODE_ENVIRONMENT,
-		environment.CreateEnvironment(),
-		workingDirectory.GetPointer(),
-		&startupInfo,
-		&processInformation))
+		trace < L"::CreateProcessWithTokenW";		
+		if (!CreateProcessWithTokenW(
+			newUserSecurityTokenHandle,
+			_logonFlags,
+			nullptr,
+			commandLine.GetPointer(),
+			CREATE_UNICODE_ENVIRONMENT,
+			environment.CreateEnvironment(),
+			workingDirectory.GetPointer(),
+			&startupInfo,
+			&processInformation))
+		{
+			return Error(L"CreateProcessWithLogonW");
+		}
+	}
+	else
 	{
-		return Error(L"CreateProcessWithLogonW");
+		trace < L"::CreateProcessWithLogonW";		
+		if (!CreateProcessWithLogonW(
+			userName.GetPointer(),
+			domain.GetPointer(),
+			password.GetPointer(),
+			_logonFlags,
+			nullptr,
+			commandLine.GetPointer(),
+			CREATE_UNICODE_ENVIRONMENT,
+			environment.CreateEnvironment(),
+			workingDirectory.GetPointer(),
+			&startupInfo,
+			&processInformation))
+		{
+			return Error(L"CreateProcessWithLogonW");
+		}
 	}
 
 	// ReSharper disable once CppInitializedValueIsAlwaysRewritten

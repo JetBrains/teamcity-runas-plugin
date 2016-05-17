@@ -39,7 +39,28 @@ Trace& Trace::operator<(const size_t num)
 	return *this;
 }
 
+Trace& Trace::operator<(const signed int num)
+{
+	if (_logLevel == LOG_LEVEL_DEBUG)
+	{
+		WritePrefix();
+		_console << to_wstring(num);
+	}
+
+	return *this;
+}
+
 Trace& Trace::operator<<(const size_t num)
+{
+	if (_logLevel == LOG_LEVEL_DEBUG)
+	{
+		_console << to_wstring(num);
+	}
+
+	return *this;
+}
+
+Trace& Trace::operator<<(const signed int num)
 {
 	if (_logLevel == LOG_LEVEL_DEBUG)
 	{
