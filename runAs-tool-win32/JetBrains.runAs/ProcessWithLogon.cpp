@@ -120,7 +120,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 			userName.GetPointer(),
 			domain.GetPointer(),
 			password.GetPointer(),
-			LOGON32_LOGON_NETWORK,
+			LOGON32_LOGON_INTERACTIVE,
 			LOGON32_PROVIDER_DEFAULT,
 			&newUserSecurityTokenHandle))
 		{

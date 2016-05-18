@@ -29,7 +29,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		userName.GetPointer(),
 		domain.GetPointer(),
 		password.GetPointer(),
-		LOGON32_LOGON_NETWORK,
+		LOGON32_LOGON_INTERACTIVE,
 		LOGON32_PROVIDER_DEFAULT,
 		&newUserSecurityTokenHandle))
 	{
