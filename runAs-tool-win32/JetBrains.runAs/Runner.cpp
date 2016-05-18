@@ -5,11 +5,15 @@
 #include "Job.h"
 #include "SelfTest.h"
 
-Runner::Runner()
-{
-	_processes.push_back(&_processAsUserToRun);
-	_processes.push_back(&_processWithLogonToRun);
-	_processes.push_back(&_processWithLogonToRunWithProfile);
+Runner::Runner(const Settings& settings)
+{	
+	_processes.push_back(&_processAsUserToRun);	
+	if (settings.GetLogonType() != LOGON_TYPE_INTERACTIVE)
+	{
+		_processes.push_back(&_processWithLogonElevated);
+	}
+	
+	_processes.push_back(&_processWithLogonInteractive);
 }
 
 Result<ExitCode> Runner::Run(const Settings& settings) const
@@ -76,7 +80,7 @@ Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 	trace < L"Runner::Run finished";
 	if (results.size() == 0)
 	{
-		return Result<ExitCode>(Error(L"RunProcessAsUser", ERROR_CODE_UNKOWN, L"The processes are not available."));		
+		return Result<ExitCode>(Error(L"RunProcessAsUser", 0, ERROR_CODE_UNKOWN, L"The processes are not available."));		
 	}
 
 	return results.back();	

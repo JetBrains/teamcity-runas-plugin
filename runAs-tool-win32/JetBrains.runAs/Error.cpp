@@ -4,12 +4,12 @@
 #include <iomanip>
 
 Error::Error()
-	:Error(L"", ERROR_CODE_UNKOWN, L"Unkonown error")
+	:Error(L"", 0, ERROR_CODE_UNKOWN, L"Unkonown error")
 {
 }
 
 Error::Error(const wstring& targetAction)
-	:Error(targetAction, GetErrorCodeInternal(), GetLastErrorMessageInternal(targetAction))
+	:Error(targetAction, GetLastError(), GetErrorCodeInternal(), GetLastErrorMessageInternal(targetAction))
 {	
 }
 
@@ -18,14 +18,19 @@ Error::Error(const wstring& targetAction, const wstring& arg)
 {
 }
 
-Error::Error(const wstring& targetAction, const ErrorCode& errorCode, const wstring& description):
-	_targetAction(targetAction), _errorCode(errorCode), _description(description)
+Error::Error(const wstring& targetAction, const DWORD win32Error, const ErrorCode& errorCode, const wstring& description):
+	_targetAction(targetAction), _win32Error(win32Error), _errorCode(errorCode), _description(description)
 {		
 }
 
 wstring Error::GetTarget() const
 {
 	return _targetAction;
+}
+
+DWORD Error::GetWin32Error() const
+{
+	return _win32Error;
 }
 
 ErrorCode Error::GetCode() const

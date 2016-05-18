@@ -18,6 +18,7 @@ Settings::Settings(
 	const list<wstring>& args,
 	const list<wstring>& envVars,
 	const InheritanceMode& inheritanceMode,
+	const LogonType& logonType,
 	const IntegrityLevel& integrityLevel,
 	const ShowMode& showMode,
 	const bool selfTesting)
@@ -32,6 +33,7 @@ Settings::Settings(
 	_envVars = list<wstring>(envVars);
 	_inheritanceMode = inheritanceMode;
 	_integrityLevel = integrityLevel;
+	_logonType = logonType;
 	_showMode = showMode;
 	_selfTesting = selfTesting;
 }
@@ -110,6 +112,11 @@ IntegrityLevel Settings::GetIntegrityLevel() const
 	return _integrityLevel;
 }
 
+LogonType Settings::GetLogonType() const
+{
+	return _logonType;
+}
+
 bool Settings::GetSelfTesting() const
 {
 	return _selfTesting;
@@ -131,7 +138,6 @@ wstring Settings::ToString() const
 	text << L"\t" << ARG_USER_NAME << L":\t\t" << GetUserName();
 	text << endl << L"\t" << ARG_DOMAIN << L":\t\t\t" << GetDomain();
 	text << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetWorkingDirectory();
-	text << endl << L"\t" << ARG_WORKING_DIRECTORY << L":\t" << GetWorkingDirectory();
 	for (auto envVarsIterrator = _envVars.begin(); envVarsIterrator != _envVars.end(); ++envVarsIterrator)
 	{
 		text << endl << L"\t" << ARG_ENV_VAR << L":\t\t" << *envVarsIterrator;
@@ -139,6 +145,7 @@ wstring Settings::ToString() const
 	
 	text << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << GetExitCodeBase();
 	text << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << GetIntegrityLevel();
+	text << endl << L"\t" << ARG_LOGON_TYPE << L":\t\t" << GetLogonType();
 	text << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << GetInheritanceMode();
 	text << endl << L"\t" << ARG_SHOW_MODE << L":\t\t" << GetShowMode();
 	text << endl << L"\t" << ARG_SELF_TESTING << L":\t\t" << GetSelfTesting();

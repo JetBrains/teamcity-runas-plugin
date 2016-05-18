@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Pipe.h"
-#include "ErrorUtilities.h"
 #include "Result.h"
 
 Pipe::Pipe(const wstring& name):

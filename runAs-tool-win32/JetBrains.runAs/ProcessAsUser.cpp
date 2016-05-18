@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ProcessAsUser.h"
 #include "Settings.h"
-#include "ErrorUtilities.h"
 #include "ProcessTracker.h"
 #include "Result.h"
 #include "ExitCode.h"
@@ -10,6 +9,7 @@
 #include "IntegrityLevelManager.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
+#include "LogonTypeManager.h"
 class Trace;
 class ProcessTracker;
 
@@ -22,6 +22,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	StringBuffer password(settings.GetPassword());
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
+	LogonTypeManager logonTypeManager;
 
 	trace < L"::LogonUser";
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -29,7 +30,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		userName.GetPointer(),
 		domain.GetPointer(),
 		password.GetPointer(),
-		LOGON32_LOGON_INTERACTIVE,
+		logonTypeManager.GetLogonTypeFlag(settings.GetLogonType()),
 		LOGON32_PROVIDER_DEFAULT,
 		&newUserSecurityTokenHandle))
 	{

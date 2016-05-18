@@ -4,7 +4,6 @@
 #include "ExitCode.h"
 #include "Settings.h"
 #include "SecurityManager.h"
-#include "ErrorUtilities.h"
 
 SelfTest::SelfTest()
 	:_securityManager(SecurityManager())

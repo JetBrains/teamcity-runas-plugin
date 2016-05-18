@@ -2,7 +2,6 @@
 #include "ProcessWithLogon.h"
 #include "Settings.h"
 #include "ProcessTracker.h"
-#include "ErrorUtilities.h"
 #include "Environment.h"
 #include "Result.h"
 #include "ExitCode.h"
@@ -12,9 +11,10 @@
 #include "Trace.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
+#include "LogonTypeManager.h"
 
-ProcessWithLogon::ProcessWithLogon(DWORD logonFlags)
-	: _logonFlags(logonFlags)
+ProcessWithLogon::ProcessWithLogon(bool loadProfile)
+	: _elevated(loadProfile)
 {
 }
 
@@ -22,9 +22,9 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 {
 	Trace trace(settings.GetLogLevel());
 	trace < L"ProcessWithLogon::Run";
-	if (_logonFlags == LOGON_WITH_PROFILE)
+	if (_elevated)
 	{
-		trace << L" with profile";
+		trace << L" elevated";
 	}
 	
 	Environment callingProcessEnvironment;
@@ -56,7 +56,8 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			{ L"/U", L"/C", L"SET" },
 			{ },
 			INHERITANCE_MODE_OFF,
-			INTEGRITY_LEVEL_AUTO,
+			settings.GetLogonType(),
+			INTEGRITY_LEVEL_AUTO,			
 			SHOW_MODE_HIDE,
 			false);
 
@@ -100,7 +101,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 
 	STARTUPINFO startupInfo = {};
 	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-	startupInfo.wShowWindow = ShowModeConverter::ToShowWindowFlag(settings.GetShowMode());
+	startupInfo.wShowWindow = ShowModeConverter::ToShowWindowFlag(settings.GetShowMode());	
 	PROCESS_INFORMATION processInformation = {};
 
 	trace < L"ProcessTracker::InitializeConsoleRedirection";
@@ -111,8 +112,9 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	StringBuffer password(settings.GetPassword());
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
+	LogonTypeManager logonTypeManager;
 
-	if (_logonFlags != LOGON_WITH_PROFILE)
+	if (_elevated)
 	{
 		trace < L"::LogonUser";
 		auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -120,7 +122,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 			userName.GetPointer(),
 			domain.GetPointer(),
 			password.GetPointer(),
-			LOGON32_LOGON_INTERACTIVE,
+			logonTypeManager.GetLogonTypeFlag(settings.GetLogonType()),
 			LOGON32_PROVIDER_DEFAULT,
 			&newUserSecurityTokenHandle))
 		{
@@ -139,7 +141,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		trace < L"::CreateProcessWithTokenW";		
 		if (!CreateProcessWithTokenW(
 			newUserSecurityTokenHandle,
-			_logonFlags,
+			LOGON_NETCREDENTIALS_ONLY,
 			nullptr,
 			commandLine.GetPointer(),
 			CREATE_UNICODE_ENVIRONMENT,
@@ -158,7 +160,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 			userName.GetPointer(),
 			domain.GetPointer(),
 			password.GetPointer(),
-			_logonFlags,
+			LOGON_WITH_PROFILE,
 			nullptr,
 			commandLine.GetPointer(),
 			CREATE_UNICODE_ENVIRONMENT,

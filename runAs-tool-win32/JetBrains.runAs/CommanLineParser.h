@@ -3,6 +3,7 @@
 #include <list>
 #include "ExitCode.h"
 #include "LogLevel.h"
+#include "LogonType.h"
 class Settings;
 
 class CommanLineParser

@@ -184,6 +184,8 @@
   <ItemGroup>
     <ClInclude Include="Args.h" />
     <ClInclude Include="Error.h" />
+    <ClInclude Include="LogonType.h" />
+    <ClInclude Include="LogonTypeManager.h" />
     <ClInclude Include="SelfTest.h" />
     <ClInclude Include="ShowMode.h" />
     <ClInclude Include="ShowModeConverter.h" />
@@ -222,6 +224,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Error.cpp" />
+    <ClCompile Include="LogonTypeManager.cpp" />
     <ClCompile Include="SelfTest.cpp" />
     <ClCompile Include="ShowModeConverter.cpp" />
     <ClCompile Include="StringBuffer.cpp" />

@@ -45,7 +45,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 			Trace trace(settings.GetLogLevel());
 			trace < HelpUtilities::GeTitle();
 
-			Runner runner;
+			Runner runner(settings);
 			trace < L"main::Run starting";			
 			results.push_back(runner.Run(settings));
 			trace < L"main::Run finished";
@@ -61,16 +61,10 @@ int _tmain(int argc, _TCHAR *argv[]) {
 	}	
 
 	Trace trace(settings.GetLogLevel());
-	trace < L"main::Create results";
+	trace < L"main::Create results";	
 
-	if (!results.back().HasError())
-	{
-		trace < L"Exit code: ";
-		trace << results.back().GetResultValue();
-		return results.back().GetResultValue();
-	}
-
-	auto showFullInfo = logLevel != LOG_LEVEL_OFF && logLevel != LOG_LEVEL_ERRORS;
+	auto hasError = results.back().HasError();
+	auto showFullInfo = (hasError && (logLevel == LOG_LEVEL_NORMAL || logLevel == LOG_LEVEL_DEBUG)) || (!hasError && logLevel == LOG_LEVEL_DEBUG);	
 	if (showFullInfo)
 	{
 		// Show header
@@ -98,6 +92,13 @@ int _tmain(int argc, _TCHAR *argv[]) {
 		}
 	}
 
+	if (!hasError)
+	{
+		trace < L"Exit code: ";
+		trace << results.back().GetResultValue();
+		return results.back().GetResultValue();
+	}
+
 	if (logLevel != LOG_LEVEL_OFF)
 	{
 		if (results.back().GetError().GetDescription() != L"")
@@ -108,7 +109,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 
 	if (showFullInfo)
 	{
-		wcerr << endl << results.back().GetError().GetTarget() << L" returns the error 0x" << hex << setw(8) << setfill(L'0') << results.back().GetError().GetCode() << L".";
+		wcerr << endl << results.back().GetError().GetTarget() << L" returns the Win32 error 0x" << hex << setw(8) << setfill(L'0') << results.back().GetError().GetWin32Error() << L".";
 	}
 
 	auto exitCode = exitCodeBase > 0 ? exitCodeBase + results.back().GetError().GetCode() : exitCodeBase - results.back().GetError().GetCode();

@@ -2,7 +2,6 @@
 #include "IntegrityLevelManager.h"
 #include "Handle.h"
 #include "Trace.h"
-#include "ErrorUtilities.h"
 
 Result<bool> IntegrityLevelManager::SetIntegrityLevel(const IntegrityLevel& integrityLevelId, const Handle& securityToken, Trace& trace)
 {

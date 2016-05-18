@@ -12,5 +12,6 @@
 #define ARG_INHERITANCE_MODE		TEXT("inheritance_mode")
 #define ARG_LOG_LEVEL				TEXT("log_level")
 #define ARG_INTEGRITY_LEVEL			TEXT("integrity_level")
+#define ARG_LOGON_TYPE				TEXT("logon_type")
 #define ARG_SHOW_MODE				TEXT("show_mode")
 #define ARG_SELF_TESTING			TEXT("self_testing")

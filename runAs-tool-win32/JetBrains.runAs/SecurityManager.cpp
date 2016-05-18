@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "SecurityManager.h"
-#include "ErrorUtilities.h"
 #include "Handle.h"
 #include "StringBuffer.h"
 #include <memory>

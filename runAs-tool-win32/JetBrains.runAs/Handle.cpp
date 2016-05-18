@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Handle.h"
 #include "Result.h"
-#include "ErrorUtilities.h"
 
 Handle::Handle()
 	:Handle(L"")

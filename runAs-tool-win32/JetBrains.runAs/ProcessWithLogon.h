@@ -7,10 +7,10 @@ class Settings;
 
 class ProcessWithLogon : public IProcess
 {
-	DWORD _logonFlags;
+	const bool _elevated;
 	Result<ExitCode> RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment) const;
 
 public:
-	explicit ProcessWithLogon(DWORD logonFlags);
+	explicit ProcessWithLogon(bool elevated);
 	Result<ExitCode> Run(const Settings& settings, ProcessTracker& processTracker) const override;	
 };

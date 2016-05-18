@@ -31,6 +31,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	*logLevel = LOG_LEVEL_NORMAL;
 	IntegrityLevel integrityLevel = INTEGRITY_LEVEL_AUTO;
+	LogonType logonType = LOGON_TYPE_INTERACTIVE;
 	ShowMode showMode = SHOW_MODE_HIDE;
 	auto selfTesting = false;
 	
@@ -72,7 +73,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		{
 			if (!regex_search(argValue, matchResult, UserRegex))
 			{
-				return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, L"Invalid format of user name \"" + argValue + L"\"");
+				return Error(L"TryParse", 0, ERROR_CODE_INVALID_USAGE, L"Invalid format of user name \"" + argValue + L"\"");
 			}
 
 			userName = matchResult._At(1).str();
@@ -130,7 +131,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			configFile.open(configFileName);
 			if (!configFile.is_open())
 			{
-				return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, L"Unable to open file: \"" + configFileName + L"\"");
+				return Error(L"TryParse", 0, ERROR_CODE_INVALID_USAGE, L"Unable to open file: \"" + configFileName + L"\"");
 			}
 
 			wstring line;
@@ -172,6 +173,15 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			}			
 		}
 
+		// The type of logon operation to perform.
+		if (argNameInLowCase == L"lt")
+		{
+			if (TryGetValue(LogonTypes, argValueInLowCase, &logonType))
+			{
+				continue;
+			}
+		}
+
 		// Environment variable
 		if (argNameInLowCase == L"e")
 		{
@@ -188,14 +198,14 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			}			
 		}
 
-		// Show mode
+		// Selft test mode
 		if (argNameInLowCase == L"t")
 		{			
 			selfTesting = true;
 			continue;
 		}
 
-		return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
+		return Error(L"TryParse", 0, ERROR_CODE_INVALID_USAGE, L"Invalid argument \"" + argName + L"\"");
 	}	
 
 	if (workingDirectory == L"")
@@ -226,7 +236,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		}
 
 		details << L" should not be empty.";
-		return Error(L"TryParse", ERROR_CODE_INVALID_USAGE, details.str());
+		return Error(L"TryParse", 0, ERROR_CODE_INVALID_USAGE, details.str());
 	}	
 
 	auto settings = Settings(
@@ -239,7 +249,8 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		commandLineArgs,
 		envVars,
 		inheritanceMode,
-		integrityLevel,
+		logonType,
+		integrityLevel,		
 		showMode,
 		selfTesting);
 

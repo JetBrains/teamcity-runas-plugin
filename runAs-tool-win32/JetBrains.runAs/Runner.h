@@ -8,12 +8,12 @@ class Job;
 class Runner
 {
 	ProcessAsUser _processAsUserToRun;
-	ProcessWithLogon _processWithLogonToRun = ProcessWithLogon(LOGON_NETCREDENTIALS_ONLY);
-	ProcessWithLogon _processWithLogonToRunWithProfile = ProcessWithLogon(LOGON_WITH_PROFILE);
+	ProcessWithLogon _processWithLogonElevated = ProcessWithLogon(true);
+	ProcessWithLogon _processWithLogonInteractive = ProcessWithLogon(false);
 	list<IProcess*> _processes;
 	Result<ExitCode> RunProcessAsUser(const Settings& settings) const;
 
 public:
-	Runner();
+	Runner(const Settings& settings);
 	Result<ExitCode> Run(const Settings& settings) const;
 };

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Job.h"
-#include "ErrorUtilities.h"
 
 Job::Job(bool autoClose)
 {

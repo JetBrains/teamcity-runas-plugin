@@ -1,6 +1,4 @@
 #pragma once
-
-#pragma once
 #include <string>
 
 typedef wstring InheritanceMode;
