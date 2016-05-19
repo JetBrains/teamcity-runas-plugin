@@ -23,6 +23,7 @@ Result<ExitCode> SelfTest::Run(const Settings& settings) const
 	}
 
 	auto statistic = statisticResult.GetResultValue();
+	// Service Local System
 	if (!statistic.HasLogonSid())
 	{	
 		if (!statistic.HasAdministrativePrivileges())
@@ -30,7 +31,6 @@ Result<ExitCode> SelfTest::Run(const Settings& settings) const
 			return EXIT_CODE_NO_ADMIN;
 		}
 
-		// Windows service
 		if (!statistic.HasSeAssignPrimaryTokenPrivilege())
 		{
 			return EXIT_CODE_NO_ASSIGN_PRIMARY_TOKEN_PRIV;
