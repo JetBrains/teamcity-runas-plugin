@@ -4,16 +4,12 @@
 #include "Trace.h"
 #include "Job.h"
 #include "SelfTest.h"
+#include "ProcessTracker.h"
+#include <queue>
+#include "ProcessesSelector.h"
 
-Runner::Runner(const Settings& settings)
-{	
-	_processes.push_back(&_processAsUserToRun);	
-	if (settings.GetLogonType() != LOGON_TYPE_INTERACTIVE)
-	{
-		_processes.push_back(&_processWithLogonElevated);
-	}
-	
-	_processes.push_back(&_processWithLogonInteractive);
+Runner::Runner()
+{		
 }
 
 Result<ExitCode> Runner::Run(const Settings& settings) const
@@ -29,7 +25,7 @@ Result<ExitCode> Runner::Run(const Settings& settings) const
 
 Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 {
-	Trace trace(settings.GetLogLevel());
+	Trace trace(settings.GetLogLevel());	
 
 	trace < L"Runner::Create a job";	
 	Job job(false);
@@ -45,6 +41,15 @@ Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 	Handle currentProcess(L"Current process");
 	currentProcess = GetCurrentProcess();
 	job.AssignProcessToJob(currentProcess);
+
+	const ProcessesSelector processesSelector;
+	auto processesResult = processesSelector.SelectProcesses(settings);
+	if(processesResult.HasError())
+	{
+		return processesResult.GetError();
+	}
+
+	auto processes = processesResult.GetResultValue();
 	
 	// Run process
 	trace < L"::GetStdHandle(STD_OUTPUT_HANDLE)";
@@ -52,15 +57,13 @@ Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 	trace < L"::GetStdHandle(STD_ERROR_HANDLE)";
 	StreamWriter stdError(GetStdHandle(STD_ERROR_HANDLE));
 	list<Result<ExitCode>> results;
-	for (auto processIterrator = _processes.begin(); processIterrator != _processes.end(); ++processIterrator)
+	while(processes.size() > 0)
 	{
-		if (processIterrator != _processes.begin())
-		{
-			trace < L"Runner::Select other type of process";
-		}
+		auto process = processes.front();		
+		processes.pop();
 
-		ProcessTracker processTracker(stdOutput, stdError);		
-		results.push_back((*processIterrator)->Run(settings, processTracker));		
+		ProcessTracker processTracker(stdOutput, stdError);
+		results.push_back(process->Run(settings, processTracker));
 		if (results.back().HasError())
 		{
 			trace < L"Runner::Run failed";
@@ -70,13 +73,13 @@ Result<ExitCode> Runner::RunProcessAsUser(const Settings& settings) const
 			trace << results.back().GetError().GetDescription();
 			continue;
 		}
-		
+
 		if (results.back().GetResultValue() != STATUS_DLL_INIT_FAILED)
 		{
 			break;
 		}
 	}
-
+	
 	trace < L"Runner::Run finished";
 	if (results.size() == 0)
 	{

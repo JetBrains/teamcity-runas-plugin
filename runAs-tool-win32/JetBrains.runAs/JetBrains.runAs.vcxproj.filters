@@ -128,6 +128,12 @@
     <ClInclude Include="LogonTypeManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SelfTestStatistic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessesSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -206,6 +212,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LogonTypeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SelfTestStatistic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessesSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

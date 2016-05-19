@@ -186,7 +186,9 @@
     <ClInclude Include="Error.h" />
     <ClInclude Include="LogonType.h" />
     <ClInclude Include="LogonTypeManager.h" />
+    <ClInclude Include="ProcessesSelector.h" />
     <ClInclude Include="SelfTest.h" />
+    <ClInclude Include="SelfTestStatistic.h" />
     <ClInclude Include="ShowMode.h" />
     <ClInclude Include="ShowModeConverter.h" />
     <ClInclude Include="StringBuffer.h" />
@@ -225,7 +227,9 @@
   <ItemGroup>
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="LogonTypeManager.cpp" />
+    <ClCompile Include="ProcessesSelector.cpp" />
     <ClCompile Include="SelfTest.cpp" />
+    <ClCompile Include="SelfTestStatistic.cpp" />
     <ClCompile Include="ShowModeConverter.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="CommanLineParser.cpp" />

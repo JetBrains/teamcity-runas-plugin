@@ -45,7 +45,7 @@ int _tmain(int argc, _TCHAR *argv[]) {
 			Trace trace(settings.GetLogLevel());
 			trace < HelpUtilities::GeTitle();
 
-			Runner runner(settings);
+			Runner runner;
 			trace < L"main::Run starting";			
 			results.push_back(runner.Run(settings));
 			trace < L"main::Run finished";

@@ -143,6 +143,18 @@ Result<list<SID_AND_ATTRIBUTES>> SecurityManager::GetTokenGroups(Trace& trace, c
 	return result;
 }
 
+Result<bool> SecurityManager::HasPrivilege(Trace& trace, const Handle& token, const wstring privilege) const
+{
+	auto privilegiesResult = GetPrivilegies(trace, token);
+	if (privilegiesResult.HasError())
+	{
+		return Result<bool>(privilegiesResult.GetError());
+	}
+
+	auto privilegies = privilegiesResult.GetResultValue();
+	return privilegies.find(privilege) != privilegies.end();
+}
+
 Result<set<wstring>> SecurityManager::GetPrivilegies(Trace& trace, const Handle& token) const
 {
 	auto tokenPrivilegiesResult = GetTokenInformation(trace, token, TokenPrivileges);
