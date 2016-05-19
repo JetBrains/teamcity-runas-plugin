@@ -9,9 +9,13 @@
 #include "IntegrityLevelManager.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
-#include "LogonTypeManager.h"
 class Trace;
 class ProcessTracker;
+
+ProcessAsUser::ProcessAsUser(const bool elevated)
+	:_elevated(elevated)
+{
+}
 
 Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& processTracker) const
 {
@@ -22,7 +26,6 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 	StringBuffer password(settings.GetPassword());
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
-	LogonTypeManager logonTypeManager;
 
 	trace < L"::LogonUser";
 	auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -30,7 +33,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		userName.GetPointer(),
 		domain.GetPointer(),
 		password.GetPointer(),
-		logonTypeManager.GetLogonTypeFlag(settings.GetLogonType()),
+		_elevated ? LOGON32_LOGON_NETWORK : LOGON32_LOGON_INTERACTIVE,
 		LOGON32_PROVIDER_DEFAULT,
 		&newUserSecurityTokenHandle))
 	{

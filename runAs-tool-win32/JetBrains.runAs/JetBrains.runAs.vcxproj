@@ -184,8 +184,6 @@
   <ItemGroup>
     <ClInclude Include="Args.h" />
     <ClInclude Include="Error.h" />
-    <ClInclude Include="LogonType.h" />
-    <ClInclude Include="LogonTypeManager.h" />
     <ClInclude Include="ProcessesSelector.h" />
     <ClInclude Include="SelfTest.h" />
     <ClInclude Include="SelfTestStatistic.h" />
@@ -226,7 +224,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Error.cpp" />
-    <ClCompile Include="LogonTypeManager.cpp" />
     <ClCompile Include="ProcessesSelector.cpp" />
     <ClCompile Include="SelfTest.cpp" />
     <ClCompile Include="SelfTestStatistic.cpp" />

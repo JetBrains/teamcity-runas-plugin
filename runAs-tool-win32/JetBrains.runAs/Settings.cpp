@@ -19,7 +19,6 @@ Settings::Settings(
 	const list<wstring>& args,
 	const list<wstring>& envVars,
 	const InheritanceMode& inheritanceMode,
-	const LogonType& logonType,
 	const IntegrityLevel& integrityLevel,
 	const ShowMode& showMode,
 	const bool selfTesting)
@@ -34,7 +33,6 @@ Settings::Settings(
 	_envVars = list<wstring>(envVars);
 	_inheritanceMode = inheritanceMode;
 	_integrityLevel = integrityLevel;
-	_logonType = logonType;
 	_showMode = showMode;
 	_selfTesting = selfTesting;
 }
@@ -121,11 +119,6 @@ IntegrityLevel Settings::GetIntegrityLevel() const
 	return _integrityLevel;
 }
 
-LogonType Settings::GetLogonType() const
-{
-	return _logonType;
-}
-
 bool Settings::GetSelfTesting() const
 {
 	return _selfTesting;
@@ -154,7 +147,6 @@ wstring Settings::ToString() const
 	
 	text << endl << L"\t" << ARG_EXIT_CODE_BASE << L":\t\t" << GetExitCodeBase();
 	text << endl << L"\t" << ARG_INTEGRITY_LEVEL << L":\t" << GetIntegrityLevel();
-	text << endl << L"\t" << ARG_LOGON_TYPE << L":\t\t" << GetLogonType();
 	text << endl << L"\t" << ARG_INHERITANCE_MODE << L":\t" << GetInheritanceMode();
 	text << endl << L"\t" << ARG_SHOW_MODE << L":\t\t" << GetShowMode();
 	text << endl << L"\t" << ARG_SELF_TESTING << L":\t\t" << GetSelfTesting();

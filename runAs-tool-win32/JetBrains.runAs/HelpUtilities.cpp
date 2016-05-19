@@ -10,7 +10,6 @@
 #include "IntegrityLevel.h"
 #include "StringUtilities.h"
 #include "ShowMode.h"
-#include "LogonType.h"
 
 HelpUtilities::HelpUtilities()
 {
@@ -57,12 +56,8 @@ wstring HelpUtilities::GetHelp()
 	
 	help << endl << L"\t-l:" << ARG_LOG_LEVEL << "\t\t- logging level (" << StringUtilities::Join(LogLevels, L"|") << L"), it is optional and \"" << LOG_LEVEL_NORMAL << L"\" by default.";
 	
-	help << endl << L"\t-il:" << ARG_INTEGRITY_LEVEL << "\t- integrity level (" << StringUtilities::Join(IntegrityLevels, L"|") << L"), it is optional and \"" << INTEGRITY_LEVEL_AUTO << L"\" by default.";
+	help << endl << L"\t-il:" << ARG_INTEGRITY_LEVEL << "\t- integrity level (" << StringUtilities::Join(IntegrityLevels, L"|") << L"), it is optional and \"" << INTEGRITY_LEVEL_DEFAULT << L"\" by default.";
 	
-	help << endl << L"\t-lt:" << ARG_LOGON_TYPE << "\t\t- the type of logon operation to perform, optional and \"" << LOGON_TYPE_INTERACTIVE << L"\" by default.";
-	help << endl << L"\t\t" << LOGON_TYPE_INTERACTIVE << L"\t\tthis logon type is intended for users who will be interactively using the computer";
-	help << endl << L"\t\t" << LOGON_TYPE_NETWORK << L"\t\t\tthis logon type could be elevated";
-
 	help << endl << L"\t-s:" << ARG_SHOW_MODE << "\t\t- show mode (" << StringUtilities::Join(ShowModes, L"|") << L"), it is optional and \"" << SHOW_MODE_HIDE << L"\" by default.";
 	
 	help << endl << L"\t-t" << "\t\t\t- self testing. Returns exit codes:";

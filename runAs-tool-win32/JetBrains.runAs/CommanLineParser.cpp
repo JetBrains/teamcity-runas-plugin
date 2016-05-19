@@ -30,8 +30,7 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 	wstring inheritanceMode = INHERITANCE_MODE_AUTO;
 	auto argsMode = 0; // 0 - gets tool args, 1 - gets executable, 2 - gets cmd args
 	*logLevel = LOG_LEVEL_NORMAL;
-	IntegrityLevel integrityLevel = INTEGRITY_LEVEL_AUTO;
-	LogonType logonType = LOGON_TYPE_INTERACTIVE;
+	IntegrityLevel integrityLevel = INTEGRITY_LEVEL_DEFAULT;
 	ShowMode showMode = SHOW_MODE_HIDE;
 	auto selfTesting = false;
 	
@@ -173,15 +172,6 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 			}			
 		}
 
-		// The type of logon operation to perform.
-		if (argNameInLowCase == L"lt")
-		{
-			if (TryGetValue(LogonTypes, argValueInLowCase, &logonType))
-			{
-				continue;
-			}
-		}
-
 		// Environment variable
 		if (argNameInLowCase == L"e")
 		{
@@ -249,7 +239,6 @@ Result<Settings> CommanLineParser::TryParse(const list<wstring>& args, ExitCode*
 		commandLineArgs,
 		envVars,
 		inheritanceMode,
-		logonType,
 		integrityLevel,		
 		showMode,
 		selfTesting);

@@ -4,7 +4,6 @@
 #include "InheritanceMode.h"
 #include "IntegrityLevel.h"
 #include "ShowMode.h"
-#include "LogonType.h"
 
 class Settings
 {
@@ -18,8 +17,7 @@ class Settings
 	int _exitCodeBase = 0;
 	InheritanceMode _inheritanceMode = INHERITANCE_MODE_AUTO;
 	LogLevel _logLevel = LOG_LEVEL_NORMAL;
-	IntegrityLevel _integrityLevel = INTEGRITY_LEVEL_AUTO;
-	LogonType _logonType = LOGON_TYPE_INTERACTIVE;
+	IntegrityLevel _integrityLevel = INTEGRITY_LEVEL_DEFAULT;
 	ShowMode _showMode = SHOW_MODE_HIDE;
 	bool _selfTesting;
 
@@ -37,7 +35,6 @@ public:
 		const list<wstring>& args,
 		const list<wstring>& envVars,
 		const InheritanceMode& inheritanceMode,
-		const LogonType& logonType,
 		const IntegrityLevel& integrityLevel,
 		const ShowMode& showMode,
 		const bool selfTesting);
@@ -56,7 +53,6 @@ public:
 	LogLevel GetLogLevel() const;
 	void SetLogLevel(const LogLevel& logLevel);
 	IntegrityLevel GetIntegrityLevel() const;
-	LogonType GetLogonType() const;
 	bool GetSelfTesting() const;
 	wstring ToString() const;
 };

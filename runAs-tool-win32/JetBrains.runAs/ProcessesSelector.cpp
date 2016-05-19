@@ -21,21 +21,22 @@ const Result<queue<const IProcess*>> ProcessesSelector::SelectProcesses(const Se
 	}
 
 	auto selfTestStatistic = selfTestStatisticResult.GetResultValue();
-	auto hasMoreThenHighIntegrityLevel = (selfTestStatistic.GetIntegrityLevel() == INTEGRITY_LEVEL_SYSTEM || selfTestStatistic.GetIntegrityLevel() == INTEGRITY_LEVEL_HIGH);
+	auto hasMoreThenHighIntegrityLevel = selfTestStatistic.GetIntegrityLevel() == INTEGRITY_LEVEL_SYSTEM || selfTestStatistic.GetIntegrityLevel() == INTEGRITY_LEVEL_HIGH;
+	auto requiredMoreThenHighIntegrityLevel = settings.GetIntegrityLevel() == INTEGRITY_LEVEL_SYSTEM || settings.GetIntegrityLevel() == INTEGRITY_LEVEL_HIGH;
 
 	queue<const IProcess*> processes;	
 	// For Local System services (INTEGRITY_LEVEL_SYSTEM) and services under admin (INTEGRITY_LEVEL_HIGH)
 	// With SeAssignPrimaryTokenPrivilege
-	// Should be elevated admin, if "-il:auto" or more then "high" and "-lt:network"
-	if (selfTestStatistic.HasSeAssignPrimaryTokenPrivilege() && hasMoreThenHighIntegrityLevel)
+	// Should be elevated admin, if arg "-il" is "auto" or "high" or "system"
+	if (hasMoreThenHighIntegrityLevel && selfTestStatistic.HasSeAssignPrimaryTokenPrivilege())
 	{
 		trace < L"ProcessesSelector::SelectProcesses push ProcessAsUser";
-		processes.push(&_processAsUser);
+		processes.push(requiredMoreThenHighIntegrityLevel ? &_processAsUserElevated : &_processAsUser);
 	}
 
 	// For interactive admin accounts (not a service)
-	// Could be elevated admin, if "-il:auto" or more then "high" and "-lt:network"
-	if (selfTestStatistic.HasLogonSid() && selfTestStatistic.HasAdministrativePrivileges() && settings.GetLogonType() != LOGON_TYPE_INTERACTIVE)
+	// Could be elevated admin, if arg "-il" is "auto" or "high" or "system"
+	if (requiredMoreThenHighIntegrityLevel && selfTestStatistic.HasLogonSid() && selfTestStatistic.HasAdministrativePrivileges())
 	{
 		trace < L"ProcessesSelector::SelectProcesses push ProcessWithLogonElevated";
 		processes.push(&_processWithLogonElevated);

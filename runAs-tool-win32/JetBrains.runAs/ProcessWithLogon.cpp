@@ -11,9 +11,8 @@
 #include "Trace.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
-#include "LogonTypeManager.h"
 
-ProcessWithLogon::ProcessWithLogon(bool loadProfile)
+ProcessWithLogon::ProcessWithLogon(const bool loadProfile)
 	: _elevated(loadProfile)
 {
 }
@@ -56,7 +55,6 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 			{ L"/U", L"/C", L"SET" },
 			{ },
 			INHERITANCE_MODE_OFF,
-			settings.GetLogonType(),
 			INTEGRITY_LEVEL_AUTO,			
 			SHOW_MODE_HIDE,
 			false);
@@ -112,7 +110,6 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	StringBuffer password(settings.GetPassword());
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
-	LogonTypeManager logonTypeManager;
 
 	if (_elevated)
 	{
@@ -122,7 +119,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 			userName.GetPointer(),
 			domain.GetPointer(),
 			password.GetPointer(),
-			logonTypeManager.GetLogonTypeFlag(settings.GetLogonType()),
+			LOGON32_LOGON_NETWORK,
 			LOGON32_PROVIDER_DEFAULT,
 			&newUserSecurityTokenHandle))
 		{
