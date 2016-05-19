@@ -4,7 +4,8 @@
 #include <sstream>
 #include "Args.h"
 
-Settings::Settings(): _exitCodeBase(EXIT_CODE_BASE)
+Settings::Settings(): 
+	_exitCodeBase(EXIT_CODE_BASE), _selfTesting(false)
 {
 }
 
@@ -59,18 +60,26 @@ wstring Settings::GetExecutable() const
 	return AddQuotes(_executable);	
 }
 
-wstring Settings::GetCommandLine() const
+wstring Settings::GetCommandLineArgs() const
 {
 	wstringstream commandLine;
-	commandLine << AddQuotes(_executable);
 	for (auto argsIterrator = _args.begin(); argsIterrator != _args.end(); ++argsIterrator)
 	{
-		commandLine << L" " << AddQuotes(*argsIterrator);
+		if (argsIterrator != _args.begin())
+		{
+			commandLine << L" ";
+		}
+
+		commandLine << AddQuotes(*argsIterrator);
 	}
 	
 	return commandLine.str();
 }
 
+wstring Settings::GetCommandLine() const
+{
+	return GetExecutable() + L" " + GetCommandLineArgs();
+}
 
 wstring Settings::GetWorkingDirectory() const
 {
@@ -150,6 +159,6 @@ wstring Settings::ToString() const
 	text << endl << L"\t" << ARG_SHOW_MODE << L":\t\t" << GetShowMode();
 	text << endl << L"\t" << ARG_SELF_TESTING << L":\t\t" << GetSelfTesting();
 	text << endl << L"\t" << ARG_EXECUTABLE << L":\t\t" << GetExecutable();
-	text << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetCommandLine();
+	text << endl << L"\t" << ARG_EXIT_COMMAND_LINE_ARGS << L":\t" << GetCommandLineArgs();
 	return text.str();
 }

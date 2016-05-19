@@ -162,12 +162,12 @@ this.ScenarioSetup(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("User does not see header and sees brief error info when unknown user and in the o" +
-            "ff log mode")]
-        public virtual void UserDoesNotSeeHeaderAndSeesBriefErrorInfoWhenUnknownUserAndInTheOffLogMode()
+        [NUnit.Framework.DescriptionAttribute("User does not see header and any error info when unknown user and in the off log " +
+            "mode")]
+        public virtual void UserDoesNotSeeHeaderAndAnyErrorInfoWhenUnknownUserAndInTheOffLogMode()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User does not see header and sees brief error info when unknown user and in the o" +
-                    "ff log mode", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("User does not see header and any error info when unknown user and in the off log " +
+                    "mode", ((string[])(null)));
 #line 49
 this.ScenarioSetup(scenarioInfo);
 #line 50

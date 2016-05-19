@@ -46,6 +46,7 @@ public:
 	wstring GetDomain() const;
 	wstring GetPassword() const;
 	wstring GetExecutable() const;
+	wstring GetCommandLineArgs() const;
 	wstring GetCommandLine() const;
 	wstring GetWorkingDirectory() const;
 	list<wstring> GetEnvironmentVariables() const;

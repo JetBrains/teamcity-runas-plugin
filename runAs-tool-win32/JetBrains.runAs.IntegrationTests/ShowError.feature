@@ -46,7 +46,7 @@ Examples:
 	| errors   |
 
 
-Scenario: User does not see header and sees brief error info when unknown user and in the off log mode
+Scenario: User does not see header and any error info when unknown user and in the off log mode
 	Given I have appended the file command.cmd by the line echo
 	And I've added the argument -u:SomeTestUser_0089DD7B-C9A9-4D38-9CEF-CB71E57AE1F6
 	And I've added the argument -p:SomePassword

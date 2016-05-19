@@ -27,8 +27,8 @@ IF %RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_OS_BITNESS% EQU 32 (
 
 SET "EXIT_CODE=%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_OS_BITNESS%"
 ECHO.
-IF %EXIT_CODE% EQU 1 ECHO ##teamcity[message text='Invoker has no administrative privileges, when running under the Windows service as LocalSystem.' status='ERROR']
-IF %EXIT_CODE% EQU 2 ECHO ##teamcity[message text='Invoker has no SeAssignPrimaryTokenPrivilege privilege, when running under the Windows service as LocalSystem.' status='ERROR']
+IF %EXIT_CODE% EQU 1 ECHO ##teamcity[message text='Invoker has no administrative privileges, when running under the Windows service.' status='ERROR']
+IF %EXIT_CODE% EQU 2 ECHO ##teamcity[message text='Invoker has no SeAssignPrimaryTokenPrivilege privilege, when running under the Windows service.' status='ERROR']
 EXIT /B %EXIT_CODE%
 
 :RUN_AS
