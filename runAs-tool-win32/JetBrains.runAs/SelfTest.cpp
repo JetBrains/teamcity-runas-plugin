@@ -5,7 +5,6 @@
 #include "Settings.h"
 #include "SecurityManager.h"
 #include "SelfTestStatistic.h"
-#include "IntegrityLevelManager.h"
 
 class IntegrityLevelManager;
 
@@ -22,9 +21,8 @@ Result<ExitCode> SelfTest::Run(const Settings& settings) const
 		return statisticResult.GetError();
 	}
 
-	auto statistic = statisticResult.GetResultValue();
-	// Service Local System
-	if (!statistic.HasLogonSid())
+	auto statistic = statisticResult.GetResultValue();		
+	if (statistic.IsService())
 	{	
 		if (!statistic.HasAdministrativePrivileges())
 		{
@@ -51,14 +49,25 @@ Result<SelfTestStatistic> SelfTest::GetStatistic(const Settings& settings) const
 		return Error(L"OpenProcessToken");
 	}
 
-	auto hasLogonSIDResult = HasLogonSID(trace, processToken);
-	if (hasLogonSIDResult.HasError())
+	trace < L"Token groups:";
+	auto tokenGroupsResult = _securityManager.GetTokenGroups(trace, processToken);
+	if (!tokenGroupsResult.HasError())
 	{
-		return hasLogonSIDResult.GetError();
+		auto tokenGroups = tokenGroupsResult.GetResultValue();
+		for (auto groupsIterrator = tokenGroups.begin(); groupsIterrator != tokenGroups.end(); ++groupsIterrator)
+		{
+			trace < groupsIterrator->ToString();
+		}
+	}	
+	
+	auto isServiceResult = IsService(trace, processToken);
+	if (isServiceResult.HasError())
+	{
+		return isServiceResult.GetError();
 	}
 
-	trace < L"SelfTest::HasLogonSID: ";
-	trace << hasLogonSIDResult.GetResultValue();
+	trace < L"SelfTest::IsService: ";
+	trace << isServiceResult.GetResultValue();
 
 	auto hasAdministrativePrivilegesResult = HasAdministrativePrivileges(trace);
 	if (hasAdministrativePrivilegesResult.HasError())
@@ -89,33 +98,21 @@ Result<SelfTestStatistic> SelfTest::GetStatistic(const Settings& settings) const
 	trace << integrityLevelResult.GetResultValue();
 
 	return SelfTestStatistic(
-		hasLogonSIDResult.GetResultValue(),
+		isServiceResult.GetResultValue(),
 		hasAdministrativePrivilegesResult.GetResultValue(),
 		hasSeAssignPrimaryTokenPrivilegeResult.GetResultValue(),
 		integrityLevelResult.GetResultValue());
 }
 
-Result<bool> SelfTest::HasLogonSID(Trace& trace, const Handle& token) const
-{	
-	auto tokenGroupsResult = _securityManager.GetTokenGroups(trace, token);
-	if (tokenGroupsResult.HasError())
+Result<bool> SelfTest::IsService(Trace& trace, const Handle& token) const
+{		
+	auto integrityLevelResult = _securityManager.GetIntegrityLevel(trace, token);
+	if(integrityLevelResult.GetResultValue() == INTEGRITY_LEVEL_SYSTEM)
 	{
-		return Result<bool>(tokenGroupsResult.GetError());
+		return true;
 	}
 
-	trace < L"SelfTest::HasLogonSID - Loop through the groups to find the logon SID.";
-	auto hasLogonSID = false;	
-	auto tokenGroups = tokenGroupsResult.GetResultValue();
-	for (auto groupsIterrator = tokenGroups.begin(); groupsIterrator != tokenGroups.end(); ++groupsIterrator)
-	{
-		if ((groupsIterrator->Attributes & SE_GROUP_LOGON_ID) == SE_GROUP_LOGON_ID)
-		{
-			hasLogonSID = true;
-			break;
-		}
-	}
-
-	return hasLogonSID;
+	return _securityManager.HasGroupSid(trace, token, L"S-1-5-6");
 }
 
 Result<bool> SelfTest::HasAdministrativePrivileges(Trace& trace) const
@@ -130,8 +127,7 @@ Result<bool> SelfTest::HasPrivilege(Trace& trace, const Handle& token, const wst
 
 Result<const IntegrityLevel> SelfTest::GetIntegrityLevel(Trace& trace, const Handle& token) const
 {
-	IntegrityLevelManager integrityLevelManager;
-	return integrityLevelManager.GetIntegrityLevel(trace, token);
+	return _securityManager.GetIntegrityLevel(trace, token);
 }
 
 typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);

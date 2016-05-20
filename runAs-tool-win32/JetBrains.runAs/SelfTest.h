@@ -13,7 +13,7 @@ class SelfTest
 {
 	const SecurityManager _securityManager;
 
-	Result<bool> HasLogonSID(Trace& trace, const Handle& token) const;
+	Result<bool> IsService(Trace& trace, const Handle& token) const;
 	Result<bool> HasAdministrativePrivileges(Trace& trace) const;
 	Result<bool> HasPrivilege(Trace& trace, const Handle& token, const wstring privilege) const;
 	Result<const IntegrityLevel> GetIntegrityLevel(Trace& trace, const Handle& token) const;

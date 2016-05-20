@@ -182,6 +182,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AccountSid.h" />
     <ClInclude Include="Args.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="ProcessesSelector.h" />
@@ -197,7 +198,6 @@
     <ClInclude Include="ExitCode.h" />
     <ClInclude Include="InheritanceMode.h" />
     <ClInclude Include="IntegrityLevel.h" />
-    <ClInclude Include="IntegrityLevelManager.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="LogLevel.h" />
     <ClInclude Include="SecurityManager.h" />
@@ -223,6 +223,7 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AccountSid.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="ProcessesSelector.cpp" />
     <ClCompile Include="SelfTest.cpp" />
@@ -232,7 +233,6 @@
     <ClCompile Include="CommanLineParser.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Environment.cpp" />
-    <ClCompile Include="IntegrityLevelManager.cpp" />
     <ClCompile Include="Job.cpp" />
     <ClCompile Include="SecurityManager.cpp" />
     <ClCompile Include="Runner.cpp" />

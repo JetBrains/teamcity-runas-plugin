@@ -20,26 +20,38 @@ const Result<queue<const IProcess*>> ProcessesSelector::SelectProcesses(const Se
 		return selfTestStatisticResult.GetError();
 	}
 
-	auto selfTestStatistic = selfTestStatisticResult.GetResultValue();
-	auto hasMoreThenHighIntegrityLevel = selfTestStatistic.GetIntegrityLevel() == INTEGRITY_LEVEL_SYSTEM || selfTestStatistic.GetIntegrityLevel() == INTEGRITY_LEVEL_HIGH;
+	auto statistic = selfTestStatisticResult.GetResultValue();
 	auto requiredMoreThenHighIntegrityLevel = settings.GetIntegrityLevel() == INTEGRITY_LEVEL_SYSTEM || settings.GetIntegrityLevel() == INTEGRITY_LEVEL_HIGH;
 
 	queue<const IProcess*> processes;	
 	// For Local System services (INTEGRITY_LEVEL_SYSTEM) and services under admin (INTEGRITY_LEVEL_HIGH)
-	// With SeAssignPrimaryTokenPrivilege
-	// Should be elevated admin, if arg "-il" is "auto" or "high" or "system"
-	if (hasMoreThenHighIntegrityLevel && selfTestStatistic.HasSeAssignPrimaryTokenPrivilege())
+	if (statistic.IsService())
 	{
-		trace < L"ProcessesSelector::SelectProcesses push ProcessAsUser";
-		processes.push(requiredMoreThenHighIntegrityLevel ? &_processAsUserElevated : &_processAsUser);
+		// With SeAssignPrimaryTokenPrivilege
+		// Should be elevated admin, if arg "-il" is "auto" or "high" or "system"
+		if (statistic.HasAdministrativePrivileges() && statistic.HasSeAssignPrimaryTokenPrivilege())
+		{
+			if (requiredMoreThenHighIntegrityLevel)
+			{
+				trace < L"ProcessesSelector::SelectProcesses push ProcessAsUser Elevated";
+				processes.push(&_processAsUserElevated);
+			}
+			else
+			{
+				trace < L"ProcessesSelector::SelectProcesses push ProcessAsUser";
+				processes.push(&_processAsUser);
+			}					
+		}
 	}
-
-	// For interactive admin accounts (not a service)
-	// Could be elevated admin, if arg "-il" is "auto" or "high" or "system"
-	if (requiredMoreThenHighIntegrityLevel && selfTestStatistic.HasLogonSid() && selfTestStatistic.HasAdministrativePrivileges())
+	else
 	{
-		trace < L"ProcessesSelector::SelectProcesses push ProcessWithLogonElevated";
-		processes.push(&_processWithLogonElevated);
+		// For interactive admin accounts (not a service)
+		// Could be elevated admin, if arg "-il" is "auto" or "high" or "system"
+		if (requiredMoreThenHighIntegrityLevel && statistic.HasAdministrativePrivileges())
+		{
+			trace < L"ProcessesSelector::SelectProcesses push ProcessWithLogon Elevated";
+			processes.push(&_processWithLogonElevated);
+		}
 	}
 
 	// For interactive Windows accounts

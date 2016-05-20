@@ -3,7 +3,7 @@
 
 class SelfTestStatistic
 {
-	const bool _hasLogonSid;
+	const bool _isService;
 	const bool _hasAdministrativePrivileges;
 	const bool _hasSeAssignPrimaryTokenPrivilege;
 	const IntegrityLevel _integrityLevel;
@@ -11,12 +11,12 @@ class SelfTestStatistic
 public:
 	SelfTestStatistic();
 	SelfTestStatistic(
-		const bool hasLogonSID,
+		const bool isService,
 		const bool hasAdministrativePrivileges,
 		const bool hasSeAssignPrimaryTokenPrivilege,
 		const IntegrityLevel integrityLevel);
 
-	bool HasLogonSid() const;
+	bool IsService() const;
 	bool HasAdministrativePrivileges() const;
 	bool HasSeAssignPrimaryTokenPrivilege() const;
 	IntegrityLevel GetIntegrityLevel() const;

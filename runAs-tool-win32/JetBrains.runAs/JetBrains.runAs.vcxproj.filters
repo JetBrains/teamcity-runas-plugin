@@ -44,9 +44,6 @@
     <ClInclude Include="IntegrityLevel.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="IntegrityLevelManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="IProcess.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -128,6 +125,9 @@
     <ClInclude Include="ProcessesSelector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AccountSid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -175,9 +175,6 @@
     <ClCompile Include="Job.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IntegrityLevelManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StringBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -209,6 +206,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProcessesSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AccountSid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

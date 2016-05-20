@@ -6,9 +6,9 @@
 #include "ExitCode.h"
 #include "Environment.h"
 #include "Trace.h"
-#include "IntegrityLevelManager.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
+#include "SecurityManager.h"
 class Trace;
 class ProcessTracker;
 
@@ -107,7 +107,7 @@ Result<ExitCode> ProcessAsUser::Run(const Settings& settings, ProcessTracker& pr
 		return Result<ExitCode>(newProcessEnvironmentResult.GetError());
 	}
 
-	auto setIntegrityLevelResult = IntegrityLevelManager::SetIntegrityLevel(settings.GetIntegrityLevel(), primaryNewUserSecurityTokenHandle, trace);
+	auto setIntegrityLevelResult = SecurityManager::SetIntegrityLevel(settings.GetIntegrityLevel(), primaryNewUserSecurityTokenHandle, trace);
 	if (setIntegrityLevelResult.HasError())
 	{
 		return Result<ExitCode>(setIntegrityLevelResult.GetError());

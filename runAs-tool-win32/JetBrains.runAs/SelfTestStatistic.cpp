@@ -11,13 +11,13 @@ SelfTestStatistic::SelfTestStatistic(
 	const bool hasAdministrativePrivileges, 
 	const bool hasSeAssignPrimaryTokenPrivilege,
 	const IntegrityLevel integrityLevel)
-	: _hasLogonSid(hasLogonSID), _hasAdministrativePrivileges(hasAdministrativePrivileges), _hasSeAssignPrimaryTokenPrivilege(hasSeAssignPrimaryTokenPrivilege), _integrityLevel(integrityLevel)
+	: _isService(hasLogonSID), _hasAdministrativePrivileges(hasAdministrativePrivileges), _hasSeAssignPrimaryTokenPrivilege(hasSeAssignPrimaryTokenPrivilege), _integrityLevel(integrityLevel)
 {
 }
 
-bool SelfTestStatistic::HasLogonSid() const
+bool SelfTestStatistic::IsService() const
 {
-	return _hasLogonSid;
+	return _isService;
 }
 
 bool SelfTestStatistic::HasAdministrativePrivileges() const
