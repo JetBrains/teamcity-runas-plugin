@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "AccountSid.h"
+#include <sstream>
 
 AccountSid::AccountSid(const wstring sid, const wstring name, const wstring domain)
 	: _sid(sid), _name(name), _domain(domain)
@@ -23,5 +24,22 @@ wstring AccountSid::GetDomain() const
 
 wstring AccountSid::ToString() const
 {
-	return GetSid() + L" " + GetDomain() + L"\\" + GetName();
+	wstringstream text;
+	text << GetSid();
+	if (GetName() != L"")
+	{
+		text << L" (";
+		if (GetDomain() != L"")
+		{
+			text << GetDomain() + L"\\" + GetName();
+		}
+		else
+		{
+			text << GetName();
+		}
+
+		text << L")";
+	}
+	
+	return text.str();
 }

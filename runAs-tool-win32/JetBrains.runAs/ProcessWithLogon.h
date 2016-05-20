@@ -7,7 +7,7 @@ class Settings;
 
 class ProcessWithLogon : public IProcess
 {
-	const bool _elevated;
+	const bool _changeIntegrityLevel;
 	Result<ExitCode> RunInternal(Trace& trace, const Settings& settings, ProcessTracker& processTracker, Environment& environment) const;
 
 public:

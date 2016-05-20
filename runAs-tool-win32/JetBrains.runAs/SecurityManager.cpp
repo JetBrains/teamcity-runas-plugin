@@ -103,7 +103,7 @@ Result<LUID> SecurityManager::LookupPrivilegeValue(const wstring& privilegeName)
 
 Result<shared_ptr<void>> SecurityManager::GetTokenInformation(Trace& trace, const Handle& token, _TOKEN_INFORMATION_CLASS tokenInformationClass) const
 {
-	trace < L"SecurityManager::GetTokenInformation - Get the required buffer size and allocate the _TOKEN_INFORMATION_CLASS buffer.";
+	trace < L"SecurityManager::GetTokenInformation - Get the required buffer size.";
 	LPVOID info = nullptr;
 	DWORD length = 0;
 	if (!::GetTokenInformation(token, tokenInformationClass, info, 0, &length))

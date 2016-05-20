@@ -11,9 +11,10 @@
 #include "Trace.h"
 #include "StringBuffer.h"
 #include "ShowModeConverter.h"
+#include "SecurityManager.h"
 
-ProcessWithLogon::ProcessWithLogon(const bool loadProfile)
-	: _elevated(loadProfile)
+ProcessWithLogon::ProcessWithLogon(const bool changeIntegrityLevel)
+	: _changeIntegrityLevel(changeIntegrityLevel)
 {
 }
 
@@ -21,7 +22,7 @@ Result<ExitCode> ProcessWithLogon::Run(const Settings& settings, ProcessTracker&
 {
 	Trace trace(settings.GetLogLevel());
 	trace < L"ProcessWithLogon::Run";
-	if (_elevated)
+	if (_changeIntegrityLevel)
 	{
 		trace << L" elevated";
 	}
@@ -111,7 +112,7 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 	StringBuffer workingDirectory(settings.GetWorkingDirectory());
 	StringBuffer commandLine(settings.GetCommandLine());
 
-	if (_elevated)
+	if (_changeIntegrityLevel)
 	{
 		trace < L"::LogonUser";
 		auto newUserSecurityTokenHandle = Handle(L"New user security token");
@@ -133,6 +134,12 @@ Result<ExitCode> ProcessWithLogon::RunInternal(Trace& trace, const Settings& set
 		if (!LoadUserProfile(newUserSecurityTokenHandle, &profileInfo))
 		{
 			return Error(L"LoadUserProfile");
+		}
+
+		auto setIntegrityLevelResult = SecurityManager::SetIntegrityLevel(settings.GetIntegrityLevel(), newUserSecurityTokenHandle, trace);
+		if (setIntegrityLevelResult.HasError())
+		{
+			return Result<ExitCode>(setIntegrityLevelResult.GetError());
 		}
 
 		trace < L"::CreateProcessWithTokenW";		
