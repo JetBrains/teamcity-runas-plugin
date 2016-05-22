@@ -7,7 +7,7 @@
 </style>
 
 <tr>
-  <td colspan="2"><em>This build feature allows to run build steps under the specified user account.</em></td>
+  <td colspan="2"><em>This build feature allows running build steps under the specified Windows user account.</em></td>
 </tr>
 
 <tr>
