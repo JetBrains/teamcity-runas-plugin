@@ -2,6 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.SystemInfo;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,9 +42,12 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
   }
 
   private void refreshProperties(final @NotNull BuildAgentConfiguration config) {
+    if(!SystemInfo.isWindows) {
+      return;
+    }
+
     final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(Constants.RUN_AS_TOOL_NAME);
-    if (toolProvider == null)
-    {
+    if (toolProvider == null){
       return;
     }
 
