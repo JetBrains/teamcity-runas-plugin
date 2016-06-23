@@ -43,7 +43,7 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
 
   private void refreshProperties(final @NotNull BuildAgentConfiguration config) {
     if(!SystemInfo.isWindows) {
-      LOG.info("runAs plugin is available only under Windows");
+      LOG.warn("runAs plugin is available only under Windows");
       return;
     }
 
