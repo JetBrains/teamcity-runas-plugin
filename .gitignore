@@ -24,3 +24,4 @@ runAs-tool-win32/JetBrains.runAs.IntegrationTests/obj/
 runAs-tool-win32/JetBrains.runAs/temp/
 runAs-tool-win32/JetBrains.getOSBitness/temp/
 TestResult.xml
+win32/JetBrains.runAs.*
