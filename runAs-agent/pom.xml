@@ -41,8 +41,9 @@
 	<dependency>
       <groupId>org.jetbrains.teamcity.internal</groupId>
       <artifactId>buildrunner-common</artifactId>
-      <version>${teamcity-version}</version>
-      <scope>compile</scope>
+      <version>9.1.6</version>
+      <scope>system</scope>
+	  <systemPath>${basedir}/../lib/buildrunner-common-10.0-SNAPSHOT.jar</systemPath>
     </dependency>
 
     <dependency>
