@@ -9,13 +9,33 @@
   <bean class="jetbrains.buildServer.runAs.agent.RunAsPropertiesExtension" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
   <bean class="jetbrains.buildServer.runAs.agent.SettingsPublisher" id="settingsPublisher"/>
-  <bean class="jetbrains.buildServer.runAs.agent.SettingsGenerator" id="credentialsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.SettingsProviderImpl" />
+
+  <!-- Windows -->
   <bean class="jetbrains.buildServer.runAs.agent.RunAsCmdGenerator" id="runAsCmdGenerator"/>
-  <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
+  <bean class="jetbrains.buildServer.runAs.agent.WindowsSettingsGenerator" id="windowsSettingsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsWindowsSetupBuilder">
     <constructor-arg ref="settingsPublisher"/>
-    <constructor-arg ref="credentialsGenerator"/>
+    <constructor-arg ref="windowsSettingsGenerator"/>
     <constructor-arg ref="runAsCmdGenerator"/>
+    <constructor-arg type="java.lang.String" value=".cmd"/>
   </bean>
+
+  <!-- Unix -->
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsShGenerator" id="runAsShGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.UnixSettingsGenerator" id="unixSettingsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsUnixSetupBuilder">
+    <constructor-arg ref="settingsPublisher"/>
+    <constructor-arg ref="unixSettingsGenerator"/>
+    <constructor-arg ref="runAsShGenerator"/>
+    <constructor-arg type="java.lang.String" value=".sh"/>
+  </bean>
+
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
+    <constructor-arg ref="runAsWindowsSetupBuilder"/>
+    <constructor-arg ref="runAsUnixSetupBuilder"/>
+  </bean>
+
   <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
     <constructor-arg ref="runAsSetupBuilder"/>
   </bean>

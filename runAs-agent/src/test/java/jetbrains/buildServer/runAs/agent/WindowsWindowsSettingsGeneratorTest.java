@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class SettingsGeneratorTest {
+public class WindowsWindowsSettingsGeneratorTest {
   private static final String ourlineSeparator = System.getProperty("line.separator");
   private Mockery myCtx;
 
@@ -26,10 +26,10 @@ public class SettingsGeneratorTest {
     final String expectedContent = "-u:nik" + ourlineSeparator + "arg1" + ourlineSeparator + "arg 2";
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
 
-    final SettingsGenerator instance = createInstance();
+    final WindowsSettingsGenerator instance = createInstance();
 
     // When
-    final String content = instance.create(new Settings("nik", additionalArgs));
+    final String content = instance.create(new Settings("nik", "aaa", additionalArgs));
 
     // Then
     myCtx.assertIsSatisfied();
@@ -37,8 +37,8 @@ public class SettingsGeneratorTest {
   }
 
   @NotNull
-  private SettingsGenerator createInstance()
+  private WindowsSettingsGenerator createInstance()
   {
-    return new SettingsGenerator();
+    return new WindowsSettingsGenerator();
   }
 }

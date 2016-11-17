@@ -6,22 +6,30 @@ import org.jetbrains.annotations.NotNull;
 
 public class Settings {
   private final String myUser;
+  private final String myPassword;
   private final List<CommandLineArgument> myAdditionalArgs;
 
-  public Settings(
+  Settings(
     @NotNull final String user,
+    @NotNull final String password,
     @NotNull final List<CommandLineArgument> additionalArgs) {
     myUser = user;
+    myPassword = password;
     myAdditionalArgs = additionalArgs;
   }
 
   @NotNull
-  public String getUser() {
+  String getUser() {
     return myUser;
   }
 
   @NotNull
-  public List<CommandLineArgument> getAdditionalArgs() {
+  String getPassword() {
+    return myPassword;
+  }
+
+  @NotNull
+  List<CommandLineArgument> getAdditionalArgs() {
     return myAdditionalArgs;
   }
 
@@ -32,15 +40,17 @@ public class Settings {
 
     final Settings settings = (Settings)o;
 
-    if (!getUser().equals(settings.getUser())) return false;
-    return getAdditionalArgs().equals(settings.getAdditionalArgs());
+    if (!myUser.equals(settings.myUser)) return false;
+    if (!myPassword.equals(settings.myPassword)) return false;
+    return myAdditionalArgs.equals(settings.myAdditionalArgs);
 
   }
 
   @Override
   public int hashCode() {
-    int result = getUser().hashCode();
-    result = 31 * result + getAdditionalArgs().hashCode();
+    int result = myUser.hashCode();
+    result = 31 * result + myPassword.hashCode();
+    result = 31 * result + myAdditionalArgs.hashCode();
     return result;
   }
 }

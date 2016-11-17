@@ -42,36 +42,34 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
   }
 
   private void refreshProperties(final @NotNull BuildAgentConfiguration config) {
-    if(!SystemInfo.isWindows) {
-      LOG.warn("runAs plugin is available only under Windows");
-      return;
-    }
+    if(SystemInfo.isWindows) {
+      final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(Constants.RUN_AS_TOOL_NAME);
+      if (toolProvider == null) {
+        return;
+      }
 
-    final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(Constants.RUN_AS_TOOL_NAME);
-    if (toolProvider == null){
-      return;
-    }
+      final String pathToRunAsPlugin = toolProvider.getPath(Constants.RUN_AS_TOOL_NAME);
+      final CommandLineSetup cmdLineSetup = new CommandLineSetup(
+        new File(pathToRunAsPlugin, "x86/JetBrains.runAs.exe").getAbsolutePath(),
+        Arrays.asList(new CommandLineArgument("-t", CommandLineArgument.Type.PARAMETER)),
+        Collections.<CommandLineResource>emptyList());
 
-    final String pathToRunAsPlugin = toolProvider.getPath(Constants.RUN_AS_TOOL_NAME);
-    final CommandLineSetup cmdLineSetup = new CommandLineSetup(
-      new File(pathToRunAsPlugin, "x86/JetBrains.runAs.exe").getAbsolutePath(),
-      Arrays.asList(new CommandLineArgument("-t", CommandLineArgument.Type.PARAMETER)),
-      Collections.<CommandLineResource>emptyList());
-
-    try {
-      final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 5000);
-      if(result != null)
-      {
-        LOG.info("runAs self-test exit code: " + result.getExitCode());
-        final int bitness = result.getExitCode();
-        if (bitness == 32 || bitness == 64)
-        {
-          config.addConfigurationParameter(Constants.RUN_AS_READY_VAR, "YES");
+      try {
+        final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 5000);
+        if (result != null) {
+          LOG.info("runAs self-test exit code: " + result.getExitCode());
+          final int bitness = result.getExitCode();
+          if (bitness == 32 || bitness == 64) {
+            config.addConfigurationParameter(Constants.RUN_AS_READY_VAR, "YES");
+          }
         }
+      } catch (ExecutionException e) {
+        LOG.error(e);
       }
     }
-    catch (ExecutionException e) {
-      LOG.error(e);
+    else
+    {
+      config.addConfigurationParameter(Constants.RUN_AS_READY_VAR, "YES");
     }
   }
 }
