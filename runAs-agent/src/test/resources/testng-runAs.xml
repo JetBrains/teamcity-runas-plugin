@@ -4,7 +4,7 @@
     <classes>
       <class name="jetbrains.buildServer.runAs.agent.WindowsWindowsSettingsGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsCmdGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.SettingsPublisherTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.ExecutableFilePublisherTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.SettingsProviderTest"/>

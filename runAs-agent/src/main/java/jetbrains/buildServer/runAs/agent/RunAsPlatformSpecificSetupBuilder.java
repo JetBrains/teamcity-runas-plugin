@@ -15,28 +15,34 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final SettingsProvider mySettingsProvider;
   private final RunnerParametersService myParametersService;
   private final FileService myFileService;
-  private final ResourcePublisher mySettingsPublisher;
+  private final ResourcePublisher myBeforeBuildPublisher;
+  private final ResourcePublisher myExecutableFilePublisher;
   private final ResourceGenerator<Settings> mySettingsGenerator;
   private final ResourceGenerator<RunAsCmdSettings> myRunAsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
+  private final FileAccessService myFileAccessService;
   private final String myCommandFileExtension;
 
   public RunAsPlatformSpecificSetupBuilder(
     @NotNull final SettingsProvider settingsProvider,
     @NotNull final RunnerParametersService parametersService,
     @NotNull final FileService fileService,
-    @NotNull final ResourcePublisher settingsPublisher,
+    @NotNull final ResourcePublisher beforeBuildPublisher,
+    @NotNull final ResourcePublisher executableFilePublisher,
     @NotNull final ResourceGenerator<Settings> settingsGenerator,
     @NotNull final ResourceGenerator<RunAsCmdSettings> runAsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService,
+    @NotNull final FileAccessService fileAccessService,
     @NotNull final String commandFileExtension) {
     mySettingsProvider = settingsProvider;
     myParametersService = parametersService;
     myFileService = fileService;
-    mySettingsPublisher = settingsPublisher;
+    myBeforeBuildPublisher = beforeBuildPublisher;
+    myExecutableFilePublisher = executableFilePublisher;
     mySettingsGenerator = settingsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
     myCommandLineArgumentsService = commandLineArgumentsService;
+    myFileAccessService = fileAccessService;
     myCommandFileExtension = commandFileExtension;
   }
 
@@ -55,7 +61,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
 
     // Settings
     final File settingsFile = myFileService.getTempFileName(ARGS_EXT);
-    resources.add(new CommandLineFile(mySettingsPublisher, settingsFile.getAbsoluteFile(), mySettingsGenerator.create(settings)));
+    resources.add(new CommandLineFile(myBeforeBuildPublisher, settingsFile.getAbsoluteFile(), mySettingsGenerator.create(settings)));
 
     // Command
     List<CommandLineArgument> cmdLineArgs = new ArrayList<CommandLineArgument>();
@@ -64,15 +70,15 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
 
     final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings(myCommandLineArgumentsService.createCommandLineString(cmdLineArgs));
 
-    final File cmdFile = myFileService.getTempFileName(myCommandFileExtension);
-    resources.add(new CommandLineFile(mySettingsPublisher, cmdFile.getAbsoluteFile(), myRunAsCmdGenerator.create(runAsCmdSettings)));
+    final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
+    resources.add(new CommandLineFile(myExecutableFilePublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(runAsCmdSettings)));
 
     return Collections.singleton(
       new CommandLineSetup(
         getTool().getAbsolutePath(),
         Arrays.asList(
           new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+          new CommandLineArgument(commandFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
           new CommandLineArgument(settings.getPassword(), CommandLineArgument.Type.PARAMETER)),
         resources));
   }
@@ -80,6 +86,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private File getTool() {
     final File path = new File(myParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
     myFileService.validatePath(path);
+    myFileAccessService.makeExecutableForMe(path);
     return path;
   }
 }

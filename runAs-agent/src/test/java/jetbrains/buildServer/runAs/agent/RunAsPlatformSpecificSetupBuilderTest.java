@@ -19,13 +19,15 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private Mockery myCtx;
   private FileService myFileService;
   private RunnerParametersService myRunnerParametersService;
-  private ResourcePublisher myResourcePublisher;
+  private ResourcePublisher myBeforeBuildPublisher;
   private ResourceGenerator<Settings> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsCmdSettings> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
   private SettingsProvider mySettingsProvider;
+  private ResourcePublisher myExecutableFilePublisher;
+  private FileAccessService myFileAccessService;
 
   @BeforeMethod
   public void setUp()
@@ -34,7 +36,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     mySettingsProvider = myCtx.mock(SettingsProvider.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
-    myResourcePublisher = myCtx.mock(ResourcePublisher.class);
+    myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class, "BeforeBuildPublisher");
+    myExecutableFilePublisher = myCtx.mock(ResourcePublisher.class, "ExecutableFilePublisher");
     //noinspection unchecked
     myCredentialsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class, "WindowsSettingsGenerator");
     //noinspection unchecked
@@ -43,6 +46,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
+    myFileAccessService = myCtx.mock(FileAccessService.class);
   }
 
   @Test()
@@ -101,8 +105,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     then(setup.getResources()).containsExactly(
       myCommandLineResource1,
       myCommandLineResource2,
-      new CommandLineFile(myResourcePublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
-      new CommandLineFile(myResourcePublisher, cmdFile.getAbsoluteFile(), cmdContent));
+      new CommandLineFile(myBeforeBuildPublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
+      new CommandLineFile(myBeforeBuildPublisher, cmdFile.getAbsoluteFile(), cmdContent));
 
     then(setup.getArgs()).containsExactly(
       new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -146,10 +150,12 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       mySettingsProvider,
       myRunnerParametersService,
       myFileService,
-      myResourcePublisher,
+      myBeforeBuildPublisher,
+      myExecutableFilePublisher,
       myCredentialsGenerator,
       myArgsGenerator,
       myCommandLineArgumentsService,
+      myFileAccessService,
       ".abc");
   }
 }

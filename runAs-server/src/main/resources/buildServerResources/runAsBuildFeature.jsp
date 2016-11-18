@@ -28,5 +28,6 @@
       <props:passwordProperty name="${bean.runAsPasswordKey}" className="longField"/>
     </div>
     <span class="error" id="error_${bean.runAsPasswordKey}"></span>
+    <span class="smallNote">Specify the user's password for agents under the Windows OS and current user's password for Linux.</span>
   </td>
 </tr>
