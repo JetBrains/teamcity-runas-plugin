@@ -16,23 +16,23 @@
   <bean class="jetbrains.buildServer.runAs.agent.SettingsProviderImpl" />
 
   <!-- Windows -->
-  <bean class="jetbrains.buildServer.runAs.agent.RunAsCmdGenerator" id="runAsCmdGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.CmdGenerator" id="cmdGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.WindowsSettingsGenerator" id="windowsSettingsGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsWindowsSetupBuilder">
     <constructor-arg ref="beforeBuildPublisher"/>
     <constructor-arg ref="executableFilePublisher"/>
     <constructor-arg ref="windowsSettingsGenerator"/>
-    <constructor-arg ref="runAsCmdGenerator"/>
+    <constructor-arg ref="cmdGenerator"/>
     <constructor-arg type="java.lang.String" value=".cmd"/>
   </bean>
 
   <!-- Unix -->
-  <bean class="jetbrains.buildServer.runAs.agent.RunAsShGenerator" id="runAsShGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.ShGenerator" id="shGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.UnixSettingsGenerator" id="unixSettingsGenerator"/>
   <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsUnixSetupBuilder">
     <constructor-arg ref="beforeBuildPublisher"/>
     <constructor-arg ref="unixSettingsGenerator"/>
-    <constructor-arg ref="runAsShGenerator"/>
+    <constructor-arg ref="shGenerator"/>
     <constructor-arg type="java.lang.String" value=".sh"/>
   </bean>
 

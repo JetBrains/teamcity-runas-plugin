@@ -23,7 +23,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private ResourceGenerator<Settings> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
-  private ResourceGenerator<RunAsCmdSettings> myArgsGenerator;
+  private ResourceGenerator<Params> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
   private SettingsProvider mySettingsProvider;
   private ResourcePublisher myExecutableFilePublisher;
@@ -41,7 +41,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     //noinspection unchecked
     myCredentialsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class, "WindowsSettingsGenerator");
     //noinspection unchecked
-    myArgsGenerator = (ResourceGenerator<RunAsCmdSettings>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
+    myArgsGenerator = (ResourceGenerator<Params>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
     //noinspection unchecked
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
@@ -64,7 +64,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String credentialsContent = "credentials content";
     final String cmdContent = "args content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
-    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings("cmd line");
+    final Params params = new Params("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     final Settings settings = new Settings(user, password, additionalArgs);
     myCtx.checking(new Expectations() {{
@@ -84,13 +84,14 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myCommandLineArgumentsService).createCommandLineString(with(any(List.class)));
       will(returnValue("cmd line"));
 
-      oneOf(myArgsGenerator).create(runAsCmdSettings);
+      oneOf(myArgsGenerator).create(params);
       will(returnValue(cmdContent));
 
       oneOf(myRunnerParametersService).getToolPath(Constants.RUN_AS_TOOL_NAME);
       will(returnValue(runAsToolPath));
 
       oneOf(myFileService).validatePath(runAsTool);
+      oneOf(myFileAccessService).makeExecutableForMe(runAsTool);
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -106,7 +107,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myCommandLineResource1,
       myCommandLineResource2,
       new CommandLineFile(myBeforeBuildPublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
-      new CommandLineFile(myBeforeBuildPublisher, cmdFile.getAbsoluteFile(), cmdContent));
+      new CommandLineFile(myExecutableFilePublisher, cmdFile.getAbsoluteFile(), cmdContent));
 
     then(setup.getArgs()).containsExactly(
       new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),

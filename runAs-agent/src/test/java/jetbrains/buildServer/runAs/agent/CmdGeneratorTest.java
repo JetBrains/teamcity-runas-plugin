@@ -1,12 +1,13 @@
 package jetbrains.buildServer.runAs.agent;
 
+import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class RunAsCmdGeneratorTest {
+public class CmdGeneratorTest {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
   @DataProvider(name = "cmdLinesCases")
@@ -31,10 +32,10 @@ public class RunAsCmdGeneratorTest {
   @Test(dataProvider = "cmdLinesCases")
   public void shouldGenerateContent(@NotNull final String cmdLine, @NotNull final String cmdLineInMessage) {
     // Given
-    final RunAsCmdGenerator instance = createInstance();
+    final ResourceGenerator<Params> instance = createInstance();
 
     // When
-    final String content = instance.create(new RunAsCmdSettings(cmdLine));
+    final String content = instance.create(new Params(cmdLine));
 
     // Then
     then(content).isEqualTo("@ECHO OFF"
@@ -45,8 +46,8 @@ public class RunAsCmdGeneratorTest {
   }
 
   @NotNull
-  private RunAsCmdGenerator createInstance()
+  private ResourceGenerator<Params> createInstance()
   {
-    return new RunAsCmdGenerator();
+    return new CmdGenerator();
   }
 }

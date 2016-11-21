@@ -2,8 +2,10 @@
 <suite name="dotNet-testRunner">
   <test name="dotNet-testRunner">
     <classes>
-      <class name="jetbrains.buildServer.runAs.agent.WindowsWindowsSettingsGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.RunAsCmdGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.WindowsSettingsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.UnixSettingsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ExecutableFilePublisherTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>

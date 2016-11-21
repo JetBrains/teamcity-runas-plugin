@@ -7,7 +7,7 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
 import jetbrains.buildServer.messages.serviceMessages.Message;
 import org.jetbrains.annotations.NotNull;
 
-public class RunAsShGenerator implements ResourceGenerator<RunAsCmdSettings> {
+public class CmdGenerator implements ResourceGenerator<Params> {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
   private static final String NORMAL_STATUS = "NORMAL";
   private static final List<Replacement> OurReplacements = Collections.unmodifiableList(Arrays.asList(
@@ -21,7 +21,7 @@ public class RunAsShGenerator implements ResourceGenerator<RunAsCmdSettings> {
 
   @NotNull
   @Override
-  public String create(@NotNull final RunAsCmdSettings settings) {
+  public String create(@NotNull final Params settings) {
     final StringBuilder sb = new StringBuilder();
     sb.append("@ECHO OFF");
 
@@ -31,6 +31,12 @@ public class RunAsShGenerator implements ResourceGenerator<RunAsCmdSettings> {
 
     sb.append(LINE_SEPARATOR);
     sb.append(settings.getCommandLine());
+
+    sb.append(LINE_SEPARATOR);
+    sb.append("SET \"EXIT_CODE=%ERRORLEVEL%\"");
+
+    sb.append(LINE_SEPARATOR);
+    sb.append("EXIT /B %EXIT_CODE%");
 
     return sb.toString();
   }

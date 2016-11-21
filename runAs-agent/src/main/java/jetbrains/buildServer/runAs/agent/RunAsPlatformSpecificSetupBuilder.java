@@ -18,7 +18,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final ResourcePublisher myBeforeBuildPublisher;
   private final ResourcePublisher myExecutableFilePublisher;
   private final ResourceGenerator<Settings> mySettingsGenerator;
-  private final ResourceGenerator<RunAsCmdSettings> myRunAsCmdGenerator;
+  private final ResourceGenerator<Params> myRunAsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
   private final FileAccessService myFileAccessService;
   private final String myCommandFileExtension;
@@ -30,7 +30,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final ResourcePublisher beforeBuildPublisher,
     @NotNull final ResourcePublisher executableFilePublisher,
     @NotNull final ResourceGenerator<Settings> settingsGenerator,
-    @NotNull final ResourceGenerator<RunAsCmdSettings> runAsCmdGenerator,
+    @NotNull final ResourceGenerator<Params> runAsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService,
     @NotNull final FileAccessService fileAccessService,
     @NotNull final String commandFileExtension) {
@@ -68,10 +68,10 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
     cmdLineArgs.addAll(commandLineSetup.getArgs());
 
-    final RunAsCmdSettings runAsCmdSettings = new RunAsCmdSettings(myCommandLineArgumentsService.createCommandLineString(cmdLineArgs));
+    final Params params = new Params(myCommandLineArgumentsService.createCommandLineString(cmdLineArgs));
 
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
-    resources.add(new CommandLineFile(myExecutableFilePublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(runAsCmdSettings)));
+    resources.add(new CommandLineFile(myExecutableFilePublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
 
     return Collections.singleton(
       new CommandLineSetup(

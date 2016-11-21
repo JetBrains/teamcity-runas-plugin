@@ -26,20 +26,41 @@ public class ExecutableFilePublisherTest {
   }
 
   @Test()
-  public void shouldWriteFileToDiskWhenPublishBeforeBuild() throws IOException {
+  public void shouldInvokePublishBeforeBuildFileInBasePublisherAndMakeItExecutableForAllWhenPublishBeforeBuildFile() throws IOException {
     // Given
     final File file = new File("file");
+    final CommandLineExecutionContext executionContext = new CommandLineExecutionContext(0);
     myCtx.checking(new Expectations() {{
+      oneOf(myResourcePublisher).publishBeforeBuildFile(executionContext, file, "content");
 
+      oneOf(myFileAccessService).makeExecutableForAll(file);
     }});
 
     final ExecutableFilePublisher instance = createInstance();
 
     // When
-    // instance.publishBeforeBuildFile(new CommandLineExecutionContext(0), file, "content");
+    instance.publishBeforeBuildFile(executionContext, file, "content");
 
     // Then
-    // myCtx.assertIsSatisfied();
+    myCtx.assertIsSatisfied();
+  }
+
+  @Test()
+  public void shouldInvokePublishAfterBuildArtifactFileInBasePublisherWhenPublishBeforeBuildFile() throws IOException {
+    // Given
+    final File file = new File("file");
+    final CommandLineExecutionContext executionContext = new CommandLineExecutionContext(0);
+    myCtx.checking(new Expectations() {{
+      oneOf(myResourcePublisher).publishAfterBuildArtifactFile(executionContext, file);
+    }});
+
+    final ExecutableFilePublisher instance = createInstance();
+
+    // When
+    instance.publishAfterBuildArtifactFile(executionContext, file);
+
+    // Then
+    myCtx.assertIsSatisfied();
   }
 
   @NotNull
