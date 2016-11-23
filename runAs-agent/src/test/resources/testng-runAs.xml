@@ -3,7 +3,7 @@
   <test name="dotNet-testRunner">
     <classes>
       <class name="jetbrains.buildServer.runAs.agent.WindowsSettingsGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.UnixSettingsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.LinuxSettingsGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ExecutableFilePublisherTest"/>

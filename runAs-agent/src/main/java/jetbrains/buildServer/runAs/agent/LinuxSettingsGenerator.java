@@ -7,9 +7,8 @@ import jetbrains.buildServer.util.CollectionsUtil;
 import jetbrains.buildServer.util.Converter;
 import org.jetbrains.annotations.NotNull;
 
-public class UnixSettingsGenerator implements ResourceGenerator<Settings> {
+public class LinuxSettingsGenerator implements ResourceGenerator<Settings> {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-  private static final String USER_CMD_KEY = "--user";
 
   @NotNull
   @Override
@@ -18,8 +17,6 @@ public class UnixSettingsGenerator implements ResourceGenerator<Settings> {
 
     final String user = settings.getUser();
     if(!StringUtil.isEmptyOrSpaces(user)) {
-      sb.append(USER_CMD_KEY);
-      sb.append(' ');
       sb.append(settings.getUser());
     }
     

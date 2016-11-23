@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class UnixSettingsGeneratorTest {
+public class LinuxSettingsGeneratorTest {
   private static final String ourlineSeparator = System.getProperty("line.separator");
   private Mockery myCtx;
 
@@ -24,7 +24,7 @@ public class UnixSettingsGeneratorTest {
   @Test()
   public void shouldGenerateContent() {
     // Given
-    final String expectedContent = "--user nik";
+    final String expectedContent = "nik";
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
 
     final ResourceGenerator<Settings> instance = createInstance();
@@ -40,6 +40,6 @@ public class UnixSettingsGeneratorTest {
   @NotNull
   private ResourceGenerator<Settings> createInstance()
   {
-    return new UnixSettingsGenerator();
+    return new LinuxSettingsGenerator();
   }
 }

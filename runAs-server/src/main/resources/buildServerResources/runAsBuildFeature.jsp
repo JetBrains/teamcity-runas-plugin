@@ -7,7 +7,7 @@
 </style>
 
 <tr>
-  <td colspan="2"><em>This build feature allows running build steps under the specified Windows user account.</em></td>
+  <td colspan="2"><em>This build feature allows running build steps under the specified user account.</em></td>
 </tr>
 
 <tr>
@@ -17,7 +17,7 @@
       <props:textProperty name="${bean.runAsUserKey}" className="longField"/>
     </div>
     <span class="error" id="error_${bean.runAsUserKey}"></span>
-    <span class="smallNote">Specify the user name in the formats "username" or "doman\username" or "username@domain"</span>
+    <span class="smallNote">Specify the user name."</span>
   </td>
 </tr>
 
@@ -28,6 +28,6 @@
       <props:passwordProperty name="${bean.runAsPasswordKey}" className="longField"/>
     </div>
     <span class="error" id="error_${bean.runAsPasswordKey}"></span>
-    <span class="smallNote">Specify the user's password for agents under the Windows OS and current user's password for Linux.</span>
+    <span class="smallNote">Specify the password.</span>
   </td>
 </tr>

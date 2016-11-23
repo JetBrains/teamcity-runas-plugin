@@ -26,19 +26,20 @@
     <constructor-arg type="java.lang.String" value=".cmd"/>
   </bean>
 
-  <!-- Unix -->
+  <!-- Linux -->
   <bean class="jetbrains.buildServer.runAs.agent.ShGenerator" id="shGenerator"/>
-  <bean class="jetbrains.buildServer.runAs.agent.UnixSettingsGenerator" id="unixSettingsGenerator"/>
-  <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsUnixSetupBuilder">
+  <bean class="jetbrains.buildServer.runAs.agent.LinuxSettingsGenerator" id="linuxSettingsGenerator"/>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsLinuxSetupBuilder">
     <constructor-arg ref="beforeBuildPublisher"/>
-    <constructor-arg ref="unixSettingsGenerator"/>
+    <constructor-arg ref="linuxSettingsGenerator"/>
     <constructor-arg ref="shGenerator"/>
     <constructor-arg type="java.lang.String" value=".sh"/>
   </bean>
 
+
   <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
     <constructor-arg ref="runAsWindowsSetupBuilder"/>
-    <constructor-arg ref="runAsUnixSetupBuilder"/>
+    <constructor-arg ref="runAsLinuxSetupBuilder"/>
   </bean>
 
   <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
