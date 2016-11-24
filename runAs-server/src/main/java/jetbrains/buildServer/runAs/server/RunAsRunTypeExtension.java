@@ -61,7 +61,7 @@ public class RunAsRunTypeExtension extends RunTypeExtension implements PositionA
       @NotNull
       @Override
       public Iterator<String> iterator() {
-        return null;
+        return Collections.<String>emptyList().iterator();
       }
 
       @NotNull
@@ -73,7 +73,8 @@ public class RunAsRunTypeExtension extends RunTypeExtension implements PositionA
       @NotNull
       @Override
       public <T> T[] toArray(@NotNull final T[] a) {
-        return null;
+        //noinspection unchecked
+        return (T[])new String[0];
       }
 
       @Override
