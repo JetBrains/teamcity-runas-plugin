@@ -41,30 +41,35 @@ public class SettingsProviderTest {
   public Object[][] getProvideSettingsCases() {
     return new Object[][] {
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>(),
         new Settings("user1", "password1", Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
         new Settings("user1", "password1", Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
         new Settings("user2", "password1", Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
         new Settings("user1", "password2", Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
         new Settings("user1", "password1", Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
@@ -72,23 +77,27 @@ public class SettingsProviderTest {
 
       {
         new HashMap<String, String>(),
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
         new Settings("user2", "password2", Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>(),
         null
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>(),
         null
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>(),
         null
@@ -97,21 +106,31 @@ public class SettingsProviderTest {
       {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
+        new HashMap<String, String>(),
         null
       },
 
       {
+        new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
         new Settings("user1", "password1", new ArrayList<CommandLineArgument>())
+      },
+
+      {
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
+        new Settings("user3", "password3", Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
       },
     };
   }
 
   @Test(dataProvider = "provideSettingsCases")
   public void shouldProvideSettings(
+    @NotNull final HashMap<String, String> runnerParameters,
     @NotNull final HashMap<String, String> buildFeatureParameters,
-    @NotNull final HashMap<String, String> configParameter,
+    @NotNull final HashMap<String, String> configParameters,
     @Nullable final Settings expectedSettings) throws IOException {
     // Given
     myCtx.checking(new Expectations() {{
@@ -125,6 +144,15 @@ public class SettingsProviderTest {
           }
 
           return args;
+        }
+      });
+
+      allowing(myRunnerParametersService).tryGetRunnerParameter(with(any(String.class)));
+      will(new CustomAction("tryGetRunnerParameter") {
+        @Override
+        public Object invoke(final Invocation invocation) throws Throwable {
+          final String name = (String)invocation.getParameter(0);
+          return runnerParameters.get(name);
         }
       });
 
@@ -148,7 +176,7 @@ public class SettingsProviderTest {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
           final String name = (String)invocation.getParameter(0);
-          return configParameter.get(name);
+          return configParameters.get(name);
         }
       });
     }});
