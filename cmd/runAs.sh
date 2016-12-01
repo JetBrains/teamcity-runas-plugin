@@ -6,40 +6,42 @@ then
         args=$(cat "$1")
         command=$2
         password=$3
-	
+
 	exitCodeFile=$(tempfile)
         chmod a+w $exitCodeFile
 	cmd="${0} su $exitCodeFile $command $args"
 
-        started=0
         # run command
         (
-		#sleep 1
-		#wait for password input
-		while [ ! -s $exitCodeFile ];
+		# wait for password input
+		attempts=100
+		while [[ ! -s $exitCodeFile && attemps -le 0 ]];
+		do
+			sleep .1;
+			attempts=$((attempts-1));
+		done
+
+		# send password to su stdIn
+		echo "$password"
+
+		# wait for process finish
+		while ps axg | grep "su $exitCodeFile" > /dev/null; 
 		do
 			sleep .1;
 		done
-		echo "$password"
-
-		#wait for process finish
-		while ps axg | grep "$exitCodeFile" > /dev/null; 
-		do 
-			sleep .1;
-		done
 	) | (
-		socat - EXEC:"$cmd",pty,ctty
+		# su
+		socat - EXEC:"$cmd",pty,ctty,setsid
 	) 2> >(tee >"$exitCodeFile" >(grep -v "[Pp]assword:" >&2))
-	
-	#2> >(grep -v "[Pp]assword:")
 
         # if exit file is empty
         if [ ! -s $exitCodeFile ];
         then
                 echo "System or authentication failure" >&2
-                exit 255
+                exit 1
         fi
-	
+
+	# take exid code from file
 	exitCode=$(cat "$exitCodeFile")
         rm $exitCodeFile 1> /dev/null 2> /dev/null
         exit $exitCode
@@ -51,7 +53,7 @@ then
 	exitCodeFile=$2
 	command=$3
 	args=$4
-	
+
 	su -p -c "$command" "$args"
 	exitCode=$?
 
