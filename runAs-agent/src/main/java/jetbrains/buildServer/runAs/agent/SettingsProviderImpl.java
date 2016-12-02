@@ -47,17 +47,19 @@ public class SettingsProviderImpl implements SettingsProvider {
   @Nullable
   private String tryGetParameter(@NotNull final String paramName)
   {
-    String paramValue = myParametersService.tryGetRunnerParameter(paramName);
-    if(!StringUtil.isEmptyOrSpaces(paramValue)) {
-      return paramValue;
-    }
-
-    final List<String> paramValues = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, paramName);
-    if (paramValues.size() != 0) {
-      paramValue = paramValues.get(0);
-      if(paramValue != null)
-      {
+    final String isRunAsEnabled = myParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED_VAR);
+    if(StringUtil.isEmpty(isRunAsEnabled) || Boolean.toString(true).equalsIgnoreCase(isRunAsEnabled)) {
+      String paramValue = myParametersService.tryGetRunnerParameter(paramName);
+      if (!StringUtil.isEmptyOrSpaces(paramValue)) {
         return paramValue;
+      }
+
+      final List<String> paramValues = myBuildFeatureParametersService.getBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, paramName);
+      if (paramValues.size() != 0) {
+        paramValue = paramValues.get(0);
+        if (paramValue != null) {
+          return paramValue;
+        }
       }
     }
 

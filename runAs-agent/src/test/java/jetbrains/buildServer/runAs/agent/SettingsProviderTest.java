@@ -123,6 +123,20 @@ public class SettingsProviderTest {
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
         new Settings("user3", "password3", Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
       },
+
+      {
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
+        new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED_VAR, "true"); put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
+        new Settings("user3", "password3", Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
+      },
+
+      {
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
+        new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED_VAR, "false"); put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
+        new Settings("user2", "password2", Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
+      },
     };
   }
 

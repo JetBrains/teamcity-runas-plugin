@@ -8,6 +8,7 @@ import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.intellij.openapi.util.text.StringUtil.isEmpty;
 
@@ -15,6 +16,7 @@ public class RunAsBuildFeature extends BuildFeature {
   private final String myEditUrl;
   private final RunAsBean myBean;
 
+  @Autowired
   public RunAsBuildFeature(
     @NotNull final RunAsBean bean,
     @NotNull final PluginDescriptor descriptor) {

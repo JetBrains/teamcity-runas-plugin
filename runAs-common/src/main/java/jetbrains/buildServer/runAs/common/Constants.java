@@ -4,6 +4,7 @@ public class Constants {
     public static final String BUILD_FEATURE_TYPE = "runAs-build-feature";
     public static final String RUN_AS_TOOL_NAME = "runAs";
 
+    public static final String RUN_AS_UI_ENABLED_VAR = "teamcity.runas.ui.enabled";
     public static final String RUN_AS_READY_VAR = "run_as_ready";
     public static final String USER_VAR = "run_as_user";
     public static final String PASSWORD_VAR = "secure:run_as_password";

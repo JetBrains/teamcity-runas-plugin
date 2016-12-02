@@ -4,9 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
        default-autowire="constructor">
 
-  <bean class="jetbrains.buildServer.runAs.server.RunAsPasswordsProvider" id="runAsPasswordsProvider"/>
+  <bean class="jetbrains.buildServer.runAs.server.RunAsConfiguration"/>
+  <bean class="jetbrains.buildServer.runAs.server.RunAsBuildStartContextProcessor"/>
+  <bean class="jetbrains.buildServer.runAs.server.RunAsPasswordsProvider"/>
   <bean class="jetbrains.buildServer.runAs.server.RunAsBean"/>
-  <bean class="jetbrains.buildServer.runAs.server.RunAsBuildFeature"/>
-  <bean class="jetbrains.buildServer.runAs.server.RunAsRunTypeExtension"/>
-
+  <bean class="jetbrains.buildServer.runAs.server.RunAsBeanDefinitionRegistryPostProcessor"/>
 </beans>

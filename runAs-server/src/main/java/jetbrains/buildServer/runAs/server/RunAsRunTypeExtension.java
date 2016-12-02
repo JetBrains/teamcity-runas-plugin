@@ -15,12 +15,14 @@ import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import jetbrains.buildServer.web.openapi.WebControllerManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 
 public class RunAsRunTypeExtension extends RunTypeExtension implements PositionAware {
   private final String myViewUrl;
   private final String myEditUrl;
 
+  @Autowired
   public RunAsRunTypeExtension(
     @NotNull final PluginDescriptor descriptor,
     @NotNull final WebControllerManager wcm) {

@@ -26,7 +26,10 @@ public class ShGeneratorTest {
     final String content = instance.create(new Params(cmdLine));
 
     // Then
-    then(content).isEqualTo(cmdLine);
+    then(content).isEqualTo(
+      ShGenerator.BASH_HEADER
+      + LINE_SEPARATOR + "echo \"##teamcity[message text='Starting: " + cmdLineInMessage + "' status='NORMAL']\""
+      + LINE_SEPARATOR + cmdLine);
   }
 
   @NotNull
