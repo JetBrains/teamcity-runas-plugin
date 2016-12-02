@@ -9,42 +9,54 @@ then
 
 	exitCodeFile=$(tempfile)
         chmod a+w $exitCodeFile
-	cmd="${0} su $exitCodeFile $command $args"
+	cmd="${0} runAs $exitCodeFile $command $args"
 
         # run command
         (
 		# wait for password input
 		attempts=100
-		while [[ ! -s $exitCodeFile && attemps -le 0 ]];
+		while [[ ! -s $exitCodeFile || attemps -gt 0 ]];
 		do
-			sleep .1;
-			attempts=$((attempts-1));
+			sleep .1
+			attempts=$((attempts-1))
 		done
+
+		if [[ $attempts -eq 0 ]];
+		then
+			echo "##teamcity[message text='Error during sending password.' status='ERROR']"
+			exit 1
+		fi
 
 		# send password to su stdIn
 		echo "$password"
 
 		# wait for process finish
-		while ps axg | grep "su $exitCodeFile" > /dev/null; 
+		while ps axg | grep "$exitCodeFile" > /dev/null; 
 		do
-			sleep .1;
+			sleep .1
 		done
 	) | (
 		# su
-		socat - EXEC:"$cmd",pty,ctty,setsid
+		socat - EXEC:"$cmd",pty,ctty,setsid;
 	) 2> >(tee >"$exitCodeFile" >(grep -v "[Pp]assword:" >&2))
 
         # if exit file is empty
         if [ ! -s $exitCodeFile ];
         then
-                echo "System or authentication failure" >&2
-                exit 1
+		exit 1
         fi
 
 	# take exid code from file
 	exitCode=$(cat "$exitCodeFile")
-        rm $exitCodeFile 1> /dev/null 2> /dev/null
-        exit $exitCode
+	rm $exitCodeFile 1> /dev/null 2> /dev/null
+
+	# check exid code is numeric
+	if [[ ! $exitCode =~ "^[0-9]+$" ]]
+        then
+		exit 1
+	fi
+
+	exit $exitCode
 fi
 
 # su (su, exit_code_file, command_file_name, args)

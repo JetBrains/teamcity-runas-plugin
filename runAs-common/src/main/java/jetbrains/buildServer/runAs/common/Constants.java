@@ -5,7 +5,6 @@ public class Constants {
     public static final String RUN_AS_TOOL_NAME = "runAs";
 
     public static final String RUN_AS_READY_VAR = "run_as_ready";
-    public static final String IS_ENABLED_VAR = "run_as_is_enabled";
     public static final String USER_VAR = "run_as_user";
     public static final String PASSWORD_VAR = "secure:run_as_password";
     public static final String ADDITIONAL_ARGS_VAR = "run_as_additional_args";

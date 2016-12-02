@@ -2,45 +2,54 @@ package jetbrains.buildServer.runAs.server;
 
 import java.util.*;
 import jetbrains.buildServer.runAs.common.Constants;
-import jetbrains.buildServer.serverSide.Parameter;
-import jetbrains.buildServer.serverSide.SBuild;
-import jetbrains.buildServer.serverSide.SBuildFeatureDescriptor;
-import jetbrains.buildServer.serverSide.SimpleParameter;
+import jetbrains.buildServer.serverSide.*;
 import jetbrains.buildServer.serverSide.parameters.types.PasswordsProvider;
+import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class RunAsPasswordsProvider implements PasswordsProvider {
   @NotNull
   @Override
   public Collection<Parameter> getPasswordParameters(@NotNull final SBuild sBuild) {
-    @Nullable
-    String password = null;
-    for(SBuildFeatureDescriptor buildFeature: sBuild.getBuildFeaturesOfType(Constants.BUILD_FEATURE_TYPE))
+    final ArrayList<Parameter> passwords = new ArrayList<Parameter>();
+    final SRunningBuild build = sBuild.getAgent().getRunningBuild();
+    if(build != null)
     {
-      if (!Constants.BUILD_FEATURE_TYPE.equalsIgnoreCase(buildFeature.getType()))
-      {
-        continue;
+      final SBuildType buildType = build.getBuildType();
+      if(buildType != null) {
+        for (SBuildRunnerDescriptor runner : buildType.getBuildRunners()) {
+          final String password = runner.getParameters().get(Constants.PASSWORD_VAR);
+            if (!StringUtil.isEmpty(password)) {
+              passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + runner.getId(), password));
+            }
+          }
+        }
       }
 
-      final Map<String, String> params = buildFeature.getParameters();
-      if (!params.containsKey(Constants.PASSWORD_VAR))
+      for(SBuildFeatureDescriptor buildFeature: sBuild.getBuildFeaturesOfType(Constants.BUILD_FEATURE_TYPE))
       {
-        continue;
+        if (!Constants.BUILD_FEATURE_TYPE.equalsIgnoreCase(buildFeature.getType())) {
+          continue;
+        }
+
+        final Map<String, String> params = buildFeature.getParameters();
+        if (!params.containsKey(Constants.PASSWORD_VAR)) {
+          continue;
+        }
+
+        final String password = params.get(Constants.PASSWORD_VAR);
+        if(!StringUtil.isEmpty(password)) {
+          passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + buildFeature.getId(), password));
+        }
       }
 
-      password = params.get(Constants.PASSWORD_VAR);
+
+    final Map<String, String> buildParams = sBuild.getBuildOwnParameters();
+    final String password = buildParams.get(Constants.PASSWORD_VAR);
+    if(!StringUtil.isEmpty(password)) {
+      passwords.add(new SimpleParameter(Constants.PASSWORD_VAR, password));
     }
 
-    if (password == null) {
-      final Map<String, String> buildParams = sBuild.getBuildOwnParameters();
-      password = buildParams.get(Constants.PASSWORD_VAR);
-    }
-
-    if(password != null) {
-      return new ArrayList<Parameter>(Arrays.asList(new SimpleParameter(Constants.PASSWORD_VAR, password)));
-    }
-
-    return Collections.emptyList();
+    return passwords;
   }
 }
