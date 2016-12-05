@@ -1,13 +1,9 @@
 @ECHO OFF
-SETLOCAL
-SET /A ARGS_COUNT=0    
-FOR %%A in (%*) DO SET /A "ARGS_COUNT+=1"
-IF %ARGS_COUNT% NEQ 3 (
-	@ECHO Invalid arguments.
-	@ECHO Usage: runAs.cmd settings_file_name command_file_name password
-	@EXIT -1
-)
-ENDLOCAL
+
+IF "%~1" EQU "" GOTO INVALID_ARGS
+IF "%~2" EQU "" GOTO INVALID_ARGS
+IF "%~3" EQU "" GOTO INVALID_ARGS
+IF "%~4" NEQ "" GOTO INVALID_ARGS
 
 REM Define OS bitness
 SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN=%~dp0"
@@ -47,3 +43,8 @@ IF %EXIT_CODE% EQU -10002 ECHO ##teamcity[message text='Security error occurred.
 IF %EXIT_CODE% EQU -10003 ECHO ##teamcity[message text='WIN32 API error occurred.' status='ERROR']
 
 EXIT /B %EXIT_CODE%
+
+:INVALID_ARGS
+@ECHO Invalid arguments.
+@ECHO Usage: runAs.cmd settings_file_name command_file_name password
+@EXIT -1
