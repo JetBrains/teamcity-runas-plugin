@@ -2,6 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 class AccessControlEntry {
   @NotNull private final File myFile;
@@ -31,24 +32,28 @@ class AccessControlEntry {
     return myFile;
   }
 
+  @NotNull  AccessControlAccount getAccount() {
+    return myAccount;
+  }
+
+  @Nullable
   Boolean isReading() {
     return myReading;
   }
 
+  @Nullable
   Boolean isWriting() {
     return myWriting;
   }
 
+  @Nullable
   Boolean isExecuting() {
     return myExecuting;
   }
 
+  @Nullable
   Boolean isRecursive() {
     return myRecursive;
-  }
-
-  AccessControlAccount getAccount() {
-    return myAccount;
   }
 
   @Override
