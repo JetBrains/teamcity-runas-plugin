@@ -8,22 +8,44 @@ import org.jetbrains.annotations.NotNull;
 
 public class FileAccessServiceImpl implements FileAccessService {
   private static final Logger LOG = Logger.getInstance(FileAccessServiceImpl.class.getName());
+  
+  public void setAccess(@NotNull final AccessControlList accessControlList) {
+    for (AccessControlEntry entry: accessControlList)
+    {
+      final StringBuilder sb = new StringBuilder();
+      if(entry.isRecursive()) {
+        sb.append("-R");
+      }
 
-  @Override
-  public void makeExecutableForAll(@NotNull final File executableFile) {
-    try {
-      TCStreamUtil.setFileMode(executableFile, "a+x");
-    } catch (IOException e) {
-      LOG.error(e);
-    }
-  }
+      final AccessControlAccount account = entry.getAccount();
+      switch (account.getTargetType()) {
+        case All:
+          sb.append("a+");
+          break;
 
-  @Override
-  public void makeExecutableForMe(@NotNull final File executableFile) {
-    try {
-      TCStreamUtil.setFileMode(executableFile, "+x");
-    } catch (IOException e) {
-      LOG.error(e);
+        case User:
+          sb.append(account.getTargetName());
+          sb.append(" u+");
+          break;
+      }
+
+      if(entry.isReading()) {
+        sb.append('r');
+      }
+
+      if(entry.isWriting()) {
+        sb.append('w');
+      }
+
+      if(entry.isExecuting()) {
+        sb.append('x');
+      }
+
+      try {
+        TCStreamUtil.setFileMode(entry.getFile(), sb.toString());
+      } catch (IOException e) {
+        LOG.error(e);
+      }
     }
   }
 }

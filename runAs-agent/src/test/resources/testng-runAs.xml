@@ -6,7 +6,7 @@
       <class name="jetbrains.buildServer.runAs.agent.LinuxSettingsGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.ExecutableFilePublisherTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.AccessControlResourceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.SettingsProviderTest"/>

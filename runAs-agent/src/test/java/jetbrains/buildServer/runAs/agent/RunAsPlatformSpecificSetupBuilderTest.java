@@ -26,7 +26,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private ResourceGenerator<Params> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
   private SettingsProvider mySettingsProvider;
-  private ResourcePublisher myExecutableFilePublisher;
+  private AccessControlResource myAccessControlResource;
   private FileAccessService myFileAccessService;
 
   @BeforeMethod
@@ -36,8 +36,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     mySettingsProvider = myCtx.mock(SettingsProvider.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
-    myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class, "BeforeBuildPublisher");
-    myExecutableFilePublisher = myCtx.mock(ResourcePublisher.class, "ExecutableFilePublisher");
+    myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class);
+    myAccessControlResource = myCtx.mock(AccessControlResource.class);
     //noinspection unchecked
     myCredentialsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class, "WindowsSettingsGenerator");
     //noinspection unchecked
@@ -57,6 +57,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsPlatformSpecificSetupBuilder.TOOL_FILE_NAME + ".abc");
+    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.getCurrent(), null, null, true, null)));
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
@@ -91,7 +92,11 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       will(returnValue(runAsToolPath));
 
       oneOf(myFileService).validatePath(runAsTool);
-      oneOf(myFileAccessService).makeExecutableForMe(runAsTool);
+      oneOf(myFileAccessService).setAccess(runAsToolAcl);
+
+      oneOf(myAccessControlResource).setAccess(
+        new AccessControlList(Arrays.asList(
+        new AccessControlEntry(cmdFile, AccessControlAccount.getAll(), null, null, true, null))));
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -107,7 +112,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myCommandLineResource1,
       myCommandLineResource2,
       new CommandLineFile(myBeforeBuildPublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
-      new CommandLineFile(myExecutableFilePublisher, cmdFile.getAbsoluteFile(), cmdContent));
+      new CommandLineFile(myBeforeBuildPublisher, cmdFile.getAbsoluteFile(), cmdContent),
+      myAccessControlResource);
 
     then(setup.getArgs()).containsExactly(
       new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -152,7 +158,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myRunnerParametersService,
       myFileService,
       myBeforeBuildPublisher,
-      myExecutableFilePublisher,
+      myAccessControlResource,
       myCredentialsGenerator,
       myArgsGenerator,
       myCommandLineArgumentsService,

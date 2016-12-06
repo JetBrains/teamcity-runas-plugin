@@ -16,7 +16,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final RunnerParametersService myParametersService;
   private final FileService myFileService;
   private final ResourcePublisher myBeforeBuildPublisher;
-  private final ResourcePublisher myExecutableFilePublisher;
+  private final AccessControlResource myAccessControlResource;
   private final ResourceGenerator<Settings> mySettingsGenerator;
   private final ResourceGenerator<Params> myRunAsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
@@ -28,7 +28,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final RunnerParametersService parametersService,
     @NotNull final FileService fileService,
     @NotNull final ResourcePublisher beforeBuildPublisher,
-    @NotNull final ResourcePublisher executableFilePublisher,
+    @NotNull final AccessControlResource accessControlResource,
     @NotNull final ResourceGenerator<Settings> settingsGenerator,
     @NotNull final ResourceGenerator<Params> runAsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService,
@@ -38,7 +38,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myParametersService = parametersService;
     myFileService = fileService;
     myBeforeBuildPublisher = beforeBuildPublisher;
-    myExecutableFilePublisher = executableFilePublisher;
+    myAccessControlResource = accessControlResource;
     mySettingsGenerator = settingsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
     myCommandLineArgumentsService = commandLineArgumentsService;
@@ -71,7 +71,14 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     final Params params = new Params(myCommandLineArgumentsService.createCommandLineString(cmdLineArgs));
 
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
-    resources.add(new CommandLineFile(myExecutableFilePublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
+    resources.add(new CommandLineFile(myBeforeBuildPublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
+
+    myAccessControlResource.setAccess(
+      new AccessControlList(Arrays.asList(
+        new AccessControlEntry(commandFile, AccessControlAccount.getAll(), null, null, true, null),
+        new AccessControlEntry(myFileService.getCheckoutDirectory(), AccessControlAccount.getAll(), true, null, null, true),
+        new AccessControlEntry(myFileService.getTempDirectory(), AccessControlAccount.getAll(), true, null, null, true))));
+    resources.add(myAccessControlResource);
 
     return Collections.singleton(
       new CommandLineSetup(
@@ -86,7 +93,8 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private File getTool() {
     final File path = new File(myParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
     myFileService.validatePath(path);
-    myFileAccessService.makeExecutableForMe(path);
+    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.getCurrent(), null, null, true, null)));
+    myFileAccessService.setAccess(acl);
     return path;
   }
 }
