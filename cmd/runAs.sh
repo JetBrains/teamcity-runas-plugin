@@ -7,16 +7,15 @@ then
         command=$2
         password=$3
 
-	exitCodeFile=$(tempfile)
-	stdOutFile=$(tempfile)
-        chmod a+w $exitCodeFile
-	cmd="${0} runAs $exitCodeFile $command $args"
+	tmpFile=$(tempfile)
+        chmod a+rw "$tmpFile"
+	cmd="${0} runAs $tmpFile $command $args"
 
         # run command
         (
 		# wait for password input
 		attempts=100
-		while [[ ! -s $stdOutFile || attemps -gt 0 ]];
+		while [[ ! -s "$tmpFile" || attemps -gt 0 ]];
 		do
 			sleep .1
 			attempts=$((attempts-1))
@@ -32,40 +31,38 @@ then
 		echo "$password"
 
 		# wait for process finish
-		while ps axg | grep "$stdOutFile" > /dev/null; 
+		while ps axg | grep "$tmpFile" > /dev/null; 
 		do
 			sleep .1
 		done
 	) | (
 		# su
 		socat - EXEC:"$cmd",pty,ctty,setsid;
-	) 2> >(tee >"$stdOutFile" >(grep -v "[Pp]assword:" >&2))
-
-	rm $stdOutFile 1> /dev/null 2> /dev/null
+	) 2> >(tee >> "$tmpFile" >(grep -v "[Pp]assword:" >&2))
 
         # if exit file is empty
-        if [ ! -s $exitCodeFile ];
+        if [ ! -s "$tmpFile" ];
         then
 		exit 1
         fi
 
 	# take exid code from file
-	exitCode=$(cat "$exitCodeFile")
-	rm $exitCodeFile 1> /dev/null 2> /dev/null
+	exitCode=$(cat "$tmpFile")
+	rm "$tmpFile" 1> /dev/null 2> /dev/null
 	exit $exitCode
 fi
 
-# su (su, exit_code_file, command_file_name, args)
+# su (su, tmp_file, command_file_name, args)
 if [ $# -eq 4 ];
 then
-	exitCodeFile=$2
+	tmpFile=$2
 	command=$3
 	args=$4
 
 	su -p -c "$command" "$args"
 	exitCode=$?
 
-	echo $exitCode>$exitCodeFile
+	echo $exitCode>"$tmpFile"
 	exit $exitCode
 fi
 
