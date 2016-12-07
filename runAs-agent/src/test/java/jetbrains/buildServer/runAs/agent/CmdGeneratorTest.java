@@ -32,10 +32,10 @@ public class CmdGeneratorTest {
   @Test(dataProvider = "cmdLinesCases")
   public void shouldGenerateContent(@NotNull final String cmdLine, @NotNull final String cmdLineInMessage) {
     // Given
-    final ResourceGenerator<Params> instance = createInstance();
+    final ResourceGenerator<RunAsParams> instance = createInstance();
 
     // When
-    final String content = instance.create(new Params(cmdLine));
+    final String content = instance.create(new RunAsParams(cmdLine));
 
     // Then
     then(content).isEqualTo("@ECHO OFF"
@@ -46,7 +46,7 @@ public class CmdGeneratorTest {
   }
 
   @NotNull
-  private ResourceGenerator<Params> createInstance()
+  private ResourceGenerator<RunAsParams> createInstance()
   {
     return new CmdGenerator();
   }

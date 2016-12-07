@@ -2,8 +2,6 @@ package jetbrains.buildServer.runAs.agent;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -12,7 +10,6 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
 import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
-import jetbrains.buildServer.util.TCStreamUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class FileAccessServiceImpl implements FileAccessService {
@@ -40,27 +37,54 @@ public class FileAccessServiceImpl implements FileAccessService {
           args.add(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER));
         }
 
-        final StringBuilder permissionsStr = new StringBuilder();
+        final StringBuilder permissionsSb = new StringBuilder();
         final AccessControlAccount account = entry.getAccount();
         switch (account.getTargetType()) {
           case All:
-            permissionsStr.append("a+");
+            permissionsSb.append("a");
             break;
         }
 
-        if (permissions.contains(AccessPermissions.Read)) {
-          permissionsStr.append('r');
+        final StringBuilder allowPermissionsSb = new StringBuilder();
+        if (permissions.contains(AccessPermissions.AllowRead)) {
+          allowPermissionsSb.append('r');
         }
 
-        if (permissions.contains(AccessPermissions.Write)) {
-          permissionsStr.append('w');
+        if (permissions.contains(AccessPermissions.AllowWrite)) {
+          allowPermissionsSb.append('w');
         }
 
-        if (permissions.contains(AccessPermissions.Execute)) {
-          permissionsStr.append('x');
+        if (permissions.contains(AccessPermissions.AllowExecute)) {
+          allowPermissionsSb.append('x');
         }
 
-        args.add(new CommandLineArgument(permissionsStr.toString(), CommandLineArgument.Type.PARAMETER));
+        if(allowPermissionsSb.length() > 0)
+        {
+          allowPermissionsSb.insert(0, "+");
+        }
+
+        final StringBuilder denyPermissionsSb = new StringBuilder();
+        if (permissions.contains(AccessPermissions.DenyRead)) {
+          denyPermissionsSb.append('r');
+        }
+
+        if (permissions.contains(AccessPermissions.DenyWrite)) {
+          denyPermissionsSb.append('w');
+        }
+
+        if (permissions.contains(AccessPermissions.DenyExecute)) {
+          denyPermissionsSb.append('x');
+        }
+
+        if(denyPermissionsSb.length() > 0)
+        {
+          denyPermissionsSb.insert(0, "-");
+        }
+
+        permissionsSb.append(allowPermissionsSb.toString());
+        permissionsSb.append(denyPermissionsSb.toString());
+
+        args.add(new CommandLineArgument(permissionsSb.toString(), CommandLineArgument.Type.PARAMETER));
         args.add(new CommandLineArgument(entry.getFile().getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
         final CommandLineSetup chmodCommandLineSetup = new CommandLineSetup("chmod", args, Collections.<CommandLineResource>emptyList());
         try {

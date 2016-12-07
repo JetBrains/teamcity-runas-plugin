@@ -27,7 +27,7 @@ public class AccessControlResourceTest {
   @Test()
   public void shouldSetAccess() throws IOException {
     // Given
-    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Write, AccessPermissions.Execute), true)));
+    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowWrite, AccessPermissions.AllowExecute), true)));
     final CommandLineExecutionContext executionContext = new CommandLineExecutionContext(0);
     myCtx.checking(new Expectations() {{
       oneOf(myFileAccessService).setAccess(acl);

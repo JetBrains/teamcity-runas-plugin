@@ -24,7 +24,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private ResourceGenerator<Settings> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
-  private ResourceGenerator<Params> myArgsGenerator;
+  private ResourceGenerator<RunAsParams> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
   private SettingsProvider mySettingsProvider;
   private AccessControlResource myAccessControlResource;
@@ -42,7 +42,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     //noinspection unchecked
     myCredentialsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class, "WindowsSettingsGenerator");
     //noinspection unchecked
-    myArgsGenerator = (ResourceGenerator<Params>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
+    myArgsGenerator = (ResourceGenerator<RunAsParams>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
     //noinspection unchecked
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
@@ -60,7 +60,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsPlatformSpecificSetupBuilder.TOOL_FILE_NAME + ".abc");
-    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.Execute), false)));
+    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute), false)));
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
@@ -68,7 +68,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String credentialsContent = "credentials content";
     final String cmdContent = "args content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
-    final Params params = new Params("cmd line");
+    final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     final Settings settings = new Settings(user, password, additionalArgs);
     myCtx.checking(new Expectations() {{
@@ -105,9 +105,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
 
       oneOf(myAccessControlResource).setAccess(
         new AccessControlList(Arrays.asList(
-        new AccessControlEntry(cmdFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Execute), false),
-        new AccessControlEntry(checkoutDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Read, AccessPermissions.Write), true),
-        new AccessControlEntry(tempDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Read, AccessPermissions.Write), true))));
+        new AccessControlEntry(cmdFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowExecute), false),
+        new AccessControlEntry(checkoutDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true),
+        new AccessControlEntry(tempDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true))));
     }});
 
     final CommandLineSetupBuilder instance = createInstance();

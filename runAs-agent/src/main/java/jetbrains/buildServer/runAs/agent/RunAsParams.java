@@ -2,10 +2,10 @@ package jetbrains.buildServer.runAs.agent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Params {
+public class RunAsParams {
   private final String myCommandLine;
 
-  public Params(
+  public RunAsParams(
     @NotNull final String commandLine) {
     myCommandLine = commandLine;
   }
@@ -20,7 +20,7 @@ public class Params {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    final Params that = (Params)o;
+    final RunAsParams that = (RunAsParams)o;
 
     return getCommandLine().equals(that.getCommandLine());
 
