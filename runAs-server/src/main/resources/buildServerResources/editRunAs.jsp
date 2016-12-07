@@ -37,10 +37,22 @@
   </tr>
 
   <tr class="advancedSetting">
-    <th><label for="${bean.windowsIntegrityLevelKey}">Windows Integrity Level:</label></th>
+    <th rowspan="2"><label>Windows: </label></th>
     <td>
+      <label for="${bean.windowsIntegrityLevelKey}" class="fixedLabel">Integrity Level:</label>
       <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
         <c:forEach var="item" items="${bean.windowsIntegrityLevels}">
+          <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
+        </c:forEach>
+      </props:selectProperty>
+    </td>
+  </tr>
+
+  <tr class="advancedSetting">
+    <td>
+      <label for="${bean.windowsLoggingLevelKey}" class="fixedLabel">Logging Level:</label>
+      <props:selectProperty name="${bean.windowsLoggingLevelKey}" enableFilter="true" className="smallField">
+        <c:forEach var="item" items="${bean.loggingLevels}">
           <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
         </c:forEach>
       </props:selectProperty>

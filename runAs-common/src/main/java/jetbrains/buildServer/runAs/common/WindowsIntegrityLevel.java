@@ -3,9 +3,9 @@ package jetbrains.buildServer.runAs.common;
 public enum WindowsIntegrityLevel {
   Auto("auto", "Default"),
   Untrusted("untrusted", "Untrusted"),
-  Low ("low", "Low"),
-  Medium ("medium", "Medium"),
-  MediumPlus ("medium_plus", "Medium Plus"),
+  Low("low", "Low"),
+  Medium("medium", "Medium"),
+  MediumPlus("medium_plus", "Medium Plus"),
   High("high", "High");
 
   private final String myValue;

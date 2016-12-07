@@ -8,6 +8,7 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
+import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
@@ -45,42 +46,42 @@ public class SettingsProviderTest {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>(),
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user2", "password1", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user2", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user1", "password2", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user1", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user2", "password2", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
@@ -115,28 +116,28 @@ public class SettingsProviderTest {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, new ArrayList<CommandLineArgument>())
+        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, new ArrayList<CommandLineArgument>())
       },
 
       {
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user3", "password3", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED_VAR, "true"); put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user3", "password3", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
         new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED_VAR, "false"); put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user2", "password2", WindowsIntegrityLevel.Auto, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
+        new Settings("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
       },
     };
   }

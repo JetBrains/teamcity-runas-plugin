@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
+import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Mockery;
@@ -31,7 +32,7 @@ public class WindowsSettingsGeneratorTest {
     final ResourceGenerator<Settings> instance = createInstance();
 
     // When
-    final String content = instance.create(new Settings("nik", "aaa", WindowsIntegrityLevel.Auto, additionalArgs));
+    final String content = instance.create(new Settings("nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
 
     // Then
     myCtx.assertIsSatisfied();
