@@ -4,6 +4,7 @@ import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
+import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,12 +37,14 @@ public class SettingsProviderImpl implements SettingsProvider {
       return null;
     }
 
+    final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(tryGetParameter(Constants.WINDOWS_INTEGRITY_LEVEL_VAR));
+
     String additionalArgs = tryGetParameter(Constants.ADDITIONAL_ARGS_VAR);
     if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
       additionalArgs = "";
     }
 
-    return new Settings(userName, password, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
+    return new Settings(userName, password, windowsIntegrityLevel, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
   }
 
   @Nullable

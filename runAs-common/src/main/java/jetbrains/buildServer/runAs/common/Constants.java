@@ -9,4 +9,5 @@ public class Constants {
     public static final String USER_VAR = "run_as_user";
     public static final String PASSWORD_VAR = "secure:run_as_password";
     public static final String ADDITIONAL_ARGS_VAR = "run_as_additional_args";
+    public static final String WINDOWS_INTEGRITY_LEVEL_VAR = "run_as_windows_integrity_level";
 }

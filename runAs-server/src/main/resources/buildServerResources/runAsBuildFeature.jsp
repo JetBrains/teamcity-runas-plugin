@@ -38,3 +38,25 @@
     <span class="smallNote">Specify the password.</span>
   </td>
 </tr>
+
+<tr class="advancedSetting">
+  <th><label for="${bean.windowsIntegrityLevelKey}">Windows Integrity Level:</label></th>
+  <td>
+    <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
+      <c:forEach var="item" items="${bean.windowsIntegrityLevels}">
+        <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
+      </c:forEach>
+    </props:selectProperty>
+  </td>
+</tr>
+
+<tr>
+  <th rowspan="0"><label for="${bean.additionalCommandLineParametersKey}">Additional parameters:</label></th>
+  <td>
+    <div class="posRel">
+      <props:textProperty name="${bean.additionalCommandLineParametersKey}" className="longField"/>
+    </div>
+    <span class="error" id="error_${bean.additionalCommandLineParametersKey}"></span>
+    <span class="smallNote">Enter additional parameters</span>
+  </td>
+</tr>

@@ -2,19 +2,23 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
+import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import org.jetbrains.annotations.NotNull;
 
 public class Settings {
   private final String myUser;
   private final String myPassword;
+  private final WindowsIntegrityLevel myWindowsIntegrityLevel;
   private final List<CommandLineArgument> myAdditionalArgs;
 
   Settings(
     @NotNull final String user,
     @NotNull final String password,
+    @NotNull final WindowsIntegrityLevel windowsIntegrityLevel,
     @NotNull final List<CommandLineArgument> additionalArgs) {
     myUser = user;
     myPassword = password;
+    myWindowsIntegrityLevel = windowsIntegrityLevel;
     myAdditionalArgs = additionalArgs;
   }
 
@@ -26,6 +30,10 @@ public class Settings {
   @NotNull
   String getPassword() {
     return myPassword;
+  }
+
+  public WindowsIntegrityLevel getWindowsIntegrityLevel() {
+    return myWindowsIntegrityLevel;
   }
 
   @NotNull
@@ -42,6 +50,7 @@ public class Settings {
 
     if (!myUser.equals(settings.myUser)) return false;
     if (!myPassword.equals(settings.myPassword)) return false;
+    if (myWindowsIntegrityLevel != settings.myWindowsIntegrityLevel) return false;
     return myAdditionalArgs.equals(settings.myAdditionalArgs);
 
   }
@@ -50,6 +59,7 @@ public class Settings {
   public int hashCode() {
     int result = myUser.hashCode();
     result = 31 * result + myPassword.hashCode();
+    result = 31 * result + myWindowsIntegrityLevel.hashCode();
     result = 31 * result + myAdditionalArgs.hashCode();
     return result;
   }

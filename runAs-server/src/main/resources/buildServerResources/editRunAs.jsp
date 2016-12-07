@@ -14,7 +14,7 @@
 </script>
 
 <l:settingsGroup title="Run as <i class='icon-external-link' title='Open in new window'/i>">
-  <tr class="advancedSetting" id="runAsUser">
+  <tr class="advancedSetting">
     <th><label for="${bean.runAsUserKey}">User name:</label></th>
     <td>
       <div class="completionIconWrapper">
@@ -25,7 +25,7 @@
     </td>
   </tr>
 
-  <tr class="advancedSetting" id="runAsPassword">
+  <tr class="advancedSetting">
     <th><label for="${bean.runAsPasswordKey}">Password:</label></th>
     <td>
       <div class="completionIconWrapper">
@@ -35,4 +35,27 @@
       <span class="smallNote">Specify the password.</span>
     </td>
   </tr>
+
+  <tr class="advancedSetting">
+    <th><label for="${bean.windowsIntegrityLevelKey}">Windows Integrity Level:</label></th>
+    <td>
+      <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
+        <c:forEach var="item" items="${bean.windowsIntegrityLevels}">
+          <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
+        </c:forEach>
+      </props:selectProperty>
+    </td>
+  </tr>
+
+  <tr class="advancedSetting">
+    <th><label for="${bean.additionalCommandLineParametersKey}">Additional parameters:</label></th>
+    <td>
+      <div class="posRel">
+        <props:textProperty name="${bean.additionalCommandLineParametersKey}" className="longField"/>
+      </div>
+      <span class="error" id="error_${bean.additionalCommandLineParametersKey}"></span>
+      <span class="smallNote">Enter additional parameters</span>
+    </td>
+  </tr>
+
 </l:settingsGroup>

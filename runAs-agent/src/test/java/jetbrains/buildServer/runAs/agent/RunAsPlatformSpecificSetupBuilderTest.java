@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
+import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -70,7 +71,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
-    final Settings settings = new Settings(user, password, additionalArgs);
+    final Settings settings = new Settings(user, password, WindowsIntegrityLevel.Auto, additionalArgs);
     myCtx.checking(new Expectations() {{
       oneOf(mySettingsProvider).tryGetSettings();
       will(returnValue(settings));
