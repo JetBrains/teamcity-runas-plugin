@@ -55,7 +55,7 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
         Collections.<CommandLineResource>emptyList());
 
       try {
-        final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 5000);
+        final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 600);
         if (result != null) {
           LOG.info("runAs self-test exit code: " + result.getExitCode());
           final int bitness = result.getExitCode();

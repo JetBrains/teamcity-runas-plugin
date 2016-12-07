@@ -1,10 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -72,12 +69,11 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
 
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
     resources.add(new CommandLineFile(myBeforeBuildPublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
-
     myAccessControlResource.setAccess(
       new AccessControlList(Arrays.asList(
-        new AccessControlEntry(commandFile, AccessControlAccount.getAll(), null, null, true, null),
-        new AccessControlEntry(myFileService.getCheckoutDirectory(), AccessControlAccount.getAll(), true, null, null, true),
-        new AccessControlEntry(myFileService.getTempDirectory(), AccessControlAccount.getAll(), true, null, null, true))));
+        new AccessControlEntry(commandFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Execute), false),
+        new AccessControlEntry(myFileService.getCheckoutDirectory(), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Read, AccessPermissions.Write), true),
+        new AccessControlEntry(myFileService.getTempDirectory(), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Read, AccessPermissions.Write), true))));
     resources.add(myAccessControlResource);
 
     return Collections.singleton(
@@ -93,7 +89,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private File getTool() {
     final File path = new File(myParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
     myFileService.validatePath(path);
-    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.getCurrent(), null, null, true, null)));
+    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.Execute), false)));
     myFileAccessService.setAccess(acl);
     return path;
   }

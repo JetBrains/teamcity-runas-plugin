@@ -5,36 +5,24 @@ import org.jetbrains.annotations.Nullable;
 
 class AccessControlAccount {
   @NotNull private final AccessControlAccountType myTargetType;
-  @Nullable private final String myTargetName;
 
-  private AccessControlAccount(@NotNull final AccessControlAccountType targetType, @Nullable final String targetName) {
+  private AccessControlAccount(@NotNull final AccessControlAccountType targetType) {
     myTargetType = targetType;
-    myTargetName = targetName;
   }
 
-  static AccessControlAccount getCurrent()
+  static AccessControlAccount forCurrent()
   {
-    return new AccessControlAccount(AccessControlAccountType.Current, null);
+    return new AccessControlAccount(AccessControlAccountType.Current);
   }
 
-  static AccessControlAccount getAll()
+  static AccessControlAccount forAll()
   {
-    return new AccessControlAccount(AccessControlAccountType.All, null);
-  }
-
-  public static AccessControlAccount getUser(final String userName)
-  {
-    return new AccessControlAccount(AccessControlAccountType.User, userName);
+    return new AccessControlAccount(AccessControlAccountType.All);
   }
 
   @NotNull
   AccessControlAccountType getTargetType() {
     return myTargetType;
-  }
-
-  @Nullable
-  String getTargetName() {
-    return myTargetName;
   }
 
   @Override
@@ -44,15 +32,12 @@ class AccessControlAccount {
 
     final AccessControlAccount that = (AccessControlAccount)o;
 
-    if (myTargetType != that.myTargetType) return false;
-    return myTargetName != null ? myTargetName.equals(that.myTargetName) : that.myTargetName == null;
+    return myTargetType == that.myTargetType;
 
   }
 
   @Override
   public int hashCode() {
-    int result = myTargetType.hashCode();
-    result = 31 * result + (myTargetName != null ? myTargetName.hashCode() : 0);
-    return result;
+    return myTargetType.hashCode();
   }
 }

@@ -3,6 +3,7 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
@@ -52,12 +53,14 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   @Test()
   public void shouldBuildSetup() throws IOException {
     // Given
+    final File checkoutDirectory = new File("CheckoutDirectory");
+    final File tempDirectory = new File("TempDirectory");
     final File credentialsFile = new File("credentials");
     final File cmdFile = new File("command");
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsPlatformSpecificSetupBuilder.TOOL_FILE_NAME + ".abc");
-    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.getCurrent(), null, null, true, null)));
+    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.Execute), false)));
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
@@ -78,6 +81,12 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myFileService).getTempFileName(".abc");
       will(returnValue(cmdFile));
 
+      oneOf(myFileService).getCheckoutDirectory();
+      will(returnValue(checkoutDirectory));
+
+      oneOf(myFileService).getTempDirectory();
+      will(returnValue(tempDirectory));
+
       oneOf(myCredentialsGenerator).create(with(settings));
       will(returnValue(credentialsContent));
 
@@ -96,7 +105,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
 
       oneOf(myAccessControlResource).setAccess(
         new AccessControlList(Arrays.asList(
-        new AccessControlEntry(cmdFile, AccessControlAccount.getAll(), null, null, true, null))));
+        new AccessControlEntry(cmdFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Execute), false),
+        new AccessControlEntry(checkoutDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Read, AccessPermissions.Write), true),
+        new AccessControlEntry(tempDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Read, AccessPermissions.Write), true))));
     }});
 
     final CommandLineSetupBuilder instance = createInstance();

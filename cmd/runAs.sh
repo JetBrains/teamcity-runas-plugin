@@ -8,6 +8,7 @@ then
         password=$3
 
 	exitCodeFile=$(tempfile)
+	stdOutFile=$(tempfile)
         chmod a+w $exitCodeFile
 	cmd="${0} runAs $exitCodeFile $command $args"
 
@@ -15,7 +16,7 @@ then
         (
 		# wait for password input
 		attempts=100
-		while [[ ! -s $exitCodeFile || attemps -gt 0 ]];
+		while [[ ! -s $stdOutFile || attemps -gt 0 ]];
 		do
 			sleep .1
 			attempts=$((attempts-1))
@@ -31,14 +32,16 @@ then
 		echo "$password"
 
 		# wait for process finish
-		while ps axg | grep "$exitCodeFile" > /dev/null; 
+		while ps axg | grep "$stdOutFile" > /dev/null; 
 		do
 			sleep .1
 		done
 	) | (
 		# su
 		socat - EXEC:"$cmd",pty,ctty,setsid;
-	) 2> >(tee >"$exitCodeFile" >(grep -v "[Pp]assword:" >&2))
+	) 2> >(tee >"$stdOutFile" >(grep -v "[Pp]assword:" >&2))
+
+	rm $stdOutFile 1> /dev/null 2> /dev/null
 
         # if exit file is empty
         if [ ! -s $exitCodeFile ];
@@ -49,13 +52,6 @@ then
 	# take exid code from file
 	exitCode=$(cat "$exitCodeFile")
 	rm $exitCodeFile 1> /dev/null 2> /dev/null
-
-	# check exid code is numeric
-	if [[ ! $exitCode =~ "^[0-9]+$" ]]
-        then
-		exit 1
-	fi
-
 	exit $exitCode
 fi
 

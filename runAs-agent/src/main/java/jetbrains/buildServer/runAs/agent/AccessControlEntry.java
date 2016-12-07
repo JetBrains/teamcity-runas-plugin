@@ -1,29 +1,24 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
+import java.util.EnumSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 class AccessControlEntry {
   @NotNull private final File myFile;
   private final AccessControlAccount myAccount;
-  private final Boolean myReading;
-  private final Boolean myWriting;
-  private final Boolean myExecuting;
-  private final Boolean myRecursive;
+  private final EnumSet<AccessPermissions> myPermissions;
+  private final boolean myRecursive;
 
   AccessControlEntry(
     @NotNull final File file,
-    @NotNull AccessControlAccount account,
-    final Boolean reading,
-    final Boolean writing,
-    final Boolean executing,
-    final Boolean recursive) {
+    @NotNull final AccessControlAccount account,
+    @NotNull final EnumSet<AccessPermissions> permissions,
+    final boolean recursive) {
     myFile = file;
     myAccount = account;
-    myReading = reading;
-    myWriting = writing;
-    myExecuting = executing;
+    myPermissions = permissions;
     myRecursive = recursive;
   }
 
@@ -36,23 +31,12 @@ class AccessControlEntry {
     return myAccount;
   }
 
-  @Nullable
-  Boolean isReading() {
-    return myReading;
+  public EnumSet<AccessPermissions> getPermissions() {
+    return myPermissions;
   }
 
   @Nullable
-  Boolean isWriting() {
-    return myWriting;
-  }
-
-  @Nullable
-  Boolean isExecuting() {
-    return myExecuting;
-  }
-
-  @Nullable
-  Boolean isRecursive() {
+  boolean isRecursive() {
     return myRecursive;
   }
 
@@ -63,12 +47,10 @@ class AccessControlEntry {
 
     final AccessControlEntry that = (AccessControlEntry)o;
 
+    if (myRecursive != that.myRecursive) return false;
     if (!myFile.equals(that.myFile)) return false;
     if (!myAccount.equals(that.myAccount)) return false;
-    if (myReading != null ? !myReading.equals(that.myReading) : that.myReading != null) return false;
-    if (myWriting != null ? !myWriting.equals(that.myWriting) : that.myWriting != null) return false;
-    if (myExecuting != null ? !myExecuting.equals(that.myExecuting) : that.myExecuting != null) return false;
-    return myRecursive != null ? myRecursive.equals(that.myRecursive) : that.myRecursive == null;
+    return myPermissions.equals(that.myPermissions);
 
   }
 
@@ -76,10 +58,8 @@ class AccessControlEntry {
   public int hashCode() {
     int result = myFile.hashCode();
     result = 31 * result + myAccount.hashCode();
-    result = 31 * result + (myReading != null ? myReading.hashCode() : 0);
-    result = 31 * result + (myWriting != null ? myWriting.hashCode() : 0);
-    result = 31 * result + (myExecuting != null ? myExecuting.hashCode() : 0);
-    result = 31 * result + (myRecursive != null ? myRecursive.hashCode() : 0);
+    result = 31 * result + myPermissions.hashCode();
+    result = 31 * result + (myRecursive ? 1 : 0);
     return result;
   }
 }
