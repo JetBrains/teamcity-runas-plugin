@@ -12,38 +12,44 @@ then
 	cmd="${0} runAs $tmpFile $command $args"
 
         # run command
-        (
-		# wait for password input
-		attempts=100
-		while [[ ! -s "$tmpFile" || attemps -gt 0 ]];
-		do
-			sleep .1
-			attempts=$((attempts-1))
-		done
+	if [[ "$EUID" -eq 0 ]];
+        then
+		# if root
+                $cmd
+	else
+	        (
+			# wait for password input
+			attempts=100
+			while [[ ! -s "$tmpFile" || attemps -gt 0 ]];
+			do
+				sleep .1
+				attempts=$((attempts-1))
+			done
 
-		if [[ $attempts -eq 0 ]];
-		then
-			echo "##teamcity[message text='Error during sending password.' status='ERROR']"
-			exit 1
-		fi
+			if [[ $attempts -eq 0 ]];
+			then
+				echo "##teamcity[message text='Error during sending password.' status='ERROR']"
+				exit 255
+			fi
 
-		# send password to su stdIn
-		echo "$password"
+			# send password to su stdIn
+			echo "$password"
 
-		# wait for process finish
-		while ps axg | grep "$tmpFile" > /dev/null; 
-		do
-			sleep .1
-		done
-	) | (
-		# su
-		socat - EXEC:"$cmd",pty,ctty,setsid;
-	) 2> >(tee >> "$tmpFile" >(grep -v "[Pp]assword:" >&2))
+			# wait for process finish
+			while ps axg | grep "$tmpFile" > /dev/null; 
+			do
+				sleep .1
+			done
+		) | (
+			# su
+			socat - EXEC:"$cmd",pty,ctty,setsid;
+		) 2> >(tee > "$tmpFile" >(grep -v "[Pp]assword:" >&2))
+	fi
 
         # if exit file is empty
         if [ ! -s "$tmpFile" ];
         then
-		exit 1
+		exit 255
         fi
 
 	# take exid code from file
@@ -52,7 +58,7 @@ then
 	exit $exitCode
 fi
 
-# su (su, tmp_file, command_file_name, args)
+# su (runAs, tmp_file, command_file_name, args)
 if [ $# -eq 4 ];
 then
 	tmpFile=$2
@@ -62,7 +68,7 @@ then
 	su -p -c "$command" "$args"
 	exitCode=$?
 
-	echo $exitCode>"$tmpFile"
+	echo -e "$exitCode\n" > "$tmpFile"
 	exit $exitCode
 fi
 
