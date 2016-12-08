@@ -16,7 +16,7 @@
   </div>
 
   <div class="parameter">
-    Logging Level:
+    Windows Logging Level:
     <strong>
       <c:set var="type" value="${propertiesBean.properties[bean.windowsLoggingLevelKey]}"/>
       <c:forEach var="item" items="${bean.loggingLevels}">
