@@ -5,7 +5,7 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class AccessControlResourceImpl implements AccessControlResource {
+public class AccessControlResourceImpl implements AccessControlResource {
   private final FileAccessService myFileAccessService;
   @Nullable private AccessControlList myAccessControlList;
 

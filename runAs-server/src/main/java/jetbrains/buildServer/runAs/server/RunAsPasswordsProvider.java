@@ -19,8 +19,9 @@ public class RunAsPasswordsProvider implements PasswordsProvider {
   public Collection<Parameter> getPasswordParameters(@NotNull final SBuild sBuild) {
     final ArrayList<Parameter> passwords = new ArrayList<Parameter>();
 
+    final SRunningBuild build = sBuild.getAgent().getRunningBuild();
+
     if(myRunAsConfiguration.getIsUiSupported()) {
-      final SRunningBuild build = sBuild.getAgent().getRunningBuild();
       if (build != null) {
         final SBuildType buildType = build.getBuildType();
         if (buildType != null) {
@@ -46,6 +47,15 @@ public class RunAsPasswordsProvider implements PasswordsProvider {
         final String password = params.get(Constants.PASSWORD_VAR);
         if (!StringUtil.isEmpty(password)) {
           passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + buildFeature.getId(), password));
+        }
+      }
+    }
+    else {
+      if (build != null) {
+        final SBuildAgent agent = build.getAgent();
+        final String password = agent.getConfigurationParameters().get(Constants.PASSWORD_VAR);
+        if (!StringUtil.isEmpty(password)) {
+          passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + agent.getId(), password));
         }
       }
     }
