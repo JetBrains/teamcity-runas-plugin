@@ -9,7 +9,7 @@ class AccessControlResourceImpl implements AccessControlResource {
   private final FileAccessService myFileAccessService;
   @Nullable private AccessControlList myAccessControlList;
 
-  AccessControlResourceImpl(@NotNull final FileAccessService fileAccessService) {
+  public AccessControlResourceImpl(@NotNull final FileAccessService fileAccessService) {
     myFileAccessService = fileAccessService;
   }
 
