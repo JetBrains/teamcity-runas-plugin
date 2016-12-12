@@ -8,7 +8,7 @@ then
         password="$3"
 
 	${0} runAs "$args" "$command" "$password"
-	
+
 	exit $?
 fi
 
@@ -23,8 +23,8 @@ then
 
 		tmpFile=$(tempfile)
         	chmod a+rw "$tmpFile"
+
 		cmd="${0} su $tmpFile $command $args"
-		echo $cmd
 
         	# run command
 		if [[ "$EUID" -eq 0 ]];
