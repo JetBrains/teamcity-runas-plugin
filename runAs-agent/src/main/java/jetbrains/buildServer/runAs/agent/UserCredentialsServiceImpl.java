@@ -3,10 +3,13 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import jetbrains.buildServer.agent.BuildAgentConfigurationEx;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.CredentialsMode;
+import jetbrains.buildServer.runAs.common.LoggingLevel;
+import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,19 +19,22 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   private final ParametersService myParametersService;
   private final PropertiesService myPropertiesService;
   private final FileService myFileService;
-  private BuildAgentConfigurationEx myBuildAgentConfiguration;
+  private final BuildAgentConfigurationEx myBuildAgentConfiguration;
+  private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public UserCredentialsServiceImpl(
     @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final ParametersService parametersService,
     @NotNull final PropertiesService propertiesService,
     @NotNull final FileService fileService,
-    @NotNull final BuildAgentConfigurationEx buildAgentConfiguration) {
+    @NotNull final BuildAgentConfigurationEx buildAgentConfiguration,
+    @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myRunnerParametersService = runnerParametersService;
     myParametersService = parametersService;
     myPropertiesService = propertiesService;
     myFileService = fileService;
     myBuildAgentConfiguration = buildAgentConfiguration;
+    myCommandLineArgumentsService = commandLineArgumentsService;
   }
 
   @Nullable
@@ -78,8 +84,16 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     throw new BuildStartException("Unknown credentials mode \"" + credentialsMode.getDescription() + "\"");
   }
 
+  @Nullable
   private UserCredentials tryGetCustomCredentials() {
-    return tryCreateCredentials(myParametersService.tryGetParameter(Constants.USER_VAR), myParametersService.tryGetParameter(Constants.PASSWORD_VAR));
+    final String userName = myParametersService.tryGetParameter(Constants.USER_VAR);
+    final String password = myParametersService.tryGetParameter(Constants.PASSWORD_VAR);
+
+    if(StringUtil.isEmptyOrSpaces(userName) || StringUtil.isEmptyOrSpaces(password)) {
+      return null;
+    }
+
+    return createCredentials(userName, password, false);
   }
 
   @NotNull
@@ -113,17 +127,30 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       throw new BuildStartException("Password must be defined for \"" + credentials + "\"");
     }
 
-    return new UserCredentials(userName, password);
+    return createCredentials(userName, password, true);
+  }
+
+  @NotNull
+  private UserCredentials createCredentials(@NotNull final String userName, @NotNull final String password, boolean isPredefined)
+  {
+    // Get parameters
+    final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(Constants.WINDOWS_INTEGRITY_LEVEL_VAR, isPredefined));
+    final LoggingLevel windowsLoggingLevel = LoggingLevel.tryParse(getParam(Constants.WINDOWS_LOGGING_LEVEL_VAR, isPredefined));
+
+    String additionalArgs = getParam(Constants.ADDITIONAL_ARGS_VAR, isPredefined);
+    if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
+      additionalArgs = "";
+    }
+
+    return new UserCredentials(userName, password, windowsIntegrityLevel, windowsLoggingLevel, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
   }
 
   @Nullable
-  private UserCredentials tryCreateCredentials(
-    @Nullable final String userName,
-    @Nullable final String password) {
-    if(StringUtil.isEmptyOrSpaces(userName) || StringUtil.isEmptyOrSpaces(password)) {
-      return null;
+  private String getParam(@NotNull final String paramName, boolean isPredefined) {
+    if(isPredefined) {
+      return myPropertiesService.tryGetProperty(paramName);
     }
 
-    return new UserCredentials(userName, password);
+    return myParametersService.tryGetParameter(paramName);
   }
 }

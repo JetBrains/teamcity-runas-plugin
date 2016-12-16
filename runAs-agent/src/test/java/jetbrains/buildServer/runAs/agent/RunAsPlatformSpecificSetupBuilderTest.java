@@ -23,12 +23,12 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private FileService myFileService;
   private RunnerParametersService myRunnerParametersService;
   private ResourcePublisher myBeforeBuildPublisher;
-  private ResourceGenerator<Settings> myCredentialsGenerator;
+  private ResourceGenerator<UserCredentials> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsParams> myArgsGenerator;
   private CommandLineArgumentsService myCommandLineArgumentsService;
-  private SettingsProvider mySettingsProvider;
+  private UserCredentialsService myUserCredentialsService;
   private AccessControlResource myAccessControlResource;
   private FileAccessService myFileAccessService;
 
@@ -36,13 +36,13 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   public void setUp()
   {
     myCtx = new Mockery();
-    mySettingsProvider = myCtx.mock(SettingsProvider.class);
+    myUserCredentialsService = myCtx.mock(UserCredentialsService.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
     myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class);
     myAccessControlResource = myCtx.mock(AccessControlResource.class);
     //noinspection unchecked
-    myCredentialsGenerator = (ResourceGenerator<Settings>)myCtx.mock(ResourceGenerator.class, "WindowsSettingsGenerator");
+    myCredentialsGenerator = (ResourceGenerator<UserCredentials>)myCtx.mock(ResourceGenerator.class, "WindowsSettingsGenerator");
     //noinspection unchecked
     myArgsGenerator = (ResourceGenerator<RunAsParams>)myCtx.mock(ResourceGenerator.class, "ArgsGenerator");
     //noinspection unchecked
@@ -72,9 +72,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
-    final Settings settings = new Settings(new UserCredentials(user, password), WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
+    final UserCredentials settings = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
     myCtx.checking(new Expectations() {{
-      oneOf(mySettingsProvider).tryGetSettings();
+      oneOf(myUserCredentialsService).tryGetUserCredentials();
       will(returnValue(settings));
 
       oneOf(myFileService).getTempFileName(RunAsPlatformSpecificSetupBuilder.ARGS_EXT);
@@ -142,7 +142,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
     final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
     myCtx.checking(new Expectations() {{
-      oneOf(mySettingsProvider).tryGetSettings();
+      oneOf(myUserCredentialsService).tryGetUserCredentials();
       will(returnValue(null));
     }});
 
@@ -167,7 +167,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private CommandLineSetupBuilder createInstance()
   {
     return new RunAsPlatformSpecificSetupBuilder(
-      mySettingsProvider,
+      myUserCredentialsService,
       myRunnerParametersService,
       myFileService,
       myBeforeBuildPublisher,

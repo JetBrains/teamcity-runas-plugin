@@ -2,14 +2,17 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 import jetbrains.buildServer.agent.BuildAgentConfigurationEx;
-import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
-import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
+import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.CredentialsMode;
+import jetbrains.buildServer.runAs.common.LoggingLevel;
+import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
+import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jmock.Expectations;
@@ -28,6 +31,7 @@ public class UserCredentialsServiceTest {
   private ParametersService myParametersService;
   private PropertiesService myPropertiesService;
   private BuildAgentConfigurationEx myBuildAgentConfiguration;
+  private CommandLineArgumentsService myCommandLineArgumentsService;
   private File myConfigDir;
   private File runAsCredDir;
   private File user2Cred;
@@ -40,6 +44,7 @@ public class UserCredentialsServiceTest {
     myParametersService = myCtx.mock(ParametersService.class);
     myPropertiesService = myCtx.mock(PropertiesService.class);
     myBuildAgentConfiguration = myCtx.mock(BuildAgentConfigurationEx.class);
+    myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
 
     myConfigDir = new File("configDir");
     runAsCredDir = new File(myConfigDir, "runAsCredDir");
@@ -67,7 +72,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(runAsCredDir),
           new VirtualFileService.VirtualFile(user2Cred, "")),
-        new UserCredentials("user2", "password2"),
+          new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -286,7 +291,7 @@ public class UserCredentialsServiceTest {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
         new VirtualFileService(),
-        new UserCredentials("user1", "password1"),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -299,7 +304,7 @@ public class UserCredentialsServiceTest {
           put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue()); }},
         new HashMap<String, String>(),
         new VirtualFileService(),
-        new UserCredentials("user1", "password1"),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -318,7 +323,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(runAsCredDir),
           new VirtualFileService.VirtualFile(user2Cred, "")),
-        new UserCredentials("user2", "password2"),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -375,7 +380,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(runAsCredDir),
           new VirtualFileService.VirtualFile(user2Cred, "")),
-        new UserCredentials("user2", "password2"),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -446,6 +451,46 @@ public class UserCredentialsServiceTest {
         null,
         null
       },
+
+      // Allowed && custom credentials && additional params
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER_VAR, "user1");
+          put(Constants.PASSWORD_VAR, "password1");
+          put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2");
+          put(Constants.WINDOWS_INTEGRITY_LEVEL_VAR, WindowsIntegrityLevel.High.getValue());
+          put(Constants.WINDOWS_LOGGING_LEVEL_VAR, LoggingLevel.Debug.getValue());
+        }},
+        new HashMap<String, String>() {{
+          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+        }},
+        new HashMap<String, String>(),
+        new VirtualFileService(),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
+        null
+      },
+
+      // Allowed && predefined credentials && additional params WHEN custom credentials is not defined
+      {
+        new HashMap<String, String>() {{
+          put(Constants.CREDENTIALS_VAR, "user2cred");}},
+        new HashMap<String, String>() {{
+          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+          put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
+        }},
+        new HashMap<String, String>() {{
+          put(Constants.USER_VAR, "user2");
+          put(Constants.PASSWORD_VAR, "password2");
+          put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2");
+          put(Constants.WINDOWS_INTEGRITY_LEVEL_VAR, WindowsIntegrityLevel.High.getValue());
+          put(Constants.WINDOWS_LOGGING_LEVEL_VAR, LoggingLevel.Debug.getValue());
+        }},
+        new VirtualFileService(
+          new VirtualFileService.VirtualDirectory(runAsCredDir),
+          new VirtualFileService.VirtualFile(user2Cred, "")),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
+        null
+      },
     };
   }
 
@@ -490,6 +535,19 @@ public class UserCredentialsServiceTest {
       });
 
       allowing(myPropertiesService).load(with(any(File.class)));
+
+      allowing(myCommandLineArgumentsService).parseCommandLineArguments(with(any(String.class)));
+      will(new CustomAction("parseCommandLineArguments") {
+        @Override
+        public Object invoke(final Invocation invocation) throws Throwable {
+          final ArrayList<CommandLineArgument> args = new ArrayList<CommandLineArgument>();
+          for(String arg: StringUtil.split((String)invocation.getParameter(0))) {
+            args.add(new CommandLineArgument(arg, CommandLineArgument.Type.PARAMETER));
+          }
+
+          return args;
+        }
+      });
     }});
 
     final UserCredentialsService userCredentialsService = createInstance(fileService);
@@ -523,6 +581,7 @@ public class UserCredentialsServiceTest {
       myParametersService,
       myPropertiesService,
       fileService,
-      myBuildAgentConfiguration);
+      myBuildAgentConfiguration,
+      myCommandLineArgumentsService);
   }
 }

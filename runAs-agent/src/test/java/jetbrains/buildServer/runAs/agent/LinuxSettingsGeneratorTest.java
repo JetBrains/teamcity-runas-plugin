@@ -29,10 +29,10 @@ public class LinuxSettingsGeneratorTest {
     final String expectedContent = "nik";
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
 
-    final ResourceGenerator<Settings> instance = createInstance();
+    final ResourceGenerator<UserCredentials> instance = createInstance();
 
     // When
-    final String content = instance.create(new Settings(new UserCredentials("nik", "aaa"), WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
+    final String content = instance.create(new UserCredentials("nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
 
     // Then
     myCtx.assertIsSatisfied();
@@ -40,7 +40,7 @@ public class LinuxSettingsGeneratorTest {
   }
 
   @NotNull
-  private ResourceGenerator<Settings> createInstance()
+  private ResourceGenerator<UserCredentials> createInstance()
   {
     return new LinuxSettingsGenerator();
   }

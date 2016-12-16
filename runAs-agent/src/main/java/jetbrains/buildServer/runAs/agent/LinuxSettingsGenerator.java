@@ -7,17 +7,17 @@ import jetbrains.buildServer.util.CollectionsUtil;
 import jetbrains.buildServer.util.Converter;
 import org.jetbrains.annotations.NotNull;
 
-public class LinuxSettingsGenerator implements ResourceGenerator<Settings> {
+public class LinuxSettingsGenerator implements ResourceGenerator<UserCredentials> {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
   @NotNull
   @Override
-  public String create(@NotNull final Settings settings) {
+  public String create(@NotNull final UserCredentials userCredentials) {
     final StringBuilder sb = new StringBuilder();
 
-    final String user = settings.getUserCredentials().getUser();
+    final String user = userCredentials.getUser();
     if(!StringUtil.isEmptyOrSpaces(user)) {
-      sb.append(settings.getUserCredentials().getUser());
+      sb.append(userCredentials.getUser());
     }
     
     return sb.toString();
