@@ -32,7 +32,7 @@ public class LinuxSettingsGeneratorTest {
     final ResourceGenerator<Settings> instance = createInstance();
 
     // When
-    final String content = instance.create(new Settings("nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
+    final String content = instance.create(new Settings(new UserCredentials("nik", "aaa"), WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
 
     // Then
     myCtx.assertIsSatisfied();

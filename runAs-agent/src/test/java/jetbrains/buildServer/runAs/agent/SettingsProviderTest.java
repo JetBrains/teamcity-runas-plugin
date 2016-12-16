@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
@@ -26,16 +25,16 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 public class SettingsProviderTest {
   private Mockery myCtx;
-  private RunnerParametersService myRunnerParametersService;
+  private ParametersService myParametersService;
   private CommandLineArgumentsService myCommandLineArgumentsService;
-  private BuildFeatureParametersService myBuildFeatureParametersService;
+  private UserCredentialsService myUserCredentialsService;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
-    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
-    myBuildFeatureParametersService = myCtx.mock(BuildFeatureParametersService.class);
+    myParametersService = myCtx.mock(ParametersService.class);
+    myUserCredentialsService = myCtx.mock(UserCredentialsService.class);
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
   }
 
@@ -43,113 +42,41 @@ public class SettingsProviderTest {
   public Object[][] getProvideSettingsCases() {
     return new Object[][] {
       {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>(),
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user2", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user1", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>(),
-        null
-      },
-
-      {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>(),
-        null
-      },
-
-      {
-        new HashMap<String, String>(),
+        new UserCredentials("user1", "password1"),
         new HashMap<String, String>() {{ put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>(),
+        new Settings(new UserCredentials("user1", "password1"), WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
+      },
+
+      {
+        null,
+        new HashMap<String, String>() {{ put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
         null
       },
 
       {
-        new HashMap<String, String>(),
-        new HashMap<String, String>(),
-        new HashMap<String, String>(),
-        null
+        new UserCredentials("user1", "password1"),
+        new HashMap<String, String>() {{ put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); put(Constants.WINDOWS_INTEGRITY_LEVEL_VAR, WindowsIntegrityLevel.High.getValue()); }},
+        new Settings(new UserCredentials("user1", "password1"), WindowsIntegrityLevel.High, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
 
       {
-        new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new Settings("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, new ArrayList<CommandLineArgument>())
-      },
-
-      {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED_VAR, "true"); put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg5", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg6", CommandLineArgument.Type.PARAMETER)))
-      },
-
-      {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.ADDITIONAL_ARGS_VAR, "arg5 arg6"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); }},
-        new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED_VAR, "false"); put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); put(Constants.ADDITIONAL_ARGS_VAR, "arg3, arg4"); }},
-        new Settings("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.asList(new CommandLineArgument("arg3", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg4", CommandLineArgument.Type.PARAMETER)))
+        new UserCredentials("user1", "password1"),
+        new HashMap<String, String>() {{ put(Constants.ADDITIONAL_ARGS_VAR, "arg1 arg2"); put(Constants.WINDOWS_INTEGRITY_LEVEL_VAR, WindowsIntegrityLevel.High.getValue()); put(Constants.WINDOWS_LOGGING_LEVEL_VAR, LoggingLevel.Debug.getValue()); }},
+        new Settings(new UserCredentials("user1", "password1"), WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)))
       },
     };
   }
 
   @Test(dataProvider = "provideSettingsCases")
   public void shouldProvideSettings(
-    @NotNull final HashMap<String, String> runnerParameters,
-    @NotNull final HashMap<String, String> buildFeatureParameters,
-    @NotNull final HashMap<String, String> configParameters,
+    @Nullable final UserCredentials userCredentials,
+    @NotNull final HashMap<String, String> parameters,
     @Nullable final Settings expectedSettings) throws IOException {
     // Given
     myCtx.checking(new Expectations() {{
+      oneOf(myUserCredentialsService).tryGetUserCredentials();
+      will(returnValue(userCredentials));
+
       allowing(myCommandLineArgumentsService).parseCommandLineArguments(with(any(String.class)));
       will(new CustomAction("parseCommandLineArguments") {
         @Override
@@ -163,36 +90,12 @@ public class SettingsProviderTest {
         }
       });
 
-      allowing(myRunnerParametersService).tryGetRunnerParameter(with(any(String.class)));
-      will(new CustomAction("tryGetRunnerParameter") {
+      allowing(myParametersService).tryGetParameter(with(any(String.class)));
+      will(new CustomAction("tryGetParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
           final String name = (String)invocation.getParameter(0);
-          return runnerParameters.get(name);
-        }
-      });
-
-      allowing(myBuildFeatureParametersService).getBuildFeatureParameters(with(any(String.class)), with(any(String.class)));
-      will(new CustomAction("getBuildFeatureParameters") {
-        @Override
-        public Object invoke(final Invocation invocation) throws Throwable {
-          Assert.assertEquals(invocation.getParameter(0), Constants.BUILD_FEATURE_TYPE);
-          final String name = (String)invocation.getParameter(1);
-          final String val = buildFeatureParameters.get(name);
-          if(val != null) {
-            return Arrays.asList(buildFeatureParameters.get(name));
-          }
-
-          return Arrays.asList();
-        }
-      });
-
-      allowing(myRunnerParametersService).tryGetConfigParameter(with(any(String.class)));
-      will(new CustomAction("tryGetConfigParameter") {
-        @Override
-        public Object invoke(final Invocation invocation) throws Throwable {
-          final String name = (String)invocation.getParameter(0);
-          return configParameters.get(name);
+          return parameters.get(name);
         }
       });
     }});
@@ -211,8 +114,8 @@ public class SettingsProviderTest {
   private SettingsProvider createInstance()
   {
     return new SettingsProviderImpl(
-      myRunnerParametersService,
-      myBuildFeatureParametersService,
+      myParametersService,
+      myUserCredentialsService,
       myCommandLineArgumentsService);
   }
 }

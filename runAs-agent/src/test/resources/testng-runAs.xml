@@ -2,15 +2,18 @@
 <suite name="dotNet-testRunner">
   <test name="dotNet-testRunner">
     <classes>
-      <class name="jetbrains.buildServer.runAs.agent.WindowsSettingsGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.LinuxSettingsGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.AccessControlResourceTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.FileAccessServiceTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.LinuxSettingsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.ParametersServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.RunAsSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.SettingsProviderTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.RunAsSetupBuilderTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.UserCredentialsServiceTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.WindowsSettingsGeneratorTest"/>
     </classes>
   </test>
 </suite>

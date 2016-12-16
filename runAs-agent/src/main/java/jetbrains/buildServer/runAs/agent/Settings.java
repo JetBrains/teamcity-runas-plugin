@@ -7,33 +7,24 @@ import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import org.jetbrains.annotations.NotNull;
 
 public class Settings {
-  private final String myUser;
-  private final String myPassword;
+  private final UserCredentials myUserCredentials;
   private final WindowsIntegrityLevel myWindowsIntegrityLevel;
   private final LoggingLevel myWindowsLoggingLevel;
   private final List<CommandLineArgument> myAdditionalArgs;
 
-  Settings(
-    @NotNull final String user,
-    @NotNull final String password,
+  public Settings(
+    @NotNull final UserCredentials userCredentials,
     @NotNull final WindowsIntegrityLevel windowsIntegrityLevel,
     @NotNull final LoggingLevel windowsLoggingLevel,
     @NotNull final List<CommandLineArgument> additionalArgs) {
-    myUser = user;
-    myPassword = password;
+    myUserCredentials = userCredentials;
     myWindowsIntegrityLevel = windowsIntegrityLevel;
     myWindowsLoggingLevel = windowsLoggingLevel;
     myAdditionalArgs = additionalArgs;
   }
 
-  @NotNull
-  String getUser() {
-    return myUser;
-  }
-
-  @NotNull
-  String getPassword() {
-    return myPassword;
+  public UserCredentials getUserCredentials() {
+    return myUserCredentials;
   }
 
   public WindowsIntegrityLevel getWindowsIntegrityLevel() {
@@ -56,8 +47,7 @@ public class Settings {
 
     final Settings settings = (Settings)o;
 
-    if (!myUser.equals(settings.myUser)) return false;
-    if (!myPassword.equals(settings.myPassword)) return false;
+    if (!myUserCredentials.equals(settings.myUserCredentials)) return false;
     if (myWindowsIntegrityLevel != settings.myWindowsIntegrityLevel) return false;
     if (myWindowsLoggingLevel != settings.myWindowsLoggingLevel) return false;
     return myAdditionalArgs.equals(settings.myAdditionalArgs);
@@ -66,8 +56,7 @@ public class Settings {
 
   @Override
   public int hashCode() {
-    int result = myUser.hashCode();
-    result = 31 * result + myPassword.hashCode();
+    int result = myUserCredentials.hashCode();
     result = 31 * result + myWindowsIntegrityLevel.hashCode();
     result = 31 * result + myWindowsLoggingLevel.hashCode();
     result = 31 * result + myAdditionalArgs.hashCode();

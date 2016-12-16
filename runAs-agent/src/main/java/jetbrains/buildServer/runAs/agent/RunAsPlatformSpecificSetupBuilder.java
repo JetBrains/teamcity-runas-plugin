@@ -82,7 +82,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
         Arrays.asList(
           new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
           new CommandLineArgument(commandFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(settings.getPassword(), CommandLineArgument.Type.PARAMETER)),
+          new CommandLineArgument(settings.getUserCredentials().getPassword(), CommandLineArgument.Type.PARAMETER)),
         resources));
   }
 

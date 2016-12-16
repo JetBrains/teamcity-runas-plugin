@@ -8,12 +8,15 @@
   <bean class="jetbrains.buildServer.runAs.agent.CommandLineExecutorImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsPropertiesExtension" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
+  <bean class="jetbrains.buildServer.runAs.agent.ParametersServiceImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.PropertiesServiceImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.SettingsProviderImpl" scope="prototype"/>
+  <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.FileAccessServiceImpl"/>
   <bean class="jetbrains.buildServer.dotNet.buildRunner.agent.BeforeBuildPublisher" id="beforeBuildPublisher"/>
   <bean class="jetbrains.buildServer.runAs.agent.AccessControlResourceImpl" id="accessControlResource" scope="prototype">
     <constructor-arg ref="beforeBuildPublisher"/>
   </bean>
-  <bean class="jetbrains.buildServer.runAs.agent.SettingsProviderImpl" />
 
   <!-- Windows -->
   <bean class="jetbrains.buildServer.runAs.agent.CmdGenerator" id="cmdGenerator"/>

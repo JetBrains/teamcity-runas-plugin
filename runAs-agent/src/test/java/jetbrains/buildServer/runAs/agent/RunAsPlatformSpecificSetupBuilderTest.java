@@ -72,7 +72,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
-    final Settings settings = new Settings(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
+    final Settings settings = new Settings(new UserCredentials(user, password), WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
     myCtx.checking(new Expectations() {{
       oneOf(mySettingsProvider).tryGetSettings();
       will(returnValue(settings));

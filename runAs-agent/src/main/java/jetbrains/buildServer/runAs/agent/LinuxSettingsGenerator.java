@@ -15,9 +15,9 @@ public class LinuxSettingsGenerator implements ResourceGenerator<Settings> {
   public String create(@NotNull final Settings settings) {
     final StringBuilder sb = new StringBuilder();
 
-    final String user = settings.getUser();
+    final String user = settings.getUserCredentials().getUser();
     if(!StringUtil.isEmptyOrSpaces(user)) {
-      sb.append(settings.getUser());
+      sb.append(settings.getUserCredentials().getUser());
     }
     
     return sb.toString();
