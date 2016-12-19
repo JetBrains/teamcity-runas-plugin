@@ -1,15 +1,15 @@
 package jetbrains.buildServer.runAs.common;
 
-public enum CredentialsMode {
-  Prohibited("prohibited", "Prohibited"),
-  Enforced("enforced", "Enforced"),
-  Allowed("allowed", "Allowed"),
+public enum RunAsMode {
+  CustomCredentials("custom", "Custom Credentials"),
+  PredefinedCredentials("predefined", "Predefined Credentials"),
+  Enabled("enabled", "Enabled"),
   Disabled("disabled", "Disabled");
 
   private final String myValue;
   private final String myDescription;
 
-  private CredentialsMode(String value, final String description) {
+  private RunAsMode(String value, final String description) {
     myValue = value;
     myDescription = description;
   }
@@ -22,11 +22,11 @@ public enum CredentialsMode {
     return myDescription;
   }
 
-  public static CredentialsMode tryParse(String value) {
-    for (CredentialsMode v : values()) {
+  public static RunAsMode tryParse(String value) {
+    for (RunAsMode v : values()) {
       if (v.getValue().equals(value)) return v;
     }
 
-    return Allowed;
+    return Enabled;
   }
 }

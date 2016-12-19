@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import jetbrains.buildServer.agent.BuildAgentConfigurationEx;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
-import jetbrains.buildServer.runAs.common.CredentialsMode;
+import jetbrains.buildServer.runAs.common.RunAsMode;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
@@ -54,14 +54,14 @@ public class UserCredentialsServiceTest {
   @DataProvider(name = "getUserCredentialsCases")
   public Object[][] getUserCredentialsCases() {
     return new Object[][] {
-      // Enforced && predefined credentials
+      // PredefinedCredentials && predefined credentials
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -76,14 +76,14 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Enforced && predefined credentials && throw exception WHEN password is empty
+      // PredefinedCredentials && predefined credentials && throw exception WHEN password is empty
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -98,14 +98,14 @@ public class UserCredentialsServiceTest {
         "Password must be defined"
       },
 
-      // Enforced && predefined credentials && throw exception WHEN password is null
+      // PredefinedCredentials && predefined credentials && throw exception WHEN password is null
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -119,14 +119,14 @@ public class UserCredentialsServiceTest {
         "Password must be defined"
       },
 
-      // Enforced && predefined credentials WHEN throw exception when user is empty
+      // PredefinedCredentials && predefined credentials WHEN throw exception when user is empty
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -141,14 +141,14 @@ public class UserCredentialsServiceTest {
         "Username must be defined"
       },
 
-      // Enforced && predefined credentials WHEN throw exception when user is null
+      // PredefinedCredentials && predefined credentials WHEN throw exception when user is null
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -162,14 +162,14 @@ public class UserCredentialsServiceTest {
         "Username must be defined"
       },
 
-      // Enforced && predefined credentials WHEN cred file is directory
+      // PredefinedCredentials && predefined credentials WHEN cred file is directory
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -184,14 +184,14 @@ public class UserCredentialsServiceTest {
         "Credentials file .* was not found"
       },
 
-      // Enforced && predefined credentials WHEN there is not cred file
+      // PredefinedCredentials && predefined credentials WHEN there is not cred file
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -205,14 +205,14 @@ public class UserCredentialsServiceTest {
         "Credentials file .* was not found"
       },
 
-      // Enforced && predefined credentials WHEN cred dir is not a dir
+      // PredefinedCredentials && predefined credentials WHEN cred dir is not a dir
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -226,14 +226,14 @@ public class UserCredentialsServiceTest {
         "Credentials directory was not found"
       },
 
-      // Enforced && predefined credentials WHEN cred dir does not exist
+      // PredefinedCredentials && predefined credentials WHEN cred dir does not exist
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -246,14 +246,14 @@ public class UserCredentialsServiceTest {
         "Credentials directory was not found"
       },
 
-      // Enforced && predefined credentials WHEN CREDENTIALS_DIRECTORY_VAR is not defined as configuration parameter
+      // PredefinedCredentials && predefined credentials WHEN CREDENTIALS_DIRECTORY_VAR is not defined as configuration parameter
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
         }},
         new HashMap<String, String>() {{
@@ -265,14 +265,14 @@ public class UserCredentialsServiceTest {
         "Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY_VAR + "\" was not defined"
       },
 
-      // Enforced && predefined credentials WHEN CREDENTIALS_VAR is not defined as configuration parameter
+      // PredefinedCredentials && predefined credentials WHEN CREDENTIALS_VAR is not defined as configuration parameter
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
         }},
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user2");
@@ -283,7 +283,7 @@ public class UserCredentialsServiceTest {
         "Configuration parameter \"" + Constants.CREDENTIALS_VAR + "\" was not defined"
       },
 
-      // Allowed by default && custom credentials
+      // Enabled by default && custom credentials
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
@@ -295,25 +295,25 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Allowed && custom credentials
+      // Enabled && custom credentials
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue()); }},
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Enabled.getValue()); }},
         new HashMap<String, String>(),
         new VirtualFileService(),
         new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
-      // Allowed && predefined credentials WHEN custom credentials is not defined
+      // Enabled && predefined credentials WHEN custom credentials is not defined
       {
         new HashMap<String, String>() {{
           put(Constants.CREDENTIALS_VAR, "user2cred");}},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Enabled.getValue());
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
         new HashMap<String, String>() {{
@@ -327,12 +327,12 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Allowed && predefined credentials WHEN custom credentials is not defined
+      // Enabled && predefined credentials WHEN custom credentials is not defined
       {
         new HashMap<String, String>() {{
           put(Constants.CREDENTIALS_VAR, "user10000cred");}},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Enabled.getValue());
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
         new HashMap<String, String>() {{
@@ -346,11 +346,11 @@ public class UserCredentialsServiceTest {
         "Credentials file for .* was not found"
       },
 
-      // Allowed && predefined credentials && ret null WHEN credentials is not defined at all
+      // Enabled && predefined credentials && ret null WHEN credentials is not defined at all
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Enabled.getValue());
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
         new HashMap<String, String>() {{
@@ -364,14 +364,14 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Enforced && custom credentials
+      // PredefinedCredentials && ignore custom credentials
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{
           put(Constants.CREDENTIALS_VAR, "user2cred");
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir"); }},
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user2");
@@ -384,13 +384,13 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Enforced && custom credentials && throw an exception WHEN CREDENTIALS_VAR is not defined as configuration parameter
+      // PredefinedCredentials && custom credentials && throw an exception WHEN CREDENTIALS_VAR is not defined as configuration parameter
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
           put(Constants.PASSWORD_VAR, "password1"); }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Enforced.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir"); }},
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user2");
@@ -410,7 +410,7 @@ public class UserCredentialsServiceTest {
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Disabled.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Disabled.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -432,7 +432,7 @@ public class UserCredentialsServiceTest {
           put(Constants.PASSWORD_VAR, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Disabled.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Disabled.getValue());
           put(Constants.CREDENTIALS_VAR, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
@@ -452,7 +452,7 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Allowed && custom credentials && additional params
+      // Enabled && custom credentials && additional params
       {
         new HashMap<String, String>() {{
           put(Constants.USER_VAR, "user1");
@@ -462,7 +462,7 @@ public class UserCredentialsServiceTest {
           put(Constants.WINDOWS_LOGGING_LEVEL_VAR, LoggingLevel.Debug.getValue());
         }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Enabled.getValue());
         }},
         new HashMap<String, String>(),
         new VirtualFileService(),
@@ -470,12 +470,12 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Allowed && predefined credentials && additional params WHEN custom credentials is not defined
+      // Enabled && predefined credentials && additional params WHEN custom credentials is not defined
       {
         new HashMap<String, String>() {{
           put(Constants.CREDENTIALS_VAR, "user2cred");}},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS_MODE_VAR, CredentialsMode.Allowed.getValue());
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.Enabled.getValue());
           put(Constants.CREDENTIALS_DIRECTORY_VAR, "runAsCredDir");
         }},
         new HashMap<String, String>() {{

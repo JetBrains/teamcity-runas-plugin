@@ -8,6 +8,7 @@
   <bean class="jetbrains.buildServer.runAs.agent.CommandLineExecutorImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsPropertiesExtension" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsLoggerImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.ParametersServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.PropertiesServiceImpl" scope="prototype" />
   <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl"/>

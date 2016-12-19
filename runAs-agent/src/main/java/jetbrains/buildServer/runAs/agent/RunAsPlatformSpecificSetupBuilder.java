@@ -10,7 +10,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   static final String TOOL_FILE_NAME = "runAs";
   static final String ARGS_EXT = ".args";
   private final UserCredentialsService myUserCredentialsService;
-  private final RunnerParametersService myParametersService;
+  private final RunnerParametersService myRunnerParametersService;
   private final FileService myFileService;
   private final ResourcePublisher myBeforeBuildPublisher;
   private final AccessControlResource myAccessControlResource;
@@ -18,11 +18,12 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final ResourceGenerator<RunAsParams> myRunAsCmdGenerator;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
   private final FileAccessService myFileAccessService;
+  private final RunAsLogger myRunAsLogger;
   private final String myCommandFileExtension;
 
   public RunAsPlatformSpecificSetupBuilder(
     @NotNull final UserCredentialsService userCredentialsService,
-    @NotNull final RunnerParametersService parametersService,
+    @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final FileService fileService,
     @NotNull final ResourcePublisher beforeBuildPublisher,
     @NotNull final AccessControlResource accessControlResource,
@@ -30,9 +31,10 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final ResourceGenerator<RunAsParams> runAsCmdGenerator,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService,
     @NotNull final FileAccessService fileAccessService,
+    @NotNull final RunAsLogger runAsLogger,
     @NotNull final String commandFileExtension) {
     myUserCredentialsService = userCredentialsService;
-    myParametersService = parametersService;
+    myRunnerParametersService = runnerParametersService;
     myFileService = fileService;
     myBeforeBuildPublisher = beforeBuildPublisher;
     myAccessControlResource = accessControlResource;
@@ -40,6 +42,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myRunAsCmdGenerator = runAsCmdGenerator;
     myCommandLineArgumentsService = commandLineArgumentsService;
     myFileAccessService = fileAccessService;
+    myRunAsLogger = runAsLogger;
     myCommandFileExtension = commandFileExtension;
   }
 
@@ -76,18 +79,20 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
         new AccessControlEntry(myFileService.getTempDirectory(), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true))));
     resources.add(myAccessControlResource);
 
-    return Collections.singleton(
-      new CommandLineSetup(
-        getTool().getAbsolutePath(),
-        Arrays.asList(
-          new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(commandFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-          new CommandLineArgument(userCredentials.getPassword(), CommandLineArgument.Type.PARAMETER)),
-        resources));
+    final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
+      getTool().getAbsolutePath(),
+      Arrays.asList(
+        new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+        new CommandLineArgument(commandFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+        new CommandLineArgument(userCredentials.getPassword(), CommandLineArgument.Type.PARAMETER)),
+      resources);
+
+    myRunAsLogger.LogRunAs(runAsCommandLineSetup);
+    return Collections.singleton(runAsCommandLineSetup);
   }
 
   private File getTool() {
-    final File path = new File(myParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
+    final File path = new File(myRunnerParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
     myFileService.validatePath(path);
     final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute), false)));
     myFileAccessService.setAccess(acl);

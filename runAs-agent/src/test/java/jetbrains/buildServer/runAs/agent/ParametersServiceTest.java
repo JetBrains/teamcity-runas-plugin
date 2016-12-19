@@ -3,6 +3,8 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import jetbrains.buildServer.agent.BuildRunnerContext;
+import jetbrains.buildServer.dotNet.buildRunner.agent.BuildRunnerContextProvider;
 import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +24,8 @@ public class ParametersServiceTest {
   private Mockery myCtx;
   private RunnerParametersService myRunnerParametersService;
   private BuildFeatureParametersService myBuildFeatureParametersService;
+  private BuildRunnerContextProvider myBuildRunnerContextProvider;
+  private BuildRunnerContext myBuildRunnerContext;
 
   @BeforeMethod
   public void setUp()
@@ -29,6 +33,8 @@ public class ParametersServiceTest {
     myCtx = new Mockery();
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myBuildFeatureParametersService = myCtx.mock(BuildFeatureParametersService.class);
+    myBuildRunnerContextProvider = myCtx.mock(BuildRunnerContextProvider.class);
+    myBuildRunnerContext = myCtx.mock(BuildRunnerContext.class);
   }
 
   @DataProvider(name = "getParamCases")
@@ -170,11 +176,31 @@ public class ParametersServiceTest {
     then(actualValue).isEqualTo(expectedValue);
   }
 
+  @Test
+  public void shouldDisableLoggingOfCommandLine() {
+    // Given
+    myCtx.checking(new Expectations() {{
+      oneOf(myBuildRunnerContextProvider).getContext();
+      will(returnValue(myBuildRunnerContext));
+
+      oneOf(myBuildRunnerContext).addConfigParameter(ParametersServiceImpl.TEAMCITY_BUILD_LOG_LOG_COMMAND_LINE, Boolean.toString(false));
+    }});
+
+    final ParametersService provider = createInstance();
+
+    // When
+    provider.disableLoggingOfCommandLine();
+
+    // Then
+    myCtx.assertIsSatisfied();
+  }
+
   @NotNull
   private ParametersService createInstance()
   {
     return new ParametersServiceImpl(
       myRunnerParametersService,
-      myBuildFeatureParametersService);
+      myBuildFeatureParametersService,
+      myBuildRunnerContextProvider);
   }
 }

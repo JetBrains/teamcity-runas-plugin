@@ -21,7 +21,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 public class RunAsPlatformSpecificSetupBuilderTest {
   private Mockery myCtx;
   private FileService myFileService;
-  private RunnerParametersService myRunnerParametersService;
+  private RunAsLogger myRunAsLogger;
   private ResourcePublisher myBeforeBuildPublisher;
   private ResourceGenerator<UserCredentials> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
@@ -31,12 +31,14 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private UserCredentialsService myUserCredentialsService;
   private AccessControlResource myAccessControlResource;
   private FileAccessService myFileAccessService;
+  private RunnerParametersService myRunnerParametersService;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
     myUserCredentialsService = myCtx.mock(UserCredentialsService.class);
+    myRunAsLogger = myCtx.mock(RunAsLogger.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
     myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class);
@@ -73,6 +75,19 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     final UserCredentials settings = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
+    final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
+      runAsTool.getAbsolutePath(),
+      Arrays.asList(
+        new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+        new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+        new CommandLineArgument(password, CommandLineArgument.Type.PARAMETER)),
+      Arrays.asList(
+        myCommandLineResource1,
+        myCommandLineResource2,
+        new CommandLineFile(myBeforeBuildPublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
+        new CommandLineFile(myBeforeBuildPublisher, cmdFile.getAbsoluteFile(), cmdContent),
+        myAccessControlResource));
+
     myCtx.checking(new Expectations() {{
       oneOf(myUserCredentialsService).tryGetUserCredentials();
       will(returnValue(settings));
@@ -110,6 +125,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
         new AccessControlEntry(cmdFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowExecute), false),
         new AccessControlEntry(checkoutDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true),
         new AccessControlEntry(tempDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true))));
+
+      oneOf(myRunAsLogger).LogRunAs(runAsCommandLineSetup);
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -118,20 +135,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final CommandLineSetup setup = instance.build(commandLineSetup).iterator().next();
 
     // Then
+
     myCtx.assertIsSatisfied();
-    then(setup.getToolPath()).isEqualTo(runAsTool.getAbsolutePath());
-
-    then(setup.getResources()).containsExactly(
-      myCommandLineResource1,
-      myCommandLineResource2,
-      new CommandLineFile(myBeforeBuildPublisher, credentialsFile.getAbsoluteFile(), credentialsContent),
-      new CommandLineFile(myBeforeBuildPublisher, cmdFile.getAbsoluteFile(), cmdContent),
-      myAccessControlResource);
-
-    then(setup.getArgs()).containsExactly(
-      new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-      new CommandLineArgument(password, CommandLineArgument.Type.PARAMETER));
+    then(setup).isEqualTo(runAsCommandLineSetup);
   }
 
   @Test()
@@ -176,6 +182,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myArgsGenerator,
       myCommandLineArgumentsService,
       myFileAccessService,
+      myRunAsLogger,
       ".abc");
   }
 }

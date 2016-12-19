@@ -15,7 +15,7 @@ public class Constants {
     public static final String WINDOWS_LOGGING_LEVEL_VAR = "run_as_windows_logging_level";
 
     // Agent's configuration parameters
-    public static final String CREDENTIALS_MODE_VAR = "run_as_credentials_mode";
+    public static final String RUN_AS_MODE_VAR = "run_as_mode";
     public static final String CREDENTIALS_DIRECTORY_VAR = "run_as_credentials_directory";
 
     // Server's configuration parameters

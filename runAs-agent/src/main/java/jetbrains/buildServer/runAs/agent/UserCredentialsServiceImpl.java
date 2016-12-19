@@ -7,7 +7,7 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsServic
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
-import jetbrains.buildServer.runAs.common.CredentialsMode;
+import jetbrains.buildServer.runAs.common.RunAsMode;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
@@ -42,9 +42,9 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   public UserCredentials tryGetUserCredentials() {
     UserCredentials userCredentials = null;
 
-    final CredentialsMode credentialsMode = CredentialsMode.tryParse(myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_MODE_VAR));
-    switch (credentialsMode) {
-      case Prohibited: {
+    final RunAsMode runAsMode = RunAsMode.tryParse(myRunnerParametersService.tryGetConfigParameter(Constants.RUN_AS_MODE_VAR));
+    switch (runAsMode) {
+      case CustomCredentials: {
         String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_VAR);
         if (!StringUtil.isEmptyOrSpaces(credentialsRef)) {
           throw new BuildStartException("The usage of credentials is prohibited");
@@ -53,7 +53,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         return tryGetCustomCredentials();
       }
 
-      case Enforced: {
+      case PredefinedCredentials: {
         String credentialsRef = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_VAR);
         if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
           throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_VAR + "\" was not defined");
@@ -62,7 +62,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         return getPredefinedCredentials(credentialsRef);
       }
 
-      case Allowed: {
+      case Enabled: {
         userCredentials = tryGetCustomCredentials();
         if(userCredentials != null) {
           return userCredentials;
@@ -81,7 +81,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       }
     }
 
-    throw new BuildStartException("Unknown credentials mode \"" + credentialsMode.getDescription() + "\"");
+    throw new BuildStartException("Unknown credentials mode \"" + runAsMode.getDescription() + "\"");
   }
 
   @Nullable
