@@ -16,7 +16,7 @@ public class Constants {
 
     // Agent's configuration parameters
     public static final String RUN_AS_MODE_VAR = "run_as_mode";
-    public static final String CREDENTIALS_DIRECTORY_VAR = "run_as_credentials_directory";
+    public static final String CREDENTIALS_DIRECTORY_VAR = "runAsDir";
 
     // Server's configuration parameters
     public static final String RUN_AS_UI_ENABLED_VAR = "teamcity.runas.ui.enabled";

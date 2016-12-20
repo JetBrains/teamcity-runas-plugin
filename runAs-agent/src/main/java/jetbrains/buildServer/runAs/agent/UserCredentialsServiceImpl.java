@@ -1,6 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
+import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.agent.BuildAgentConfigurationEx;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
@@ -15,11 +16,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class UserCredentialsServiceImpl implements UserCredentialsService {
+  static final String DEFAULT_CREDENTIALS = "default";
   private final RunnerParametersService myRunnerParametersService;
   private final ParametersService myParametersService;
   private final PropertiesService myPropertiesService;
   private final FileService myFileService;
-  private final BuildAgentConfigurationEx myBuildAgentConfiguration;
+  private final BuildAgentConfiguration myBuildAgentConfiguration;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public UserCredentialsServiceImpl(
@@ -27,7 +29,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     @NotNull final ParametersService parametersService,
     @NotNull final PropertiesService propertiesService,
     @NotNull final FileService fileService,
-    @NotNull final BuildAgentConfigurationEx buildAgentConfiguration,
+    @NotNull final BuildAgentConfiguration buildAgentConfiguration,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myRunnerParametersService = runnerParametersService;
     myParametersService = parametersService;
@@ -56,7 +58,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       case PredefinedCredentials: {
         String credentialsRef = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_VAR);
         if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
-          throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_VAR + "\" was not defined");
+          credentialsRef = DEFAULT_CREDENTIALS;
         }
 
         return getPredefinedCredentials(credentialsRef);
@@ -69,11 +71,11 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         }
 
         String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_VAR);
-        if (!StringUtil.isEmptyOrSpaces(credentialsRef)) {
-          return getPredefinedCredentials(credentialsRef);
+        if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
+          credentialsRef = "default";
         }
 
-        return null;
+        return getPredefinedCredentials(credentialsRef);
       }
 
       case Disabled: {
@@ -106,7 +108,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY_VAR + "\" was not defined");
     }
 
-    final File credentialsDirectory = new File(myBuildAgentConfiguration.getAgentConfDirectory(), credentialsDirectoryStr);
+    final File credentialsDirectory = new File(new File(myBuildAgentConfiguration.getAgentHomeDirectory(), "bin"), credentialsDirectoryStr);
     if(!myFileService.exists(credentialsDirectory) || !myFileService.isDirectory(credentialsDirectory)) {
       throw new BuildStartException("Credentials directory was not found");
     }
