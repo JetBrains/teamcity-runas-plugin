@@ -26,9 +26,9 @@ public class RunAsPasswordsProvider implements PasswordsProvider {
         final SBuildType buildType = build.getBuildType();
         if (buildType != null) {
           for (SBuildRunnerDescriptor runner : buildType.getBuildRunners()) {
-            final String password = runner.getParameters().get(Constants.PASSWORD_VAR);
+            final String password = runner.getParameters().get(Constants.PASSWORD);
             if (!StringUtil.isEmpty(password)) {
-              passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + runner.getId(), password));
+              passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + runner.getId(), password));
             }
           }
         }
@@ -40,30 +40,30 @@ public class RunAsPasswordsProvider implements PasswordsProvider {
         }
 
         final Map<String, String> params = buildFeature.getParameters();
-        if (!params.containsKey(Constants.PASSWORD_VAR)) {
+        if (!params.containsKey(Constants.PASSWORD)) {
           continue;
         }
 
-        final String password = params.get(Constants.PASSWORD_VAR);
+        final String password = params.get(Constants.PASSWORD);
         if (!StringUtil.isEmpty(password)) {
-          passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + buildFeature.getId(), password));
+          passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + buildFeature.getId(), password));
         }
       }
     }
     else {
       if (build != null) {
         final SBuildAgent agent = build.getAgent();
-        final String password = agent.getConfigurationParameters().get(Constants.PASSWORD_VAR);
+        final String password = agent.getConfigurationParameters().get(Constants.PASSWORD);
         if (!StringUtil.isEmpty(password)) {
-          passwords.add(new SimpleParameter(Constants.PASSWORD_VAR + "_" + agent.getId(), password));
+          passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + agent.getId(), password));
         }
       }
     }
 
     final Map<String, String> buildParams = sBuild.getBuildOwnParameters();
-    final String password = buildParams.get(Constants.PASSWORD_VAR);
+    final String password = buildParams.get(Constants.PASSWORD);
     if(!StringUtil.isEmpty(password)) {
-      passwords.add(new SimpleParameter(Constants.PASSWORD_VAR, password));
+      passwords.add(new SimpleParameter(Constants.PASSWORD, password));
     }
 
     return passwords;

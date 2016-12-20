@@ -26,7 +26,7 @@ public class ParametersServiceImpl implements ParametersService {
   @Nullable
   @Override
   public String tryGetParameter(@NotNull final String paramName) {
-    final String isRunAsEnabled = myParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED_VAR);
+    final String isRunAsEnabled = myParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED);
     if(StringUtil.isEmpty(isRunAsEnabled) || Boolean.toString(true).equalsIgnoreCase(isRunAsEnabled)) {
       String paramValue = myParametersService.tryGetRunnerParameter(paramName);
       if (!StringUtil.isEmptyOrSpaces(paramValue)) {

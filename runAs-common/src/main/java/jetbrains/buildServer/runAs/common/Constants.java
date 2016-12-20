@@ -6,18 +6,18 @@ public class Constants {
     public static final String RUN_AS_TOOL_NAME = "runAs";
 
     // Build's configuration parameters
-    public static final String RUN_AS_READY_VAR = "run_as_ready";
-    public static final String USER_VAR = "run_as_user";
-    public static final String PASSWORD_VAR = "secure:run_as_password";
-    public static final String CREDENTIALS_VAR = "run_as_credentials";
-    public static final String ADDITIONAL_ARGS_VAR = "run_as_additional_args";
-    public static final String WINDOWS_INTEGRITY_LEVEL_VAR = "run_as_windows_integrity_level";
-    public static final String WINDOWS_LOGGING_LEVEL_VAR = "run_as_windows_logging_level";
+    public static final String RUN_AS_READY = "run_as_ready";
+    public static final String USER = "run_as_user";
+    public static final String PASSWORD = "secure:run_as_password";
+    public static final String CREDENTIALS = "run_as_credentials";
+    public static final String ADDITIONAL_ARGS = "run_as_additional_args";
+    public static final String WINDOWS_INTEGRITY_LEVEL = "run_as_windows_integrity_level";
+    public static final String WINDOWS_LOGGING_LEVEL = "run_as_windows_logging_level";
 
     // Agent's configuration parameters
-    public static final String RUN_AS_MODE_VAR = "run_as_mode";
-    public static final String CREDENTIALS_DIRECTORY_VAR = "runAsDir";
+    public static final String RUN_AS_MODE = "run_as_mode";
+    public static final String CREDENTIALS_DIRECTORY = "runAsDir";
 
     // Server's configuration parameters
-    public static final String RUN_AS_UI_ENABLED_VAR = "teamcity.runas.ui.enabled";
+    public static final String RUN_AS_UI_ENABLED = "teamcity.runas.ui.enabled";
 }

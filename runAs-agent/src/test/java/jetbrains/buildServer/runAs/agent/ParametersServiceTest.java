@@ -43,36 +43,36 @@ public class ParametersServiceTest {
       // from buildFeature
       {
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
         new HashMap<String, String>(),
-        Constants.USER_VAR,
+        Constants.USER,
         "user2"
       },
 
       // from buildFeature when UI was enabled
       {
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.RUN_AS_UI_ENABLED_VAR, "true"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
+        Constants.USER,
         "user2"
       },
 
       // from buildFeature when UI was enabled
       {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.RUN_AS_UI_ENABLED_VAR, "true"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
+        Constants.USER,
         "user1"
       },
 
       // from runnerParameters
       {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
         new HashMap<String, String>(),
         new HashMap<String, String>(),
-        Constants.USER_VAR,
+        Constants.USER,
         "user1"
       },
 
@@ -80,44 +80,44 @@ public class ParametersServiceTest {
       {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); }},
+        Constants.USER,
         "user3"
       },
 
       // from runnerParameters
       {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); }},
+        Constants.USER,
         "user1"
       },
 
       // from buildFeature
       {
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); }},
+        Constants.USER,
         "user2"
       },
 
       // from runnerParameters
       {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); }},
+        Constants.USER,
         "user1"
       },
 
       // from configParameters when UI was disabled
       {
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user1"); put(Constants.PASSWORD_VAR, "password1"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user2"); put(Constants.PASSWORD_VAR, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_VAR, "user3"); put(Constants.PASSWORD_VAR, "password3"); put(Constants.RUN_AS_UI_ENABLED_VAR, "false"); }},
-        Constants.USER_VAR,
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "false"); }},
+        Constants.USER,
         "user3"
       },
     };

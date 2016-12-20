@@ -12,22 +12,22 @@ public class RunAsBean {
 
   @NotNull
   public String getRunAsUserKey() {
-    return Constants.USER_VAR;
+    return Constants.USER;
   }
 
   @NotNull
   public String getRunAsPasswordKey() {
-    return Constants.PASSWORD_VAR;
+    return Constants.PASSWORD;
   }
 
   @NotNull
   public String getAdditionalCommandLineParametersKey() {
-    return Constants.ADDITIONAL_ARGS_VAR;
+    return Constants.ADDITIONAL_ARGS;
   }
 
   @NotNull
   public String getWindowsIntegrityLevelKey() {
-    return Constants.WINDOWS_INTEGRITY_LEVEL_VAR;
+    return Constants.WINDOWS_INTEGRITY_LEVEL;
   }
 
   @NotNull
@@ -37,7 +37,7 @@ public class RunAsBean {
 
   @NotNull
   public String getWindowsLoggingLevelKey() {
-    return Constants.WINDOWS_LOGGING_LEVEL_VAR;
+    return Constants.WINDOWS_LOGGING_LEVEL;
   }
 
   @NotNull

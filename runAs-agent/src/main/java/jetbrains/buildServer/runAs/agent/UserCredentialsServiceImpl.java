@@ -2,7 +2,6 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import jetbrains.buildServer.agent.BuildAgentConfiguration;
-import jetbrains.buildServer.agent.BuildAgentConfigurationEx;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
@@ -44,10 +43,10 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   public UserCredentials tryGetUserCredentials() {
     UserCredentials userCredentials = null;
 
-    final RunAsMode runAsMode = RunAsMode.tryParse(myRunnerParametersService.tryGetConfigParameter(Constants.RUN_AS_MODE_VAR));
+    final RunAsMode runAsMode = RunAsMode.tryParse(myRunnerParametersService.tryGetConfigParameter(Constants.RUN_AS_MODE));
     switch (runAsMode) {
       case CustomCredentials: {
-        String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_VAR);
+        String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS);
         if (!StringUtil.isEmptyOrSpaces(credentialsRef)) {
           throw new BuildStartException("The usage of credentials is prohibited");
         }
@@ -56,7 +55,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       }
 
       case PredefinedCredentials: {
-        String credentialsRef = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_VAR);
+        String credentialsRef = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS);
         if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
           credentialsRef = DEFAULT_CREDENTIALS;
         }
@@ -70,7 +69,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
           return userCredentials;
         }
 
-        String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_VAR);
+        String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS);
         if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
           return getPredefinedCredentials("default", false);
         }
@@ -88,8 +87,8 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
   @Nullable
   private UserCredentials tryGetCustomCredentials() {
-    final String userName = myParametersService.tryGetParameter(Constants.USER_VAR);
-    final String password = myParametersService.tryGetParameter(Constants.PASSWORD_VAR);
+    final String userName = myParametersService.tryGetParameter(Constants.USER);
+    final String password = myParametersService.tryGetParameter(Constants.PASSWORD);
 
     if(StringUtil.isEmptyOrSpaces(userName) || StringUtil.isEmptyOrSpaces(password)) {
       return null;
@@ -103,10 +102,10 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     final String userName;
     final String password;
 
-    final String credentialsDirectoryStr = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_DIRECTORY_VAR);
+    final String credentialsDirectoryStr = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_DIRECTORY);
     if(credentialsDirectoryStr == null) {
       if(trowException) {
-        throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY_VAR + "\" was not defined");
+        throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined");
       }
 
       return null;
@@ -131,12 +130,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     }
 
     myPropertiesService.load(credentialsFile);
-    userName = myPropertiesService.tryGetProperty(Constants.USER_VAR);
+    userName = myPropertiesService.tryGetProperty(Constants.USER);
     if(StringUtil.isEmptyOrSpaces(userName)) {
       throw new BuildStartException("Username must be defined for \"" + credentials + "\"");
     }
 
-    password = myPropertiesService.tryGetProperty(Constants.PASSWORD_VAR);
+    password = myPropertiesService.tryGetProperty(Constants.PASSWORD);
     if(StringUtil.isEmptyOrSpaces(password)) {
       throw new BuildStartException("Password must be defined for \"" + credentials + "\"");
     }
@@ -148,10 +147,10 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   private UserCredentials createCredentials(@NotNull final String userName, @NotNull final String password, boolean isPredefined)
   {
     // Get parameters
-    final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(Constants.WINDOWS_INTEGRITY_LEVEL_VAR, isPredefined));
-    final LoggingLevel windowsLoggingLevel = LoggingLevel.tryParse(getParam(Constants.WINDOWS_LOGGING_LEVEL_VAR, isPredefined));
+    final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(Constants.WINDOWS_INTEGRITY_LEVEL, isPredefined));
+    final LoggingLevel windowsLoggingLevel = LoggingLevel.tryParse(getParam(Constants.WINDOWS_LOGGING_LEVEL, isPredefined));
 
-    String additionalArgs = getParam(Constants.ADDITIONAL_ARGS_VAR, isPredefined);
+    String additionalArgs = getParam(Constants.ADDITIONAL_ARGS, isPredefined);
     if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
       additionalArgs = "";
     }
