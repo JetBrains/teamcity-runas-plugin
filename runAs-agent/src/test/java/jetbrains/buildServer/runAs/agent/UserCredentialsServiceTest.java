@@ -67,6 +67,18 @@ public class UserCredentialsServiceTest {
         new HashMap<String, String>(),
         new VirtualFileService(),
         null,
+        null
+      },
+
+      // Predefined && ret null
+      {
+        new HashMap<String, String>(),
+        new HashMap<String, String>() {{
+          put(Constants.RUN_AS_MODE_VAR, RunAsMode.PredefinedCredentials.getValue());
+        }},
+        new HashMap<String, String>(),
+        new VirtualFileService(),
+        null,
         "Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY_VAR + "\" was not defined"
       },
 
@@ -416,7 +428,7 @@ public class UserCredentialsServiceTest {
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
         null,
-        "Credentials file for .+ was not found"
+        null
       },
 
       // PredefinedCredentials && ignore custom credentials

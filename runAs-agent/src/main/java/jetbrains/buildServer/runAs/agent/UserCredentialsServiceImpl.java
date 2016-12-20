@@ -61,7 +61,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
           credentialsRef = DEFAULT_CREDENTIALS;
         }
 
-        return getPredefinedCredentials(credentialsRef);
+        return getPredefinedCredentials(credentialsRef, true);
       }
 
       case Enabled: {
@@ -72,10 +72,10 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
         String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_VAR);
         if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
-          credentialsRef = "default";
+          return getPredefinedCredentials("default", false);
         }
 
-        return getPredefinedCredentials(credentialsRef);
+        return getPredefinedCredentials(credentialsRef, true);
       }
 
       case Disabled: {
@@ -98,24 +98,36 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     return createCredentials(userName, password, false);
   }
 
-  @NotNull
-  private UserCredentials getPredefinedCredentials(@NotNull final String credentials) {
+  @Nullable
+  private UserCredentials getPredefinedCredentials(@NotNull final String credentials, final boolean trowException) {
     final String userName;
     final String password;
 
     final String credentialsDirectoryStr = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_DIRECTORY_VAR);
     if(credentialsDirectoryStr == null) {
-      throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY_VAR + "\" was not defined");
+      if(trowException) {
+        throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY_VAR + "\" was not defined");
+      }
+
+      return null;
     }
 
     final File credentialsDirectory = new File(new File(myBuildAgentConfiguration.getAgentHomeDirectory(), "bin"), credentialsDirectoryStr);
     if(!myFileService.exists(credentialsDirectory) || !myFileService.isDirectory(credentialsDirectory)) {
-      throw new BuildStartException("Credentials directory was not found");
+      if(trowException) {
+        throw new BuildStartException("Credentials directory was not found");
+      }
+
+      return null;
     }
 
     final File credentialsFile = new File(credentialsDirectory, credentials + ".properties");
     if(!myFileService.exists(credentialsFile) || myFileService.isDirectory(credentialsFile)) {
-      throw new BuildStartException("Credentials file for \"" + credentials + "\" was not found");
+      if(trowException) {
+        throw new BuildStartException("Credentials file for \"" + credentials + "\" was not found");
+      }
+
+      return null;
     }
 
     myPropertiesService.load(credentialsFile);
