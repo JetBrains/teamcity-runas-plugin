@@ -10,15 +10,15 @@ import org.jetbrains.annotations.Nullable;
 
 public class ParametersServiceImpl implements ParametersService {
   static final String TEAMCITY_BUILD_LOG_LOG_COMMAND_LINE = "teamcity.buildLog.logCommandLine";
-  private final RunnerParametersService myParametersService;
+  private final RunnerParametersService myRunnerParametersService;
   private final BuildFeatureParametersService myBuildFeatureParametersService;
   private final BuildRunnerContextProvider myContextProvider;
 
   public ParametersServiceImpl(
-    @NotNull final RunnerParametersService parametersService,
+    @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final BuildFeatureParametersService buildFeatureParametersService,
     @NotNull final BuildRunnerContextProvider contextProvider) {
-    myParametersService = parametersService;
+    myRunnerParametersService = runnerParametersService;
     myBuildFeatureParametersService = buildFeatureParametersService;
     myContextProvider = contextProvider;
   }
@@ -26,9 +26,9 @@ public class ParametersServiceImpl implements ParametersService {
   @Nullable
   @Override
   public String tryGetParameter(@NotNull final String paramName) {
-    final String isRunAsEnabled = myParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED);
+    final String isRunAsEnabled = myRunnerParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED);
     if(StringUtil.isEmpty(isRunAsEnabled) || Boolean.toString(true).equalsIgnoreCase(isRunAsEnabled)) {
-      String paramValue = myParametersService.tryGetRunnerParameter(paramName);
+      String paramValue = myRunnerParametersService.tryGetRunnerParameter(paramName);
       if (!StringUtil.isEmptyOrSpaces(paramValue)) {
         return paramValue;
       }
@@ -42,7 +42,12 @@ public class ParametersServiceImpl implements ParametersService {
       }
     }
 
-    return myParametersService.tryGetConfigParameter(paramName);
+    return myRunnerParametersService.tryGetConfigParameter(paramName);
+  }
+
+  @Override
+  public String tryGetConfigParameter(@NotNull final String configParamName) {
+    return myRunnerParametersService.tryGetConfigParameter(configParamName);
   }
 
   public void disableLoggingOfCommandLine()

@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class UserCredentialsServiceImpl implements UserCredentialsService {
   static final String DEFAULT_CREDENTIALS = "default";
-  private final RunnerParametersService myRunnerParametersService;
   private final ParametersService myParametersService;
   private final PropertiesService myPropertiesService;
   private final FileService myFileService;
@@ -24,13 +23,11 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   private final CommandLineArgumentsService myCommandLineArgumentsService;
 
   public UserCredentialsServiceImpl(
-    @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final ParametersService parametersService,
     @NotNull final PropertiesService propertiesService,
     @NotNull final FileService fileService,
     @NotNull final BuildAgentConfiguration buildAgentConfiguration,
     @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
-    myRunnerParametersService = runnerParametersService;
     myParametersService = parametersService;
     myPropertiesService = propertiesService;
     myFileService = fileService;
@@ -43,7 +40,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   public UserCredentials tryGetUserCredentials() {
     UserCredentials userCredentials = null;
 
-    final RunAsMode runAsMode = RunAsMode.tryParse(myRunnerParametersService.tryGetConfigParameter(Constants.RUN_AS_MODE));
+    final RunAsMode runAsMode = RunAsMode.tryParse(myParametersService.tryGetConfigParameter(Constants.RUN_AS_MODE));
     switch (runAsMode) {
       case CustomCredentials: {
         String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS);
@@ -55,7 +52,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       }
 
       case PredefinedCredentials: {
-        String credentialsRef = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS);
+        String credentialsRef = myParametersService.tryGetConfigParameter(Constants.CREDENTIALS);
         if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
           credentialsRef = DEFAULT_CREDENTIALS;
         }
@@ -102,7 +99,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     final String userName;
     final String password;
 
-    final String credentialsDirectoryStr = myRunnerParametersService.tryGetConfigParameter(Constants.CREDENTIALS_DIRECTORY);
+    final String credentialsDirectoryStr = myParametersService.tryGetConfigParameter(Constants.CREDENTIALS_DIRECTORY);
     if(credentialsDirectoryStr == null) {
       if(trowException) {
         throw new BuildStartException("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined");

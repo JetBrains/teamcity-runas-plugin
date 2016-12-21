@@ -32,7 +32,6 @@ public class UserCredentialsServiceTest {
   private final File myDefaultCred;
   private final File myAgentBinDir;
   private Mockery myCtx;
-  private RunnerParametersService myRunnerParametersService;
   private ParametersService myParametersService;
   private PropertiesService myPropertiesService;
   private BuildAgentConfiguration myBuildAgentConfiguration;
@@ -50,7 +49,6 @@ public class UserCredentialsServiceTest {
   public void setUp()
   {
     myCtx = new Mockery();
-    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myParametersService = myCtx.mock(ParametersService.class);
     myPropertiesService = myCtx.mock(PropertiesService.class);
     myBuildAgentConfiguration = myCtx.mock(BuildAgentConfiguration.class);
@@ -593,7 +591,7 @@ public class UserCredentialsServiceTest {
         }
       });
 
-      allowing(myRunnerParametersService).tryGetConfigParameter(with(any(String.class)));
+      allowing(myParametersService).tryGetConfigParameter(with(any(String.class)));
       will(new CustomAction("tryGetConfigParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -654,7 +652,6 @@ public class UserCredentialsServiceTest {
   private UserCredentialsService createInstance(FileService fileService)
   {
     return new UserCredentialsServiceImpl(
-      myRunnerParametersService,
       myParametersService,
       myPropertiesService,
       fileService,

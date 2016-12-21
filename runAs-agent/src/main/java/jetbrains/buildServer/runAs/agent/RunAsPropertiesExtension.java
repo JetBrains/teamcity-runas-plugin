@@ -60,7 +60,7 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
           LOG.info("runAs self-test exit code: " + result.getExitCode());
           final int bitness = result.getExitCode();
           if (bitness == 32 || bitness == 64) {
-            config.addConfigurationParameter(Constants.RUN_AS_READY, Boolean.toString(true));
+            config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
           }
         }
       } catch (ExecutionException e) {
@@ -69,7 +69,7 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
     }
     else
     {
-      config.addConfigurationParameter(Constants.RUN_AS_READY, Boolean.toString(true));
+      config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
     }
   }
 }

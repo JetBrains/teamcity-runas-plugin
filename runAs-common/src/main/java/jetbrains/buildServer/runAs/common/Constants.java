@@ -6,7 +6,7 @@ public class Constants {
     public static final String RUN_AS_TOOL_NAME = "runAs";
 
     // Build's configuration parameters
-    public static final String RUN_AS_READY = "run_as_ready";
+    public static final String RUN_AS_ENABLED = "teamcity.agent.runAs.enabled";
     public static final String USER = "run_as_user";
     public static final String PASSWORD = "secure:run_as_password";
     public static final String CREDENTIALS = "run_as_credentials";
