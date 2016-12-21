@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class ParametersServiceTest {
+public class ParametersServiceTest{
   private Mockery myCtx;
   private RunnerParametersService myRunnerParametersService;
   private BuildFeatureParametersService myBuildFeatureParametersService;
@@ -199,6 +199,8 @@ public class ParametersServiceTest {
   private ParametersService createInstance()
   {
     return new ParametersServiceImpl(
+      null,
+      myBuildRunnerContextProvider,
       myRunnerParametersService,
       myBuildFeatureParametersService,
       myBuildRunnerContextProvider);

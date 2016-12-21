@@ -6,12 +6,13 @@ import java.util.Map;
 import jetbrains.buildServer.agent.AgentBuildFeature;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildRunnerContextProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BuildFeatureParametersServiceImpl implements BuildFeatureParametersService {
   private final BuildRunnerContextProvider myContextProvider;
 
-  public BuildFeatureParametersServiceImpl(@NotNull final BuildRunnerContextProvider contextProvider) {
-
+  public BuildFeatureParametersServiceImpl(
+    @NotNull final BuildRunnerContextProvider contextProvider) {
     myContextProvider = contextProvider;
   }
 
@@ -31,5 +32,21 @@ public class BuildFeatureParametersServiceImpl implements BuildFeatureParameters
     }
 
     return params;
+  }
+
+  @Override
+  public void setBuildFeatureParameters(@NotNull final String buildFeatureType, @NotNull final String parameterName, @Nullable final String parameterValue) {
+    for(AgentBuildFeature buildFeature: myContextProvider.getContext().getBuild().getBuildFeaturesOfType(buildFeatureType))
+    {
+      if (!buildFeatureType.equalsIgnoreCase(buildFeature.getType()))
+      {
+        continue;
+      }
+
+      final Map<String, String> allParams = buildFeature.getParameters();
+      if(allParams.containsKey(buildFeatureType)) {
+        allParams.put(buildFeatureType, parameterValue);
+      }
+    }
   }
 }

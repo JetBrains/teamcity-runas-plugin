@@ -20,4 +20,6 @@ public class Constants {
 
     // Server's configuration parameters
     public static final String RUN_AS_UI_ENABLED = "teamcity.runas.ui.enabled";
+
+    public static final String PASSWORD_REPLACEMENT_VAL = "*****";
 }

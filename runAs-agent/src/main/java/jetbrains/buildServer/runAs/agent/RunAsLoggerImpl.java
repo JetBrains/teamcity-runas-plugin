@@ -7,10 +7,10 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.LoggerService;
+import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 
 public class RunAsLoggerImpl implements RunAsLogger {
-  private static final String PASSWORD_REPLACEMENT_VAL = "*****";
   private final LoggerService myLoggerService;
   private final FileService myFileService;
   private final ParametersService myParametersService;
@@ -33,7 +33,7 @@ public class RunAsLoggerImpl implements RunAsLogger {
     final ArrayList<CommandLineArgument> args = new ArrayList<CommandLineArgument>(runAsCommandLineSetup.getArgs());
     if(args.size() > 0) {
       args.remove(args.size() - 1);
-      args.add(new CommandLineArgument(PASSWORD_REPLACEMENT_VAL, CommandLineArgument.Type.PARAMETER));
+      args.add(new CommandLineArgument(Constants.PASSWORD_REPLACEMENT_VAL, CommandLineArgument.Type.PARAMETER));
     }
 
     for(final CommandLineArgument arg: args)

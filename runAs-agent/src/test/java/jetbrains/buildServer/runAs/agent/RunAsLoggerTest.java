@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
+import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -74,7 +75,7 @@ public class RunAsLoggerTest {
     myCtx.assertIsSatisfied();
     then(logMessages.size()).isEqualTo(2);
     then(logMessages).containsSequence(
-      "Starting: tool cred cmd *****",
+      "Starting: tool cred cmd " + Constants.PASSWORD_REPLACEMENT_VAL,
       "in directory: CheckoutDirectory");
   }
 
