@@ -5,21 +5,22 @@ public class Constants {
     public static final String BUILD_FEATURE_TYPE = "runAs-build-feature";
     public static final String RUN_AS_TOOL_NAME = "runAs";
 
-    // Build's configuration parameters
+    // Parameter names
+    public static final String USER_FROM_UI = "run_as_user";
+    public static final String USER = "teamcity.runAs.username";
+    public static final String PASSWORD_FROM_UI = "secure:run_as_password";
+    public static final String PASSWORD = "teamcity.runAs.password";
+    public static final String ADDITIONAL_ARGS_FROM_UI = "run_as_additional_args";
+    public static final String ADDITIONAL_ARGS = "teamcity.runAs.additionalCommandLine";
     public static final String RUN_AS_ENABLED = "teamcity.agent.runAs.enabled";
-    public static final String USER = "run_as_user";
-    public static final String PASSWORD = "secure:run_as_password";
-    public static final String CREDENTIALS = "run_as_credentials";
-    public static final String ADDITIONAL_ARGS = "run_as_additional_args";
-    public static final String WINDOWS_INTEGRITY_LEVEL = "run_as_windows_integrity_level";
-    public static final String WINDOWS_LOGGING_LEVEL = "run_as_windows_logging_level";
+    public static final String CREDENTIALS_PROFILE_ID = "teamcity.runAs.profileId";
+    public static final String WINDOWS_INTEGRITY_LEVEL = "teamcity.runAs.windowsIntegrityLlevel";
+    public static final String LOGGING_LEVEL = "teamcity.runAs.loggingLevel";
+    public static final String ALLOW_CUSTOM_CREDENTIALS = "teamcity.runAs.allowCustomCredentials";
+    public static final String ALLOW_PROFILE_ID_FROM_SERVER = "teamcity.runAs.allowProfileIdFromServer";
+    public static final String CREDENTIALS_DIRECTORY = "teamcity.runAs.configDir";
+    public static final String RUN_AS_UI_ENABLED = "teamcity.runAs.ui.enabled";
 
-    // Agent's configuration parameters
-    public static final String RUN_AS_MODE = "run_as_mode";
-    public static final String CREDENTIALS_DIRECTORY = "runAsDir";
-
-    // Server's configuration parameters
-    public static final String RUN_AS_UI_ENABLED = "teamcity.runas.ui.enabled";
-
+    // Others
     public static final String PASSWORD_REPLACEMENT_VAL = "*****";
 }

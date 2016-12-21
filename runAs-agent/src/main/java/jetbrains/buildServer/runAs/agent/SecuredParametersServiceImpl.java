@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implements SecuredParametersService {
-  private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD, Constants.CREDENTIALS, Constants.CREDENTIALS_DIRECTORY };
+  private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD_FROM_UI, Constants.PASSWORD, Constants.CREDENTIALS_PROFILE_ID, Constants.CREDENTIALS_DIRECTORY };
   private final BuildRunnerContextProvider myContextProvider;
   private final RunnerParametersService myRunnerParametersService;
   private final Parameters agentProtectedParameters = new Parameters();

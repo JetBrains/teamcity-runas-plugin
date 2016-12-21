@@ -5,9 +5,7 @@ import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
-import jetbrains.buildServer.runAs.common.RunAsMode;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
@@ -38,54 +36,64 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   @Nullable
   @Override
   public UserCredentials tryGetUserCredentials() {
-    UserCredentials userCredentials = null;
-
-    final RunAsMode runAsMode = RunAsMode.tryParse(myParametersService.tryGetConfigParameter(Constants.RUN_AS_MODE));
-    switch (runAsMode) {
-      case CustomCredentials: {
-        String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS);
-        if (!StringUtil.isEmptyOrSpaces(credentialsRef)) {
-          throw new BuildStartException("The usage of credentials is prohibited");
-        }
-
-        return tryGetCustomCredentials();
+    UserCredentials userCredentials;
+    final boolean allowCustomCredentials = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_CUSTOM_CREDENTIALS), true);
+    final boolean allowProfileIdFromServer = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), true);
+    if(allowCustomCredentials && allowProfileIdFromServer) {
+      userCredentials = tryGetCustomCredentials();
+      if(userCredentials != null) {
+        return userCredentials;
       }
 
-      case PredefinedCredentials: {
-        String credentialsRef = myParametersService.tryGetConfigParameter(Constants.CREDENTIALS);
-        if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
-          credentialsRef = DEFAULT_CREDENTIALS;
-        }
-
-        return getPredefinedCredentials(credentialsRef, true);
+      String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
+      if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
+        return getPredefinedCredentials("default", false);
       }
 
-      case Enabled: {
-        userCredentials = tryGetCustomCredentials();
-        if(userCredentials != null) {
-          return userCredentials;
-        }
-
-        String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS);
-        if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
-          return getPredefinedCredentials("default", false);
-        }
-
-        return getPredefinedCredentials(credentialsRef, true);
-      }
-
-      case Disabled: {
-        return null;
-      }
+      return getPredefinedCredentials(credentialsRef, true);
     }
 
-    throw new BuildStartException("Unknown credentials mode \"" + runAsMode.getDescription() + "\"");
+    if(allowCustomCredentials) {
+      String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
+      if (!StringUtil.isEmptyOrSpaces(credentialsRef)) {
+        throw new BuildStartException("The usage of credentials is prohibited");
+      }
+
+      return tryGetCustomCredentials();
+    }
+
+    if(allowProfileIdFromServer) {
+      String credentialsRef = myParametersService.tryGetConfigParameter(Constants.CREDENTIALS_PROFILE_ID);
+      if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
+        credentialsRef = DEFAULT_CREDENTIALS;
+      }
+
+      return getPredefinedCredentials(credentialsRef, true);
+    }
+
+    return null;
+  }
+
+  private boolean parseBoolean(@Nullable final String boolStr, final boolean defaultValue) {
+    if(StringUtil.isEmptyOrSpaces(boolStr)) {
+      return defaultValue;
+    }
+
+    if(Boolean.toString(true).equalsIgnoreCase(boolStr)) {
+      return true;
+    }
+
+    if(Boolean.toString(false).equalsIgnoreCase(boolStr)) {
+      return false;
+    }
+
+    return defaultValue;
   }
 
   @Nullable
   private UserCredentials tryGetCustomCredentials() {
-    final String userName = myParametersService.tryGetParameter(Constants.USER);
-    final String password = myParametersService.tryGetParameter(Constants.PASSWORD);
+    final String userName = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.USER_FROM_UI), myParametersService.tryGetParameter(Constants.USER));
+    final String password = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.PASSWORD_FROM_UI), myParametersService.tryGetParameter(Constants.PASSWORD));
 
     if(StringUtil.isEmptyOrSpaces(userName) || StringUtil.isEmptyOrSpaces(password)) {
       return null;
@@ -127,12 +135,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     }
 
     myPropertiesService.load(credentialsFile);
-    userName = myPropertiesService.tryGetProperty(Constants.USER);
+    userName = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(Constants.USER_FROM_UI), myPropertiesService.tryGetProperty(Constants.USER));
     if(StringUtil.isEmptyOrSpaces(userName)) {
       throw new BuildStartException("Username must be defined for \"" + credentials + "\"");
     }
 
-    password = myPropertiesService.tryGetProperty(Constants.PASSWORD);
+    password = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(Constants.PASSWORD_FROM_UI), myPropertiesService.tryGetProperty(Constants.PASSWORD));
     if(StringUtil.isEmptyOrSpaces(password)) {
       throw new BuildStartException("Password must be defined for \"" + credentials + "\"");
     }
@@ -145,14 +153,14 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   {
     // Get parameters
     final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(Constants.WINDOWS_INTEGRITY_LEVEL, isPredefined));
-    final LoggingLevel windowsLoggingLevel = LoggingLevel.tryParse(getParam(Constants.WINDOWS_LOGGING_LEVEL, isPredefined));
+    final LoggingLevel loggingLevel = LoggingLevel.tryParse(getParam(Constants.LOGGING_LEVEL, isPredefined));
 
-    String additionalArgs = getParam(Constants.ADDITIONAL_ARGS, isPredefined);
+    String additionalArgs = tryGetFirstNotEmpty(getParam(Constants.ADDITIONAL_ARGS_FROM_UI, isPredefined), getParam(Constants.ADDITIONAL_ARGS, isPredefined));
     if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
       additionalArgs = "";
     }
 
-    return new UserCredentials(userName, password, windowsIntegrityLevel, windowsLoggingLevel, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
+    return new UserCredentials(userName, password, windowsIntegrityLevel, loggingLevel, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
   }
 
   @Nullable
@@ -162,5 +170,16 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     }
 
     return myParametersService.tryGetParameter(paramName);
+  }
+
+  @Nullable
+  private String tryGetFirstNotEmpty(String ... values) {
+    for(String value: values) {
+      if(!StringUtil.isEmptyOrSpaces(value)) {
+        return value;
+      }
+    }
+
+    return null;
   }
 }

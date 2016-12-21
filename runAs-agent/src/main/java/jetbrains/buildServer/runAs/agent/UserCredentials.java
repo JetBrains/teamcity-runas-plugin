@@ -10,19 +10,19 @@ public class UserCredentials {
   private final String myUser;
   private final String myPassword;
   private final WindowsIntegrityLevel myWindowsIntegrityLevel;
-  private final LoggingLevel myWindowsLoggingLevel;
+  private final LoggingLevel myLoggingLevel;
   private final List<CommandLineArgument> myAdditionalArgs;
 
   public UserCredentials(
     @NotNull final String user,
     @NotNull final String password,
     @NotNull final WindowsIntegrityLevel windowsIntegrityLevel,
-    @NotNull final LoggingLevel windowsLoggingLevel,
+    @NotNull final LoggingLevel loggingLevel,
     @NotNull final List<CommandLineArgument> additionalArgs) {
     myUser = user;
     myPassword = password;
     myWindowsIntegrityLevel = windowsIntegrityLevel;
-    myWindowsLoggingLevel = windowsLoggingLevel;
+    myLoggingLevel = loggingLevel;
     myAdditionalArgs = additionalArgs;
   }
 
@@ -40,8 +40,8 @@ public class UserCredentials {
     return myWindowsIntegrityLevel;
   }
 
-  public LoggingLevel getWindowsLoggingLevel() {
-    return myWindowsLoggingLevel;
+  public LoggingLevel getLoggingLevel() {
+    return myLoggingLevel;
   }
 
   @NotNull
@@ -59,7 +59,7 @@ public class UserCredentials {
     if (!myUser.equals(that.myUser)) return false;
     if (!myPassword.equals(that.myPassword)) return false;
     if (myWindowsIntegrityLevel != that.myWindowsIntegrityLevel) return false;
-    if (myWindowsLoggingLevel != that.myWindowsLoggingLevel) return false;
+    if (myLoggingLevel != that.myLoggingLevel) return false;
     return myAdditionalArgs.equals(that.myAdditionalArgs);
 
   }
@@ -69,7 +69,7 @@ public class UserCredentials {
     int result = myUser.hashCode();
     result = 31 * result + myPassword.hashCode();
     result = 31 * result + myWindowsIntegrityLevel.hashCode();
-    result = 31 * result + myWindowsLoggingLevel.hashCode();
+    result = 31 * result + myLoggingLevel.hashCode();
     result = 31 * result + myAdditionalArgs.hashCode();
     return result;
   }

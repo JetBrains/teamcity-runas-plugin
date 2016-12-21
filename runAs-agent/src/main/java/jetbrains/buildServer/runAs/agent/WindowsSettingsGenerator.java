@@ -36,14 +36,14 @@ public class WindowsSettingsGenerator implements ResourceGenerator<UserCredentia
       sb.append(userCredentials.getWindowsIntegrityLevel().getValue());
     }
 
-    if(userCredentials.getWindowsLoggingLevel() != LoggingLevel.Off) {
+    if(userCredentials.getLoggingLevel() != LoggingLevel.Off) {
       if(sb.length() > 0)
       {
         sb.append(LINE_SEPARATOR);
       }
 
       sb.append(LOGGING_LEVEL_CMD_KEY);
-      sb.append(userCredentials.getWindowsLoggingLevel().getValue());
+      sb.append(userCredentials.getLoggingLevel().getValue());
     }
 
     if(sb.length() > 0 && userCredentials.getAdditionalArgs().size() > 0) {

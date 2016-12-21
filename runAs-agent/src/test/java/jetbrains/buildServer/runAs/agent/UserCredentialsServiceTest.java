@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
-import jetbrains.buildServer.runAs.common.RunAsMode;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import jetbrains.buildServer.util.StringUtil;
@@ -72,7 +71,8 @@ public class UserCredentialsServiceTest {
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
         }},
         new HashMap<String, String>(),
         new VirtualFileService(),
@@ -80,20 +80,44 @@ public class UserCredentialsServiceTest {
         "Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined"
       },
 
-      // PredefinedCredentials && predefined credentials
+      // Predefined credentials
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
+        }},
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
+          put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
+        }},
+        new HashMap<String, String>() {{
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
+        }},
+        new VirtualFileService(
+          new VirtualFileService.VirtualDirectory(myRunAsCredDir),
+          new VirtualFileService.VirtualFile(myUser2Cred, "")),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        null
+      },
+
+      // Predefined credentials
       {
         new HashMap<String, String>() {{
           put(Constants.USER, "user1");
           put(Constants.PASSWORD, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -109,8 +133,8 @@ public class UserCredentialsServiceTest {
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user3");
-          put(Constants.PASSWORD, "password3");
+          put(Constants.USER_FROM_UI, "user3");
+          put(Constants.PASSWORD_FROM_UI, "password3");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -122,17 +146,18 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials && throw exception WHEN password is empty
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -144,16 +169,17 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials && throw exception WHEN password is null
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
+          put(Constants.USER_FROM_UI, "user2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -165,17 +191,18 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN throw exception when user is empty
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -187,16 +214,17 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN throw exception when user is null
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.PASSWORD, "password2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -208,17 +236,18 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN cred file is directory
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -230,17 +259,18 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN there is not cred file
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir)),
@@ -251,17 +281,18 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN cred dir is not a dir
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");;
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualFile(myRunAsCredDir, "")),
@@ -272,17 +303,18 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN cred dir does not exist
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(),
         null,
@@ -292,34 +324,36 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && predefined credentials WHEN CREDENTIALS_DIRECTORY is not defined as configuration parameter
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(),
         null,
         "Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined"
       },
 
-      // PredefinedCredentials && predefined credentials WHEN CREDENTIALS is not defined as configuration parameter
+      // PredefinedCredentials && predefined credentials WHEN CREDENTIALS_PROFILE_ID is not defined as configuration parameter
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(),
         null,
@@ -329,16 +363,17 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && use default credentials
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user4");
-          put(Constants.PASSWORD, "password4");
+          put(Constants.USER_FROM_UI, "user4");
+          put(Constants.PASSWORD_FROM_UI, "password4");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -351,8 +386,8 @@ public class UserCredentialsServiceTest {
       // Enabled by default && custom credentials
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1"); }},
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>(),
         new HashMap<String, String>(),
         new VirtualFileService(),
@@ -363,10 +398,12 @@ public class UserCredentialsServiceTest {
       // Enabled && custom credentials
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1"); }},
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Enabled.getValue()); }},
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
+          }},
         new HashMap<String, String>(),
         new VirtualFileService(),
         new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
@@ -376,14 +413,15 @@ public class UserCredentialsServiceTest {
       // Enabled && predefined credentials WHEN custom credentials is not defined
       {
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS, "user2cred");}},
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");}},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Enabled.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -395,14 +433,15 @@ public class UserCredentialsServiceTest {
       // Enabled && predefined credentials WHEN custom credentials is not defined
       {
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS, "user10000cred");}},
+          put(Constants.CREDENTIALS_PROFILE_ID, "user10000cred");}},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Enabled.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -415,12 +454,13 @@ public class UserCredentialsServiceTest {
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Enabled.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user55");
-          put(Constants.PASSWORD, "password55");
+          put(Constants.USER_FROM_UI, "user55");
+          put(Constants.PASSWORD_FROM_UI, "password55");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -432,15 +472,16 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && ignore custom credentials
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1"); }},
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS, "user2cred");
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName()); }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -449,17 +490,18 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // PredefinedCredentials && custom credentials && try to use default credentials and throw an exception WHEN CREDENTIALS is not defined as configuration parameter
+      // PredefinedCredentials && custom credentials && try to use default credentials and throw an exception WHEN CREDENTIALS_PROFILE_ID is not defined as configuration parameter
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user34");
-          put(Constants.PASSWORD, "password34"); }},
+          put(Constants.USER_FROM_UI, "user34");
+          put(Constants.PASSWORD_FROM_UI, "password34"); }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.PredefinedCredentials.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName()); }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user35");
-          put(Constants.PASSWORD, "password35");
+          put(Constants.USER_FROM_UI, "user35");
+          put(Constants.PASSWORD_FROM_UI, "password35");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -471,17 +513,18 @@ public class UserCredentialsServiceTest {
       // Disabled && ret null
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Disabled.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "false");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user66");
-          put(Constants.PASSWORD, "password66");
+          put(Constants.USER_FROM_UI, "user66");
+          put(Constants.PASSWORD_FROM_UI, "password66");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -493,12 +536,13 @@ public class UserCredentialsServiceTest {
       // Disabled && ret null
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user99");
-          put(Constants.PASSWORD, "password99");
+          put(Constants.USER_FROM_UI, "user99");
+          put(Constants.PASSWORD_FROM_UI, "password99");
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Disabled.getValue());
-          put(Constants.CREDENTIALS, "user2cred");
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "false");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>(),
@@ -510,14 +554,15 @@ public class UserCredentialsServiceTest {
       // Enabled && custom credentials && additional params
       {
         new HashMap<String, String>() {{
-          put(Constants.USER, "user1");
-          put(Constants.PASSWORD, "password1");
-          put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
+          put(Constants.USER_FROM_UI, "user1");
+          put(Constants.PASSWORD_FROM_UI, "password1");
+          put(Constants.ADDITIONAL_ARGS_FROM_UI, "arg1 arg2");
           put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
-          put(Constants.WINDOWS_LOGGING_LEVEL, LoggingLevel.Debug.getValue());
+          put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
         }},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Enabled.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
         }},
         new HashMap<String, String>(),
         new VirtualFileService(),
@@ -528,17 +573,18 @@ public class UserCredentialsServiceTest {
       // Enabled && predefined credentials && additional params WHEN custom credentials is not defined
       {
         new HashMap<String, String>() {{
-          put(Constants.CREDENTIALS, "user2cred");}},
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");}},
         new HashMap<String, String>() {{
-          put(Constants.RUN_AS_MODE, RunAsMode.Enabled.getValue());
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user2");
-          put(Constants.PASSWORD, "password2");
-          put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
+          put(Constants.USER_FROM_UI, "user2");
+          put(Constants.PASSWORD_FROM_UI, "password2");
+          put(Constants.ADDITIONAL_ARGS_FROM_UI, "arg1 arg2");
           put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
-          put(Constants.WINDOWS_LOGGING_LEVEL, LoggingLevel.Debug.getValue());
+          put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
@@ -554,11 +600,11 @@ public class UserCredentialsServiceTest {
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
         new HashMap<String, String>() {{
-          put(Constants.USER, "user78");
-          put(Constants.PASSWORD, "password78");
-          put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
+          put(Constants.USER_FROM_UI, "user78");
+          put(Constants.PASSWORD_FROM_UI, "password78");
+          put(Constants.ADDITIONAL_ARGS_FROM_UI, "arg1 arg2");
           put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
-          put(Constants.WINDOWS_LOGGING_LEVEL, LoggingLevel.Debug.getValue());
+          put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
