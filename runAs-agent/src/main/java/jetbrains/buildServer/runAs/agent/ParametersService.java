@@ -8,6 +8,4 @@ public interface ParametersService {
   String tryGetParameter(@NotNull final String paramName);
 
   String tryGetConfigParameter(@NotNull final String configParamName);
-
-  void disableLoggingOfCommandLine();
 }

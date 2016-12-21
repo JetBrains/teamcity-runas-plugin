@@ -4,12 +4,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
        default-autowire="constructor">
 
-  <bean class="jetbrains.buildServer.runAs.agent.BuildFeatureParametersServiceImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.SecuredParametersServiceImpl" primary="true" />
+  <bean class="jetbrains.buildServer.runAs.agent.SecuredLoggingServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.CommandLineExecutorImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsPropertiesExtension" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsLoggerImpl" />
-  <bean class="jetbrains.buildServer.runAs.agent.ParametersServiceImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.ParametersServiceImpl"/>
   <bean class="jetbrains.buildServer.runAs.agent.PropertiesServiceImpl" scope="prototype" />
   <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl"/>
   <bean class="jetbrains.buildServer.runAs.agent.FileAccessServiceImpl"/>

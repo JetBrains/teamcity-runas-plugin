@@ -11,6 +11,7 @@
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.SecuredLoggingServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.UserCredentialsServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.WindowsSettingsGeneratorTest"/>

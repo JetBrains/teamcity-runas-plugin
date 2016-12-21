@@ -13,20 +13,20 @@ import org.jetbrains.annotations.NotNull;
 public class RunAsLoggerImpl implements RunAsLogger {
   private final LoggerService myLoggerService;
   private final FileService myFileService;
-  private final ParametersService myParametersService;
+  private final SecuredLoggingService mySecuredLoggingService;
 
   public RunAsLoggerImpl(
     @NotNull final LoggerService loggerService,
     @NotNull final FileService fileService,
-    @NotNull final ParametersService parametersService) {
+    @NotNull final SecuredLoggingService securedLoggingService) {
     myLoggerService = loggerService;
     myFileService = fileService;
-    myParametersService = parametersService;
+    mySecuredLoggingService = securedLoggingService;
   }
 
   @Override
   public void LogRunAs(@NotNull final CommandLineSetup runAsCommandLineSetup) {
-    myParametersService.disableLoggingOfCommandLine();
+    mySecuredLoggingService.disableLoggingOfCommandLine();
 
     final GeneralCommandLine cmd = new GeneralCommandLine();
     cmd.setExePath(runAsCommandLineSetup.getToolPath());

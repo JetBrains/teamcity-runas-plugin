@@ -19,9 +19,9 @@ public class RunAsLoggerTest {
   private Mockery myCtx;
   private LoggerService myLoggerService;
   private FileService myFileService;
-  private ParametersService myParametersService;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
+  private SecuredLoggingService mySecuredLoggingService;
 
   @BeforeMethod
   public void setUp()
@@ -29,7 +29,7 @@ public class RunAsLoggerTest {
     myCtx = new Mockery();
     myLoggerService = myCtx.mock(LoggerService.class);
     myFileService = myCtx.mock(FileService.class);
-    myParametersService = myCtx.mock(ParametersService.class);
+    mySecuredLoggingService = myCtx.mock(SecuredLoggingService.class);
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
   }
@@ -51,7 +51,7 @@ public class RunAsLoggerTest {
         myCommandLineResource2));
 
     myCtx.checking(new Expectations() {{
-      oneOf(myParametersService).disableLoggingOfCommandLine();
+      oneOf(mySecuredLoggingService).disableLoggingOfCommandLine();
 
       oneOf(myFileService).getCheckoutDirectory();
       will(returnValue(checkoutDirectory));
@@ -85,6 +85,6 @@ public class RunAsLoggerTest {
     return new RunAsLoggerImpl(
       myLoggerService,
       myFileService,
-      myParametersService);
+      mySecuredLoggingService);
   }
 }

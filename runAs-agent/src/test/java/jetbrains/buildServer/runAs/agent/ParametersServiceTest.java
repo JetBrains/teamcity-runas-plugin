@@ -1,11 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import jetbrains.buildServer.agent.BuildRunnerContext;
-import jetbrains.buildServer.dotNet.buildRunner.agent.BuildRunnerContextProvider;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,19 +18,13 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 public class ParametersServiceTest{
   private Mockery myCtx;
-  private RunnerParametersService myRunnerParametersService;
-  private BuildFeatureParametersService myBuildFeatureParametersService;
-  private BuildRunnerContextProvider myBuildRunnerContextProvider;
-  private BuildRunnerContext myBuildRunnerContext;
+  private SecuredParametersService mySecuredParametersService;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
-    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
-    myBuildFeatureParametersService = myCtx.mock(BuildFeatureParametersService.class);
-    myBuildRunnerContextProvider = myCtx.mock(BuildRunnerContextProvider.class);
-    myBuildRunnerContext = myCtx.mock(BuildRunnerContext.class);
+    mySecuredParametersService = myCtx.mock(SecuredParametersService.class);
   }
 
   @DataProvider(name = "getParamCases")
@@ -132,7 +122,7 @@ public class ParametersServiceTest{
     @Nullable final String expectedValue) throws IOException {
     // Given
     myCtx.checking(new Expectations() {{
-      allowing(myRunnerParametersService).tryGetRunnerParameter(with(any(String.class)));
+      allowing(mySecuredParametersService).tryGetRunnerParameter(with(any(String.class)));
       will(new CustomAction("tryGetRunnerParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -141,7 +131,7 @@ public class ParametersServiceTest{
         }
       });
 
-      allowing(myBuildFeatureParametersService).getBuildFeatureParameters(with(any(String.class)), with(any(String.class)));
+      allowing(mySecuredParametersService).tryGetBuildFeatureParameter(with(any(String.class)), with(any(String.class)));
       will(new CustomAction("getBuildFeatureParameters") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -149,14 +139,14 @@ public class ParametersServiceTest{
           final String name = (String)invocation.getParameter(1);
           final String val = buildFeatureParameters.get(name);
           if(val != null) {
-            return Arrays.asList(buildFeatureParameters.get(name));
+            return buildFeatureParameters.get(name);
           }
 
-          return Arrays.asList();
+          return null;
         }
       });
 
-      allowing(myRunnerParametersService).tryGetConfigParameter(with(any(String.class)));
+      allowing(mySecuredParametersService).tryGetConfigParameter(with(any(String.class)));
       will(new CustomAction("tryGetConfigParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -176,33 +166,10 @@ public class ParametersServiceTest{
     then(actualValue).isEqualTo(expectedValue);
   }
 
-  @Test
-  public void shouldDisableLoggingOfCommandLine() {
-    // Given
-    myCtx.checking(new Expectations() {{
-      oneOf(myBuildRunnerContextProvider).getContext();
-      will(returnValue(myBuildRunnerContext));
-
-      oneOf(myBuildRunnerContext).addConfigParameter(ParametersServiceImpl.TEAMCITY_BUILD_LOG_LOG_COMMAND_LINE, Boolean.toString(false));
-    }});
-
-    final ParametersService provider = createInstance();
-
-    // When
-    provider.disableLoggingOfCommandLine();
-
-    // Then
-    myCtx.assertIsSatisfied();
-  }
-
   @NotNull
   private ParametersService createInstance()
   {
     return new ParametersServiceImpl(
-      null,
-      myBuildRunnerContextProvider,
-      myRunnerParametersService,
-      myBuildFeatureParametersService,
-      myBuildRunnerContextProvider);
+      mySecuredParametersService);
   }
 }
