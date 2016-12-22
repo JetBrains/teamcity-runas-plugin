@@ -6,11 +6,8 @@ public class Constants {
     public static final String RUN_AS_TOOL_NAME = "runAs";
 
     // Parameter names
-    public static final String USER_FROM_UI = "run_as_user";
     public static final String USER = "teamcity.runAs.username";
-    public static final String PASSWORD_FROM_UI = "secure:run_as_password";
     public static final String PASSWORD = "secure:teamcity.runAs.password";
-    public static final String ADDITIONAL_ARGS_FROM_UI = "run_as_additional_args";
     public static final String ADDITIONAL_ARGS = "teamcity.runAs.additionalCommandLine";
     public static final String RUN_AS_ENABLED = "teamcity.agent.runAs.enabled";
     public static final String CREDENTIALS_PROFILE_ID = "teamcity.runAs.profileId";

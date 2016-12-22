@@ -92,8 +92,8 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
   @Nullable
   private UserCredentials tryGetCustomCredentials() {
-    final String userName = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.USER_FROM_UI), myParametersService.tryGetParameter(Constants.USER));
-    final String password = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.PASSWORD_FROM_UI), myParametersService.tryGetParameter(Constants.PASSWORD));
+    final String userName = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.USER), myParametersService.tryGetParameter(Constants.USER));
+    final String password = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.PASSWORD), myParametersService.tryGetParameter(Constants.PASSWORD));
 
     if(StringUtil.isEmptyOrSpaces(userName) || StringUtil.isEmptyOrSpaces(password)) {
       return null;
@@ -135,12 +135,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     }
 
     myPropertiesService.load(credentialsFile);
-    userName = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(Constants.USER_FROM_UI), myPropertiesService.tryGetProperty(Constants.USER));
+    userName = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(Constants.USER), myPropertiesService.tryGetProperty(Constants.USER));
     if(StringUtil.isEmptyOrSpaces(userName)) {
       throw new BuildStartException("Username must be defined for \"" + credentials + "\"");
     }
 
-    password = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(Constants.PASSWORD_FROM_UI), myPropertiesService.tryGetProperty(Constants.PASSWORD));
+    password = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(Constants.PASSWORD), myPropertiesService.tryGetProperty(Constants.PASSWORD));
     if(StringUtil.isEmptyOrSpaces(password)) {
       throw new BuildStartException("Password must be defined for \"" + credentials + "\"");
     }
@@ -155,7 +155,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(Constants.WINDOWS_INTEGRITY_LEVEL, isPredefined));
     final LoggingLevel loggingLevel = LoggingLevel.tryParse(getParam(Constants.LOGGING_LEVEL, isPredefined));
 
-    String additionalArgs = tryGetFirstNotEmpty(getParam(Constants.ADDITIONAL_ARGS_FROM_UI, isPredefined), getParam(Constants.ADDITIONAL_ARGS, isPredefined));
+    String additionalArgs = tryGetFirstNotEmpty(getParam(Constants.ADDITIONAL_ARGS, isPredefined), getParam(Constants.ADDITIONAL_ARGS, isPredefined));
     if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
       additionalArgs = "";
     }

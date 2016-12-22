@@ -12,17 +12,17 @@ public class RunAsBean {
 
   @NotNull
   public String getRunAsUserKey() {
-    return Constants.USER_FROM_UI;
+    return Constants.USER;
   }
 
   @NotNull
   public String getRunAsPasswordKey() {
-    return Constants.PASSWORD_FROM_UI;
+    return Constants.PASSWORD;
   }
 
   @NotNull
   public String getAdditionalCommandLineParametersKey() {
-    return Constants.ADDITIONAL_ARGS_FROM_UI;
+    return Constants.ADDITIONAL_ARGS;
   }
 
   @NotNull
