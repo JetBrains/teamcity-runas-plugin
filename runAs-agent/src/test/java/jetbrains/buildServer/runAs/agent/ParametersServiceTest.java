@@ -34,7 +34,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user2"); put(Constants.PASSWORD_FROM_UI, "password2"); }},
-        new HashMap<String, String>(),
+        new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER_FROM_UI,
         "user2"
       },
@@ -61,7 +61,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user1"); put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>(),
-        new HashMap<String, String>(),
+        new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER_FROM_UI,
         "user1"
       },
@@ -70,7 +70,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true");}},
         Constants.USER_FROM_UI,
         "user3"
       },
@@ -79,7 +79,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user1"); put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user2"); put(Constants.PASSWORD_FROM_UI, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER_FROM_UI,
         "user1"
       },
@@ -88,7 +88,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user2"); put(Constants.PASSWORD_FROM_UI, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER_FROM_UI,
         "user2"
       },
@@ -97,7 +97,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user1"); put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER_FROM_UI,
         "user1"
       },
@@ -107,6 +107,15 @@ public class ParametersServiceTest{
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user1"); put(Constants.PASSWORD_FROM_UI, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user2"); put(Constants.PASSWORD_FROM_UI, "password2"); }},
         new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); put(Constants.RUN_AS_UI_ENABLED, "false"); }},
+        Constants.USER_FROM_UI,
+        "user3"
+      },
+
+      // from configParameters when UI by default
+      {
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user1"); put(Constants.PASSWORD_FROM_UI, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user2"); put(Constants.PASSWORD_FROM_UI, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER_FROM_UI, "user3"); put(Constants.PASSWORD_FROM_UI, "password3"); }},
         Constants.USER_FROM_UI,
         "user3"
       },
