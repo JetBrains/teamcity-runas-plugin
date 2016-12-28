@@ -2,10 +2,9 @@ package jetbrains.buildServer.runAs.agent;
 
 
 public enum AccessPermissions {
+  Recursive,
   AllowRead,
-  DenyRead,
   AllowWrite,
-  DenyWrite,
   AllowExecute,
-  DenyExecute
+  Revoke
 }

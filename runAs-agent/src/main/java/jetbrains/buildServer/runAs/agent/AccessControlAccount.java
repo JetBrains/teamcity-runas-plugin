@@ -1,28 +1,34 @@
 package jetbrains.buildServer.runAs.agent;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 class AccessControlAccount {
   @NotNull private final AccessControlAccountType myTargetType;
+  @NotNull private final String myUserName;
 
-  private AccessControlAccount(@NotNull final AccessControlAccountType targetType) {
+  private AccessControlAccount(@NotNull final AccessControlAccountType targetType, @NotNull final String userName) {
     myTargetType = targetType;
+    myUserName = userName;
   }
 
   static AccessControlAccount forCurrent()
   {
-    return new AccessControlAccount(AccessControlAccountType.Current);
+    return new AccessControlAccount(AccessControlAccountType.Current, "");
   }
 
-  static AccessControlAccount forAll()
+  static AccessControlAccount forUser(@NotNull final String userName)
   {
-    return new AccessControlAccount(AccessControlAccountType.All);
+    return new AccessControlAccount(AccessControlAccountType.User, userName);
   }
 
   @NotNull
   AccessControlAccountType getTargetType() {
     return myTargetType;
+  }
+
+  @NotNull
+  public String getUserName() {
+    return myUserName;
   }
 
   @Override
@@ -32,12 +38,15 @@ class AccessControlAccount {
 
     final AccessControlAccount that = (AccessControlAccount)o;
 
-    return myTargetType == that.myTargetType;
+    if (myTargetType != that.myTargetType) return false;
+    return myUserName.equals(that.myUserName);
 
   }
 
   @Override
   public int hashCode() {
-    return myTargetType.hashCode();
+    int result = myTargetType.hashCode();
+    result = 31 * result + myUserName.hashCode();
+    return result;
   }
 }

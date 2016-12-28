@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-class AccessControlList implements Iterable<AccessControlEntry> {
+public class AccessControlList implements Iterable<AccessControlEntry> {
   private final LinkedHashSet<AccessControlEntry> myAccessControlEntries = new LinkedHashSet<AccessControlEntry>();
 
   AccessControlList(final Iterable<AccessControlEntry> accessControlEntries) {

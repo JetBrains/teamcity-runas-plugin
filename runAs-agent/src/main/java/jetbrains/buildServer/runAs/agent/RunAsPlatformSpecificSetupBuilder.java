@@ -12,6 +12,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final UserCredentialsService myUserCredentialsService;
   private final RunnerParametersService myRunnerParametersService;
   private final FileService myFileService;
+  private final AccessControlListProvider myAccessControlListProvider;
   private final ResourcePublisher myBeforeBuildPublisher;
   private final AccessControlResource myAccessControlResource;
   private final ResourceGenerator<UserCredentials> myUserCredentialsGenerator;
@@ -25,6 +26,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final UserCredentialsService userCredentialsService,
     @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final FileService fileService,
+    @NotNull final AccessControlListProvider accessControlListProvider,
     @NotNull final ResourcePublisher beforeBuildPublisher,
     @NotNull final AccessControlResource accessControlResource,
     @NotNull final ResourceGenerator<UserCredentials> userCredentialsGenerator,
@@ -36,6 +38,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myUserCredentialsService = userCredentialsService;
     myRunnerParametersService = runnerParametersService;
     myFileService = fileService;
+    myAccessControlListProvider = accessControlListProvider;
     myBeforeBuildPublisher = beforeBuildPublisher;
     myAccessControlResource = accessControlResource;
     myUserCredentialsGenerator = userCredentialsGenerator;
@@ -72,11 +75,12 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
 
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
     resources.add(new CommandLineFile(myBeforeBuildPublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
-    myAccessControlResource.setAccess(
-      new AccessControlList(Arrays.asList(
-        new AccessControlEntry(commandFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowExecute), false),
-        new AccessControlEntry(myFileService.getCheckoutDirectory(), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true),
-        new AccessControlEntry(myFileService.getTempDirectory(), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true))));
+    myAccessControlResource.addEntry(new AccessControlEntry(commandFile, AccessControlAccount.forUser(userCredentials.getUser()), EnumSet.of(AccessPermissions.AllowExecute)));
+    final AccessControlList beforeBuildStepAcl = myAccessControlListProvider.getBeforeBuildStepAcl(userCredentials);
+    for (AccessControlEntry ace: beforeBuildStepAcl) {
+      myAccessControlResource.addEntry(ace);
+    }
+
     resources.add(myAccessControlResource);
 
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
@@ -94,7 +98,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private File getTool() {
     final File path = new File(myRunnerParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
     myFileService.validatePath(path);
-    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute), false)));
+    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute))));
     myFileAccessService.setAccess(acl);
     return path;
   }

@@ -3,6 +3,7 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
@@ -32,6 +33,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private AccessControlResource myAccessControlResource;
   private FileAccessService myFileAccessService;
   private RunnerParametersService myRunnerParametersService;
+  private AccessControlListProvider myAccessControlListProvider;
 
   @BeforeMethod
   public void setUp()
@@ -41,6 +43,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     myRunAsLogger = myCtx.mock(RunAsLogger.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
+    myAccessControlListProvider = myCtx.mock(AccessControlListProvider.class);
     myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class);
     myAccessControlResource = myCtx.mock(AccessControlResource.class);
     //noinspection unchecked
@@ -57,14 +60,12 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   @Test()
   public void shouldBuildSetup() throws IOException {
     // Given
-    final File checkoutDirectory = new File("CheckoutDirectory");
-    final File tempDirectory = new File("TempDirectory");
     final File credentialsFile = new File("credentials");
     final File cmdFile = new File("command");
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsPlatformSpecificSetupBuilder.TOOL_FILE_NAME + ".abc");
-    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute), false)));
+    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute))));
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
@@ -74,7 +75,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
     final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
-    final UserCredentials settings = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
+    final UserCredentials userCredentials = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList()));
+    final AccessControlEntry beforeBuildStepAce = new AccessControlEntry(new File("tools"), AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.AllowExecute));
+    final AccessControlList beforeBuildStepAcl = new AccessControlList(Arrays.asList(beforeBuildStepAce));
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
       runAsTool.getAbsolutePath(),
       Arrays.asList(
@@ -90,7 +93,10 @@ public class RunAsPlatformSpecificSetupBuilderTest {
 
     myCtx.checking(new Expectations() {{
       oneOf(myUserCredentialsService).tryGetUserCredentials();
-      will(returnValue(settings));
+      will(returnValue(userCredentials));
+
+      oneOf(myAccessControlListProvider).getBeforeBuildStepAcl(userCredentials);
+      will(returnValue(beforeBuildStepAcl));
 
       oneOf(myFileService).getTempFileName(RunAsPlatformSpecificSetupBuilder.ARGS_EXT);
       will(returnValue(credentialsFile));
@@ -98,13 +104,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myFileService).getTempFileName(".abc");
       will(returnValue(cmdFile));
 
-      oneOf(myFileService).getCheckoutDirectory();
-      will(returnValue(checkoutDirectory));
-
-      oneOf(myFileService).getTempDirectory();
-      will(returnValue(tempDirectory));
-
-      oneOf(myCredentialsGenerator).create(with(settings));
+      oneOf(myCredentialsGenerator).create(with(userCredentials));
       will(returnValue(credentialsContent));
 
       //noinspection unchecked
@@ -120,11 +120,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myFileService).validatePath(runAsTool);
       oneOf(myFileAccessService).setAccess(runAsToolAcl);
 
-      oneOf(myAccessControlResource).setAccess(
-        new AccessControlList(Arrays.asList(
-        new AccessControlEntry(cmdFile, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowExecute), false),
-        new AccessControlEntry(checkoutDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true),
-        new AccessControlEntry(tempDirectory, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite), true))));
+      oneOf(myAccessControlResource).addEntry(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.AllowExecute)));
+      oneOf(myAccessControlResource).addEntry(beforeBuildStepAce);
 
       oneOf(myRunAsLogger).LogRunAs(runAsCommandLineSetup);
     }});
@@ -176,6 +173,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myUserCredentialsService,
       myRunnerParametersService,
       myFileService,
+      myAccessControlListProvider,
       myBeforeBuildPublisher,
       myAccessControlResource,
       myCredentialsGenerator,

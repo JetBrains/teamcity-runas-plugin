@@ -1,5 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.ArrayList;
+import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineExecutionContext;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import org.jetbrains.annotations.NotNull;
@@ -7,23 +9,20 @@ import org.jetbrains.annotations.Nullable;
 
 public class AccessControlResourceImpl implements AccessControlResource {
   private final FileAccessService myFileAccessService;
-  @Nullable private AccessControlList myAccessControlList;
+  private final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
 
   public AccessControlResourceImpl(@NotNull final FileAccessService fileAccessService) {
     myFileAccessService = fileAccessService;
   }
 
-  public void setAccess(@NotNull final AccessControlList accessControlList) {
-    myAccessControlList = accessControlList;
+  @Override
+  public void addEntry(@NotNull final AccessControlEntry accessControlEntry) {
+    aceList.add(accessControlEntry);
   }
 
   @Override
   public void publishBeforeBuild(@NotNull final CommandLineExecutionContext commandLineExecutionContext) {
-    if(myAccessControlList == null) {
-      return;
-    }
-
-    myFileAccessService.setAccess(myAccessControlList);
+    myFileAccessService.setAccess(new AccessControlList(aceList));
   }
 
   @Override

@@ -2,9 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.regex.Pattern;
 import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
@@ -30,11 +28,13 @@ public class UserCredentialsServiceTest {
   private final File myUser2Cred;
   private final File myDefaultCred;
   private final File myAgentBinDir;
+  private final AccessControlList myAccessControlList;
   private Mockery myCtx;
   private ParametersService myParametersService;
   private PropertiesService myPropertiesService;
-  private BuildAgentConfiguration myBuildAgentConfiguration;
+  private PathsService myPathsService;
   private CommandLineArgumentsService myCommandLineArgumentsService;
+  private TextParser<AccessControlList> myFileAccessParser;
 
   public UserCredentialsServiceTest() {
     myAgentHomeDir = new File("homeDir");
@@ -42,6 +42,7 @@ public class UserCredentialsServiceTest {
     myRunAsCredDir = new File(myAgentBinDir, "RunAsCredDir");
     myUser2Cred = new File(myRunAsCredDir, "user2cred.properties");
     myDefaultCred = new File(myRunAsCredDir, UserCredentialsServiceImpl.DEFAULT_CREDENTIALS + ".properties");
+    myAccessControlList = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive))));
   }
 
   @BeforeMethod
@@ -50,8 +51,9 @@ public class UserCredentialsServiceTest {
     myCtx = new Mockery();
     myParametersService = myCtx.mock(ParametersService.class);
     myPropertiesService = myCtx.mock(PropertiesService.class);
-    myBuildAgentConfiguration = myCtx.mock(BuildAgentConfiguration.class);
+    myPathsService = myCtx.mock(PathsService.class);
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
+    myFileAccessParser = (TextParser<AccessControlList>)myCtx.mock(TextParser.class);
   }
 
   @DataProvider(name = "getUserCredentialsCases")
@@ -99,7 +101,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -122,7 +124,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -139,7 +141,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myDefaultCred, "")),
-        new UserCredentials("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -286,7 +288,7 @@ public class UserCredentialsServiceTest {
         }},
         new HashMap<String, String>() {{
           put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
-          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");;
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
           put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
           put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDir.getName());
         }},
@@ -379,7 +381,7 @@ public class UserCredentialsServiceTest {
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myDefaultCred, "")
         ),
-        new UserCredentials("user4", "password4", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user4", "password4", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -391,7 +393,7 @@ public class UserCredentialsServiceTest {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
         new VirtualFileService(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -406,7 +408,7 @@ public class UserCredentialsServiceTest {
           }},
         new HashMap<String, String>(),
         new VirtualFileService(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -426,7 +428,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -486,7 +488,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -566,7 +568,7 @@ public class UserCredentialsServiceTest {
         }},
         new HashMap<String, String>(),
         new VirtualFileService(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -589,7 +591,7 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
 
@@ -605,11 +607,18 @@ public class UserCredentialsServiceTest {
           put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
           put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
           put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
+          put(Constants.RUN_AS_BEFORE_STEP_ACL, "acl");
         }},
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myDefaultCred, "")),
-        new UserCredentials("user78", "password78", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
+        new UserCredentials(
+          "user78",
+          "password78",
+          WindowsIntegrityLevel.High,
+          LoggingLevel.Debug,
+          Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)),
+          myAccessControlList),
         null
       },
     };
@@ -625,8 +634,8 @@ public class UserCredentialsServiceTest {
     @Nullable final String expectedExceptionMessage) throws IOException {
     // Given
     myCtx.checking(new Expectations() {{
-      allowing(myBuildAgentConfiguration).getAgentHomeDirectory();
-      will(returnValue(myAgentHomeDir));
+      allowing(myPathsService).getPath(WellKnownPaths.Bin);
+      will(returnValue(myAgentBinDir));
 
       allowing(myParametersService).tryGetParameter(with(any(String.class)));
       will(new CustomAction("tryGetParameter") {
@@ -656,6 +665,9 @@ public class UserCredentialsServiceTest {
       });
 
       allowing(myPropertiesService).load(with(any(File.class)));
+
+      allowing(myFileAccessParser).parse("acl");
+      will(returnValue(myAccessControlList));
 
       allowing(myCommandLineArgumentsService).parseCommandLineArguments(with(any(String.class)));
       will(new CustomAction("parseCommandLineArguments") {
@@ -701,7 +713,8 @@ public class UserCredentialsServiceTest {
       myParametersService,
       myPropertiesService,
       fileService,
-      myBuildAgentConfiguration,
-      myCommandLineArgumentsService);
+      myPathsService,
+      myCommandLineArgumentsService,
+      myFileAccessParser);
   }
 }

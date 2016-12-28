@@ -1,6 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
@@ -32,7 +33,7 @@ public class WindowsSettingsGeneratorTest {
     final ResourceGenerator<UserCredentials> instance = createInstance();
 
     // When
-    final String content = instance.create(new UserCredentials("nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
+    final String content = instance.create(new UserCredentials("nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList())));
 
     // Then
     myCtx.assertIsSatisfied();

@@ -1,10 +1,12 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
+import java.util.Collections;
 import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
+import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
@@ -14,23 +16,27 @@ import org.jetbrains.annotations.Nullable;
 
 public class UserCredentialsServiceImpl implements UserCredentialsService {
   static final String DEFAULT_CREDENTIALS = "default";
+  private static final AccessControlList OurBeforeStepDefaultAcl = new AccessControlList(Collections.<AccessControlEntry>emptyList());
   private final ParametersService myParametersService;
   private final PropertiesService myPropertiesService;
   private final FileService myFileService;
-  private final BuildAgentConfiguration myBuildAgentConfiguration;
+  private final PathsService myPathsService;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
+  private final TextParser<AccessControlList> myFileAccessParser;
 
   public UserCredentialsServiceImpl(
     @NotNull final ParametersService parametersService,
     @NotNull final PropertiesService propertiesService,
     @NotNull final FileService fileService,
-    @NotNull final BuildAgentConfiguration buildAgentConfiguration,
-    @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
+    @NotNull final PathsService pathsService,
+    @NotNull final CommandLineArgumentsService commandLineArgumentsService,
+    @NotNull final TextParser<AccessControlList> fileAccessParser) {
     myParametersService = parametersService;
     myPropertiesService = propertiesService;
     myFileService = fileService;
-    myBuildAgentConfiguration = buildAgentConfiguration;
+    myPathsService = pathsService;
     myCommandLineArgumentsService = commandLineArgumentsService;
+    myFileAccessParser = fileAccessParser;
   }
 
   @Nullable
@@ -116,7 +122,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       return null;
     }
 
-    final File credentialsDirectory = new File(new File(myBuildAgentConfiguration.getAgentHomeDirectory(), "bin"), credentialsDirectoryStr);
+    final File credentialsDirectory = new File(myPathsService.getPath(WellKnownPaths.Bin), credentialsDirectoryStr);
     if(!myFileService.exists(credentialsDirectory) || !myFileService.isDirectory(credentialsDirectory)) {
       if(trowException) {
         throw new BuildStartException("Credentials directory was not found");
@@ -160,7 +166,19 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       additionalArgs = "";
     }
 
-    return new UserCredentials(userName, password, windowsIntegrityLevel, loggingLevel, myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
+    final String beforeStepAclStr = getParam(Constants.RUN_AS_BEFORE_STEP_ACL, isPredefined);
+    AccessControlList beforeStepAcl = OurBeforeStepDefaultAcl;
+    if(!StringUtil.isEmptyOrSpaces(beforeStepAclStr)) {
+      beforeStepAcl = myFileAccessParser.parse(beforeStepAclStr);
+    }
+
+    return new UserCredentials(
+      userName,
+      password,
+      windowsIntegrityLevel,
+      loggingLevel,
+      myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs),
+      beforeStepAcl);
   }
 
   @Nullable

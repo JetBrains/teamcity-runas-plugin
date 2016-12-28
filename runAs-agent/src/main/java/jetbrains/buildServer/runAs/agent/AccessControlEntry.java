@@ -9,17 +9,14 @@ class AccessControlEntry {
   @NotNull private final File myFile;
   private final AccessControlAccount myAccount;
   private final EnumSet<AccessPermissions> myPermissions;
-  private final boolean myRecursive;
 
   AccessControlEntry(
     @NotNull final File file,
     @NotNull final AccessControlAccount account,
-    @NotNull final EnumSet<AccessPermissions> permissions,
-    final boolean recursive) {
+    @NotNull final EnumSet<AccessPermissions> permissions) {
     myFile = file;
     myAccount = account;
     myPermissions = permissions;
-    myRecursive = recursive;
   }
 
   @NotNull
@@ -35,10 +32,6 @@ class AccessControlEntry {
     return myPermissions;
   }
 
-  @Nullable
-  boolean isRecursive() {
-    return myRecursive;
-  }
 
   @Override
   public boolean equals(final Object o) {
@@ -47,7 +40,6 @@ class AccessControlEntry {
 
     final AccessControlEntry that = (AccessControlEntry)o;
 
-    if (myRecursive != that.myRecursive) return false;
     if (!myFile.equals(that.myFile)) return false;
     if (!myAccount.equals(that.myAccount)) return false;
     return myPermissions.equals(that.myPermissions);
@@ -59,7 +51,6 @@ class AccessControlEntry {
     int result = myFile.hashCode();
     result = 31 * result + myAccount.hashCode();
     result = 31 * result + myPermissions.hashCode();
-    result = 31 * result + (myRecursive ? 1 : 0);
     return result;
   }
 }

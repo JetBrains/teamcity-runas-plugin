@@ -27,14 +27,15 @@ public class AccessControlResourceTest {
   @Test()
   public void shouldSetAccess() throws IOException {
     // Given
-    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowWrite, AccessPermissions.AllowExecute), true)));
+    final AccessControlEntry ace = new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive));
+    final AccessControlList acl = new AccessControlList(Arrays.asList(ace));
     final CommandLineExecutionContext executionContext = new CommandLineExecutionContext(0);
     myCtx.checking(new Expectations() {{
       oneOf(myFileAccessService).setAccess(acl);
     }});
 
     final AccessControlResource instance = createInstance();
-    instance.setAccess(acl);
+    instance.addEntry(ace);
 
     // When
     instance.publishBeforeBuild(executionContext);
