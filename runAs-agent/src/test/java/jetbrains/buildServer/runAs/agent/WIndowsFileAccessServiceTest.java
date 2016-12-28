@@ -41,27 +41,35 @@ public class WIndowsFileAccessServiceTest {
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":F", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // full access recursive
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)))),
         Arrays.asList(
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":F", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()),
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+
+      // full access recursive and revoke
+      {
+        new AccessControlList(Arrays.asList(
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Revoke, AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)))),
+        Arrays.asList(
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
-            new CommandLineArgument(new File("my_file/*").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":F", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\"", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // read access
       {
@@ -71,9 +79,9 @@ public class WIndowsFileAccessServiceTest {
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":R", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(R)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // write access
       {
@@ -83,9 +91,9 @@ public class WIndowsFileAccessServiceTest {
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":C", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // read/write access
       {
@@ -95,11 +103,11 @@ public class WIndowsFileAccessServiceTest {
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":F", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
-      // R access
+      // revoke access
       {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Revoke)))),
@@ -107,21 +115,22 @@ public class WIndowsFileAccessServiceTest {
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/R", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("\"user1\"", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // replace by read/write access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.Revoke)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite)))),
         Arrays.asList(
           new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/P", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":F", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("\"user1\":(OI)(CI)(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+
     };
   }
 

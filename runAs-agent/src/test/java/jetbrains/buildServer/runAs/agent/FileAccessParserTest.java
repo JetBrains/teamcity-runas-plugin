@@ -217,6 +217,9 @@ public class FileAccessParserTest {
       oneOf(myPathsService).getPath(WellKnownPaths.Bin);
       will(returnValue(myAgentHomeDirectory));
 
+      oneOf(myFileService).exists(with(any(File.class)));
+      will(returnValue(false));
+
       for(PathMatcherData pathMatcherItem: pathMatcherData) {
         oneOf(myPathMatcher).scanFiles(myAgentHomeDirectory, pathMatcherItem.getIncludeRules(), pathMatcherItem.getExcludeRules());
         will(returnValue(pathMatcherItem.getResult()));

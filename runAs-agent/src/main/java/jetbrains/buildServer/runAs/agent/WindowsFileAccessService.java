@@ -2,10 +2,9 @@ package jetbrains.buildServer.runAs.agent;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.text.StringUtil;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
+import java.util.*;
 import jetbrains.buildServer.ExecResult;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
@@ -14,7 +13,7 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import org.jetbrains.annotations.NotNull;
 
 public class WindowsFileAccessService implements FileAccessService {
-  public static final String CACLS_TOOL = "CACLS";
+  public static final String CACLS_TOOL = "ICACLS";
   private static final Logger LOG = Logger.getInstance(WindowsFileAccessService.class.getName());
   private static final int EXECUTION_TIMEOUT_SECONDS = 600;
   private final CommandLineExecutor myCommandLineExecutor;
@@ -31,16 +30,6 @@ public class WindowsFileAccessService implements FileAccessService {
   }
 
   private void applyAccessControlEntryForWindows(final AccessControlEntry entry) {
-    String filePath = entry.getFile().getAbsolutePath();
-    applyAccessControlEntryForWindows(entry, filePath);
-
-    if(entry.getPermissions().contains(AccessPermissions.Recursive)) {
-      filePath = new File(entry.getFile().getName() + "\\*").getAbsolutePath();
-      applyAccessControlEntryForWindows(entry, filePath);
-    }
-  }
-
-  private void applyAccessControlEntryForWindows(final AccessControlEntry entry, final String filePath) {
     final EnumSet<AccessPermissions> permissions = entry.getPermissions();
     if(permissions.size() == 0) {
       return;
@@ -51,54 +40,38 @@ public class WindowsFileAccessService implements FileAccessService {
       return;
     }
 
+    String filePath = entry.getFile().getAbsolutePath();
+
     final ArrayList<CommandLineArgument> args = new ArrayList<CommandLineArgument>();
     args.add(new CommandLineArgument(filePath, CommandLineArgument.Type.PARAMETER));
     args.add(new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER));
-    args.add(new CommandLineArgument("/E", CommandLineArgument.Type.PARAMETER));
+    args.add(new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER));
 
-    Character allowPermissionChar = null;
-    final boolean revoke = permissions.contains(AccessPermissions.Revoke);
-    final boolean allowRead = permissions.contains(AccessPermissions.AllowRead) || permissions.contains(AccessPermissions.AllowExecute);
-    final boolean allowWrite = permissions.contains(AccessPermissions.AllowWrite);
-
-    if(allowRead && allowWrite) {
-      allowPermissionChar = 'F';
-    }
-    else {
-      if(allowRead) {
-        allowPermissionChar = 'R';
-      }
-
-      if(allowWrite) {
-        allowPermissionChar = 'C';
-      }
+    final String username = "\"" + account.getUserName() + "\"";
+    if(permissions.contains(AccessPermissions.Revoke)) {
+      args.add(new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER));
+      args.add(new CommandLineArgument(username, CommandLineArgument.Type.PARAMETER));
     }
 
-    if(revoke && allowPermissionChar != null) {
-      // replace
-      args.add(new CommandLineArgument("/P", CommandLineArgument.Type.PARAMETER));
-    } else {
-      if(revoke) {
-        // revoke
-        args.add(new CommandLineArgument("/R", CommandLineArgument.Type.PARAMETER));
-      }
-
-      if(allowPermissionChar != null) {
-        // grant
-        args.add(new CommandLineArgument("/G", CommandLineArgument.Type.PARAMETER));
-      }
+    List<String> permissionList = new ArrayList<String>();
+    if(permissions.contains(AccessPermissions.AllowRead)) {
+      permissionList.add("R");
     }
 
-    StringBuilder permissionsSb = new StringBuilder();
-    permissionsSb.append('"');
-    permissionsSb.append(account.getUserName());
-    permissionsSb.append('"');
-    if( allowPermissionChar != null) {
-      permissionsSb.append(':');
-      permissionsSb.append(allowPermissionChar);
+    if(permissions.contains(AccessPermissions.AllowWrite)) {
+      permissionList.add("W,D,DC");
     }
 
-    args.add(new CommandLineArgument(permissionsSb.toString(), CommandLineArgument.Type.PARAMETER));
+    if(permissions.contains(AccessPermissions.AllowExecute)) {
+      permissionList.add("RX");
+    }
+
+    if(permissionList.size() > 0) {
+      args.add(new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER));
+      final boolean recursive = permissions.contains(AccessPermissions.Recursive);
+      final String permissionsStr = username + ":" + (recursive ? "(OI)(CI)" : "") + "(" + StringUtil.join(permissionList, ",") + ")";
+      args.add(new CommandLineArgument(permissionsStr, CommandLineArgument.Type.PARAMETER));
+    }
 
     final CommandLineSetup chmodCommandLineSetup = new CommandLineSetup(CACLS_TOOL, args, Collections.<CommandLineResource>emptyList());
     try {
