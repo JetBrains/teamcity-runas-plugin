@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
@@ -23,7 +22,6 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class UserCredentialsServiceTest {
-  private final File myAgentHomeDir;
   private final File myRunAsCredDir;
   private final File myUser2Cred;
   private final File myDefaultCred;
@@ -37,8 +35,8 @@ public class UserCredentialsServiceTest {
   private TextParser<AccessControlList> myFileAccessParser;
 
   public UserCredentialsServiceTest() {
-    myAgentHomeDir = new File("homeDir");
-    myAgentBinDir = new File(myAgentHomeDir, "bin");
+    final File agentHomeDir = new File("homeDir");
+    myAgentBinDir = new File(agentHomeDir, "bin");
     myRunAsCredDir = new File(myAgentBinDir, "RunAsCredDir");
     myUser2Cred = new File(myRunAsCredDir, "user2cred.properties");
     myDefaultCred = new File(myRunAsCredDir, UserCredentialsServiceImpl.DEFAULT_CREDENTIALS + ".properties");
@@ -595,7 +593,7 @@ public class UserCredentialsServiceTest {
         null
       },
 
-      // Enabled && default credentials
+      // Enabled && default credentials && update username in ACL
       {
         new HashMap<String, String>(),
         new HashMap<String, String>() {{
@@ -618,7 +616,7 @@ public class UserCredentialsServiceTest {
           WindowsIntegrityLevel.High,
           LoggingLevel.Debug,
           Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)),
-          myAccessControlList),
+          new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser("user78"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive))))),
         null
       },
     };

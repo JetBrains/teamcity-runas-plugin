@@ -1,6 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
@@ -169,7 +170,15 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     final String beforeStepAclStr = getParam(Constants.RUN_AS_BEFORE_STEP_ACL, isPredefined);
     AccessControlList beforeStepAcl = OurBeforeStepDefaultAcl;
     if(!StringUtil.isEmptyOrSpaces(beforeStepAclStr)) {
-      beforeStepAcl = myFileAccessParser.parse(beforeStepAclStr);
+      final ArrayList<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
+      for (AccessControlEntry ace: myFileAccessParser.parse(beforeStepAclStr)) {
+        if(ace.getAccount().getTargetType() == AccessControlAccountType.User) {
+          ace = new AccessControlEntry(ace.getFile(), AccessControlAccount.forUser(userName), ace.getPermissions());
+        }
+        aceList.add(ace);
+      }
+
+      beforeStepAcl = new AccessControlList(aceList);
     }
 
     return new UserCredentials(
