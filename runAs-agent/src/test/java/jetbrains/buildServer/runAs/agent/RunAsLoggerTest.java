@@ -18,7 +18,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 public class RunAsLoggerTest {
   private Mockery myCtx;
   private LoggerService myLoggerService;
-  private FileService myFileService;
+  private PathsService myPathsService;
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
   private SecuredLoggingService mySecuredLoggingService;
@@ -28,7 +28,7 @@ public class RunAsLoggerTest {
   {
     myCtx = new Mockery();
     myLoggerService = myCtx.mock(LoggerService.class);
-    myFileService = myCtx.mock(FileService.class);
+    myPathsService = myCtx.mock(PathsService.class);
     mySecuredLoggingService = myCtx.mock(SecuredLoggingService.class);
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
@@ -53,7 +53,7 @@ public class RunAsLoggerTest {
     myCtx.checking(new Expectations() {{
       oneOf(mySecuredLoggingService).disableLoggingOfCommandLine();
 
-      oneOf(myFileService).getCheckoutDirectory();
+      oneOf(myPathsService).getPath(WellKnownPaths.Checkout);
       will(returnValue(checkoutDirectory));
 
       allowing(myLoggerService).onStandardOutput(with(any(String.class)));
@@ -84,7 +84,7 @@ public class RunAsLoggerTest {
   {
     return new RunAsLoggerImpl(
       myLoggerService,
-      myFileService,
+      myPathsService,
       mySecuredLoggingService);
   }
 }

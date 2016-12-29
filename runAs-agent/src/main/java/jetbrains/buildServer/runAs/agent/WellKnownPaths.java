@@ -7,9 +7,11 @@ public enum WellKnownPaths {
 
   BuildTemp,
 
+  GlobalTemp,
+
   Bin,
 
-  Plugin,
+  Plugins,
 
-  Tool
+  Tools
 }

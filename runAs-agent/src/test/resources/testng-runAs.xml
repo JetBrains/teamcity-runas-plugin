@@ -2,6 +2,7 @@
 <suite name="dotNet-testRunner">
   <test name="dotNet-testRunner">
     <classes>
+      <class name="jetbrains.buildServer.runAs.agent.AccessControlListProviderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.AccessControlResourceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.FileAccessParserTest"/>

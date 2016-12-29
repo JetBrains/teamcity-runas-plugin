@@ -2,6 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
  import jetbrains.buildServer.agent.BuildAgentConfiguration;
+import jetbrains.buildServer.agent.impl.config.BuildAgentConfigurablePaths;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import org.jetbrains.annotations.NotNull;
@@ -9,12 +10,15 @@ import org.jetbrains.annotations.NotNull;
 public class PathsServiceImpl implements PathsService {
   private final FileService myFileService;
   private final BuildAgentConfiguration myBuildAgentConfiguration;
+  private final BuildAgentConfigurablePaths myBuildAgentConfigurablePaths;
 
   public PathsServiceImpl(
     @NotNull final FileService fileService,
-    @NotNull final BuildAgentConfiguration buildAgentConfiguration) {
+    @NotNull final BuildAgentConfiguration buildAgentConfiguration,
+    @NotNull final BuildAgentConfigurablePaths buildAgentConfigurablePaths) {
     myFileService = fileService;
     myBuildAgentConfiguration = buildAgentConfiguration;
+    myBuildAgentConfigurablePaths = buildAgentConfigurablePaths;
   }
 
   @NotNull
@@ -25,15 +29,18 @@ public class PathsServiceImpl implements PathsService {
         return myFileService.getCheckoutDirectory();
 
       case AgentTemp:
-        return myBuildAgentConfiguration.getAgentTempDirectory();
+        return myBuildAgentConfigurablePaths.getAgentTempDirectory();
 
       case BuildTemp:
-        return myBuildAgentConfiguration.getBuildTempDirectory();
+        return myBuildAgentConfigurablePaths.getBuildTempDirectory();
 
-      case Plugin:
+      case GlobalTemp:
+        return myBuildAgentConfigurablePaths.getCacheDirectory();
+
+      case Plugins:
         return myBuildAgentConfiguration.getAgentPluginsDirectory();
 
-      case Tool:
+      case Tools:
         return myBuildAgentConfiguration.getAgentToolsDirectory();
 
       case Bin:
