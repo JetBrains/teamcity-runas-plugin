@@ -13,7 +13,7 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import org.jetbrains.annotations.NotNull;
 
 public class FileAccessParser implements TextParser<AccessControlList> {
-  private static final Pattern OutAccessPattern = Pattern.compile("\\s*([rcu\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern OutAccessPattern = Pattern.compile("\\s*([rcua\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
   private final PathMatcher myPathMatcher;
   private final PathsService myPathsService;
   private final FileService myFileService;
@@ -64,6 +64,10 @@ public class FileAccessParser implements TextParser<AccessControlList> {
 
           case 'u':
             account = AccessControlAccount.forUser("");
+            break;
+
+          case 'a':
+            account = AccessControlAccount.forAll();
             break;
 
           default:

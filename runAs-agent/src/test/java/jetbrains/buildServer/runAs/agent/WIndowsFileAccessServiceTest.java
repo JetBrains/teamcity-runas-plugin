@@ -43,7 +43,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // full access recursive
       {
@@ -55,7 +55,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // full access recursive and revoke
       {
@@ -67,9 +67,9 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\"", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("user1", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // read access
       {
@@ -81,7 +81,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(R)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(R)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // write access
       {
@@ -93,7 +93,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // read/write access
       {
@@ -105,7 +105,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // revoke access
       {
@@ -117,7 +117,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\"", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // replace by read/write access
       {
@@ -129,7 +129,7 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("\"user1\":(OI)(CI)(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+            new CommandLineArgument("user1:(OI)(CI)(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
     };
   }

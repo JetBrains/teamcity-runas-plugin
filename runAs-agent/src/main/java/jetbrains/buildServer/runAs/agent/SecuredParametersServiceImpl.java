@@ -10,11 +10,12 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.EventDispatcher;
 import jetbrains.buildServer.util.StringUtil;
+import jetbrains.buildServer.util.positioning.PositionAware;
 import jetbrains.buildServer.util.positioning.PositionConstraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implements SecuredParametersService {
+public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implements SecuredParametersService, PositionAware {
   private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD, Constants.PASSWORD, Constants.CREDENTIALS_PROFILE_ID, Constants.CREDENTIALS_DIRECTORY };
   private final BuildRunnerContextProvider myContextProvider;
   private final RunnerParametersService myRunnerParametersService;

@@ -44,6 +44,7 @@ public class LinuxFileAccessService implements FileAccessService {
     final AccessControlAccount account = entry.getAccount();
     switch (account.getTargetType()) {
       case User:
+      case All:
         permissionsSb.append("a");
         break;
     }

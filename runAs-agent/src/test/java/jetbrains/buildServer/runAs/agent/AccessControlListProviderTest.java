@@ -34,8 +34,6 @@ public class AccessControlListProviderTest {
     final File agentTemp = new File("agentTemp");
     final File buildTemp = new File("buildTemp");
     final File globalTemp = new File("globalTemp");
-    final File tools = new File("tools");
-    final File plugins = new File("plugins");
     final File custom1 = new File("custom1");
     final File custom2 = new File("custom2");
     final AccessControlEntry baseAce1 = new AccessControlEntry(custom1, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive));
@@ -61,12 +59,6 @@ public class AccessControlListProviderTest {
 
       oneOf(myPathsService).getPath(WellKnownPaths.GlobalTemp);
       will(returnValue(globalTemp));
-
-      oneOf(myPathsService).getPath(WellKnownPaths.Tools);
-      will(returnValue(tools));
-
-      oneOf(myPathsService).getPath(WellKnownPaths.Plugins);
-      will(returnValue(plugins));
     }});
 
     final AccessControlListProvider instance = createInstance();
@@ -81,10 +73,33 @@ public class AccessControlListProviderTest {
       new AccessControlEntry(agentTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(buildTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(globalTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-      new AccessControlEntry(tools, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-      new AccessControlEntry(plugins, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       baseAce1,
       baseAce2)));
+  }
+
+  @Test()
+  public void shouldGetAfterAgentInitializedAcl() throws IOException {
+    // Given
+    final File tools = new File("tools");
+    final File plugins = new File("plugins");
+    myCtx.checking(new Expectations() {{
+      oneOf(myPathsService).getPath(WellKnownPaths.Tools);
+      will(returnValue(tools));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.Plugins);
+      will(returnValue(plugins));
+    }});
+
+    final AccessControlListProvider instance = createInstance();
+
+    // When
+    final AccessControlList actualAcl = instance.getAfterAgentInitializedAcl();
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
+      new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))));
   }
 
   @NotNull

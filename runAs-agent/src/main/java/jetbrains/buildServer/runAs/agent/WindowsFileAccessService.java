@@ -36,7 +36,18 @@ public class WindowsFileAccessService implements FileAccessService {
     }
 
     final AccessControlAccount account = entry.getAccount();
-    if(account.getTargetType() != AccessControlAccountType.User) {
+    String username = null;
+    switch (account.getTargetType()) {
+      case User:
+        username = account.getUserName();
+        break;
+
+      case All:
+        username = "NT AUTHORITY\\Authenticated Users";
+        break;
+    }
+
+    if(username == null) {
       return;
     }
 
@@ -47,7 +58,6 @@ public class WindowsFileAccessService implements FileAccessService {
     args.add(new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER));
     args.add(new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER));
 
-    final String username = "\"" + account.getUserName() + "\"";
     if(permissions.contains(AccessPermissions.Revoke)) {
       args.add(new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER));
       args.add(new CommandLineArgument(username, CommandLineArgument.Type.PARAMETER));
@@ -73,9 +83,9 @@ public class WindowsFileAccessService implements FileAccessService {
       args.add(new CommandLineArgument(permissionsStr, CommandLineArgument.Type.PARAMETER));
     }
 
-    final CommandLineSetup chmodCommandLineSetup = new CommandLineSetup(CACLS_TOOL, args, Collections.<CommandLineResource>emptyList());
+    final CommandLineSetup caclsCommandLineSetup = new CommandLineSetup(CACLS_TOOL, args, Collections.<CommandLineResource>emptyList());
     try {
-      final ExecResult result = myCommandLineExecutor.runProcess(chmodCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
+      final ExecResult result = myCommandLineExecutor.runProcess(caclsCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
       ProcessResult(result);
     }
     catch (ExecutionException e) {

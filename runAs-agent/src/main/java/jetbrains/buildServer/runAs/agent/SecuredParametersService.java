@@ -8,5 +8,5 @@ import jetbrains.buildServer.util.positioning.PositionAware;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface SecuredParametersService extends RunnerParametersService, BuildFeatureParameters, AgentLifeCycleListener, PositionAware {
+public interface SecuredParametersService extends RunnerParametersService, BuildFeatureParameters {
 }

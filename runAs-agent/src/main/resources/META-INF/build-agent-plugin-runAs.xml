@@ -18,6 +18,10 @@
   <bean class="jetbrains.buildServer.runAs.agent.PropertiesServiceImpl" scope="prototype" />
   <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl"/>
   <bean class="jetbrains.buildServer.dotNet.buildRunner.agent.BeforeBuildPublisher" id="beforeBuildPublisher"/>
+  <bean class="jetbrains.buildServer.runAs.agent.AgentAccessService">
+    <constructor-arg ref="windowsFileAccessService"/>
+    <constructor-arg ref="linuxFileAccessService"/>
+  </bean>
 
   <!-- Windows -->
   <bean class="jetbrains.buildServer.runAs.agent.WindowsFileAccessService" id="windowsFileAccessService"/>

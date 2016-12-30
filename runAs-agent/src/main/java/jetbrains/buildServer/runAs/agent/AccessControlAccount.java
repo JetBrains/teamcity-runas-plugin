@@ -21,6 +21,11 @@ class AccessControlAccount {
     return new AccessControlAccount(AccessControlAccountType.User, userName);
   }
 
+  static AccessControlAccount forAll()
+  {
+    return new AccessControlAccount(AccessControlAccountType.All, "");
+  }
+
   @NotNull
   AccessControlAccountType getTargetType() {
     return myTargetType;

@@ -53,6 +53,21 @@ public class FileAccessParserTest {
         )),
         false},
 
+      // for all
+      {
+        "ra+rwx,+dirIncl,-dirExcl",
+        Arrays.asList(
+          new PathMatcherData(
+            new String[] {"dirIncl"},
+            new String[] {"dirExcl"},
+            Arrays.asList(new File("dir1"), new File("dir2"))
+          )),
+        new AccessControlList(Arrays.asList(
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+        )),
+        false},
+
       // with spaces
       {
         " r c + r wx , + dirIncl , - dirExcl ",
