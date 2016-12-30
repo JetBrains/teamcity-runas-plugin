@@ -8,6 +8,7 @@ rd %root%plugin /s /q
 
 md %root%plugin\agent\new\bin
 copy %root%cmd\*.cmd %root%plugin\agent\new\bin /Y
+copy %root%cmd\*.sh %root%plugin\agent\new\bin /Y
 md %root%plugin\agent\new\bin\x86
 copy %root%win32\x64\JetBrains.runAs.exe %root%plugin\agent\new\bin\x86 /Y
 md %root%plugin\agent\new\bin\x64
