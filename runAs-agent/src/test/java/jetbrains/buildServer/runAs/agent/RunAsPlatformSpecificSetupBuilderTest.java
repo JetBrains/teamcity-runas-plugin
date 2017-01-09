@@ -6,10 +6,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import jetbrains.buildServer.agent.BuildAgentSystemInfo;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
+import jetbrains.buildServer.util.Bitness;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -34,6 +36,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private FileAccessService myFileAccessService;
   private RunnerParametersService myRunnerParametersService;
   private AccessControlListProvider myAccessControlListProvider;
+  private BuildAgentSystemInfo myBuildAgentSystemInfo;
 
   @BeforeMethod
   public void setUp()
@@ -43,6 +46,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     myRunAsLogger = myCtx.mock(RunAsLogger.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
+    myBuildAgentSystemInfo = myCtx.mock(BuildAgentSystemInfo.class);
     myAccessControlListProvider = myCtx.mock(AccessControlListProvider.class);
     myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class);
     myAccessControlResource = myCtx.mock(AccessControlResource.class);
@@ -83,6 +87,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       Arrays.asList(
         new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+        new CommandLineArgument("64", CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument(password, CommandLineArgument.Type.PARAMETER)),
       Arrays.asList(
         myCommandLineResource1,
@@ -100,6 +105,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
 
       oneOf(myFileService).getTempFileName(RunAsPlatformSpecificSetupBuilder.ARGS_EXT);
       will(returnValue(credentialsFile));
+
+      oneOf(myBuildAgentSystemInfo).bitness();
+      will(returnValue(Bitness.BIT64));
 
       oneOf(myFileService).getTempFileName(".abc");
       will(returnValue(cmdFile));
@@ -173,6 +181,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myUserCredentialsService,
       myRunnerParametersService,
       myFileService,
+      myBuildAgentSystemInfo,
       myAccessControlListProvider,
       myBeforeBuildPublisher,
       myAccessControlResource,

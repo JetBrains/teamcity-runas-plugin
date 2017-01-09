@@ -3,25 +3,21 @@
 IF "%~1" EQU "" GOTO INVALID_ARGS
 IF "%~2" EQU "" GOTO INVALID_ARGS
 IF "%~3" EQU "" GOTO INVALID_ARGS
-IF "%~4" NEQ "" GOTO INVALID_ARGS
+IF "%~4" EQU "" GOTO INVALID_ARGS
+IF "%~5" NEQ "" GOTO INVALID_ARGS
 
 REM Define OS bitness
-SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN=%~dp0"
-SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL=JetBrains.runAs.exe"
-"%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN%x86\%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL%" -t -l:errors
-SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_OS_BITNESS=%errorlevel%"
+"%~dp0x86\JetBrains.runAs.exe" -t -l:errors
+SET "EXIT_CODE=%ERRORLEVEL%"
 
-IF %RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_OS_BITNESS% EQU 64 (
-	SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL=%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN%x64\%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL%"
+IF %EXIT_CODE% EQU 64 (
 	GOTO RUN_AS
 )
 
-IF %RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_OS_BITNESS% EQU 32 (
-	SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL=%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN%x86\%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL%"
+IF %EXIT_CODE% EQU 32 (
 	GOTO RUN_AS
 )
 
-SET "EXIT_CODE=%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_OS_BITNESS%"
 ECHO.
 IF %EXIT_CODE% EQU 1 ECHO ##teamcity[message text='Invoker has no administrative privileges, when running under the Windows service.' status='ERROR']
 IF %EXIT_CODE% EQU 2 ECHO ##teamcity[message text='Invoker has no SeAssignPrimaryTokenPrivilege (Replace a process-level token), when running under the Windows service.' status='ERROR']
@@ -29,11 +25,17 @@ IF %EXIT_CODE% EQU 3 ECHO ##teamcity[message text='Invoker has no SeTcbPrivilege
 EXIT /B %EXIT_CODE%
 
 :RUN_AS
-SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_BIN="
-SET "RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_="
+IF %EXIT_CODE% EQU 64 (
+	IF %3 EQU 64 (
+		"%~dp0x64\JetBrains.runAs.exe" -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 cmd.exe /C "%~2"
+	) ELSE (
+		"%~dp0x64\JetBrains.runAs.exe" -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 "%windir%\SysWOW64\cmd.exe" /C "%~2"
+	)
+) ELSE (
+	"%~dp0x86\JetBrains.runAs.exe" -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 cmd.exe /C "%~2"
+)
 
 REM Run command line
-"%RUNAS_76200936_0AA1_4855_A204_05C3F3C54476_PATH_TO_TOOL%" -i:auto -l:errors "-p:%~3" "-c:%~1" -b:-10000 cmd.exe /C "%~2"
 SET "EXIT_CODE=%ERRORLEVEL%"
 
 ECHO.
@@ -46,5 +48,5 @@ EXIT /B %EXIT_CODE%
 
 :INVALID_ARGS
 @ECHO Invalid arguments.
-@ECHO Usage: runAs.cmd settings_file_name command_file_name password
+@ECHO Usage: runAs.cmd settings_file_name command_file_name bitness password
 @EXIT -1

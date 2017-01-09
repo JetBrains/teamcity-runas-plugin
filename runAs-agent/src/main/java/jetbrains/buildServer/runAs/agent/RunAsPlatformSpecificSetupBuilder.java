@@ -1,9 +1,12 @@
 package jetbrains.buildServer.runAs.agent;
 
+import com.intellij.openapi.util.SystemInfo;
 import java.io.File;
 import java.util.*;
+import jetbrains.buildServer.agent.BuildAgentSystemInfo;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
+import jetbrains.buildServer.util.Bitness;
 import org.jetbrains.annotations.NotNull;
 
 public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilder {
@@ -12,6 +15,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final UserCredentialsService myUserCredentialsService;
   private final RunnerParametersService myRunnerParametersService;
   private final FileService myFileService;
+  private final BuildAgentSystemInfo myBuildAgentSystemInfo;
   private final AccessControlListProvider myAccessControlListProvider;
   private final ResourcePublisher myBeforeBuildPublisher;
   private final AccessControlResource myAccessControlResource;
@@ -26,6 +30,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final UserCredentialsService userCredentialsService,
     @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final FileService fileService,
+    @NotNull final BuildAgentSystemInfo buildAgentSystemInfo,
     @NotNull final AccessControlListProvider accessControlListProvider,
     @NotNull final ResourcePublisher beforeBuildPublisher,
     @NotNull final AccessControlResource accessControlResource,
@@ -38,6 +43,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myUserCredentialsService = userCredentialsService;
     myRunnerParametersService = runnerParametersService;
     myFileService = fileService;
+    myBuildAgentSystemInfo = buildAgentSystemInfo;
     myAccessControlListProvider = accessControlListProvider;
     myBeforeBuildPublisher = beforeBuildPublisher;
     myAccessControlResource = accessControlResource;
@@ -88,6 +94,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
       Arrays.asList(
         new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument(commandFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+        new CommandLineArgument(myBuildAgentSystemInfo.bitness().toString(), CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument(userCredentials.getPassword(), CommandLineArgument.Type.PARAMETER)),
       resources);
 
