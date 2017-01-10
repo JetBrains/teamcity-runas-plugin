@@ -1,19 +1,19 @@
 #!/bin/bash
 
-#  runAs (settings_file_name, command, password)
-if [ $# -eq 3 ];
+#  runAs (settings_file_name, command, bitness, password)
+if [ $# -eq 4 ];
 then
 	args=$(cat "$1")
 	command="$2"
-        password="$3"
+        password="$4"
 
-	${0} runAs "$args" "$command" "$password"
+	${0} runAs "$args" "$command" "$password" arg5
 
 	exit $?
 fi
 
 #  runAs (runAs, args, command, password)
-if [ $# -eq 4 ];
+if [ $# -eq 5 ];
 then
 	if [ "$1" = "runAs" ];
 	then
@@ -24,7 +24,7 @@ then
 		tmpFile=$(tempfile)
         	chmod a+rw "$tmpFile"
 
-		cmd="${0} su $tmpFile $command $args"
+		cmd="${0} su $tmpFile $command $args arg5"
 
         	# run command
 		if [[ "$EUID" -eq 0 ]];
