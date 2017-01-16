@@ -4,24 +4,19 @@ import com.intellij.openapi.util.text.StringUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
-import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import org.jetbrains.annotations.NotNull;
 
 public class FileAccessParser implements TextParser<AccessControlList> {
   private static final Pattern OutAccessPattern = Pattern.compile("\\s*([rcua\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
   private final PathsService myPathsService;
-  private final FileService myFileService;
 
   public FileAccessParser(
-    @NotNull final PathsService pathsService,
-    @NotNull final FileService fileService) {
+    @NotNull final PathsService pathsService) {
     myPathsService = pathsService;
-    myFileService = fileService;
   }
 
   @NotNull
@@ -105,9 +100,7 @@ public class FileAccessParser implements TextParser<AccessControlList> {
 
       for (String pathItem: antPatternsStr.split(",")) {
           final File path = new File(pathItem.trim());
-          if (myFileService.exists(path)) {
-            accessControlEntries.add(new AccessControlEntry(path, account, permissions));
-          }
+          accessControlEntries.add(new AccessControlEntry(path, account, permissions));
         }
     }
 

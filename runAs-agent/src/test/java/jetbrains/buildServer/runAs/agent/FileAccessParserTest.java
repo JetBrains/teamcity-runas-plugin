@@ -4,10 +4,7 @@ import com.intellij.execution.ExecutionException;
 import java.io.File;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
-import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
-import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +34,6 @@ public class FileAccessParserTest {
     return new Object[][] {
       {
         "rc+rwx,dir1,dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
@@ -47,18 +43,8 @@ public class FileAccessParserTest {
       // with spaces
       {
         " r c + r wx , dir1 , dir2 ",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
-        )),
-        false},
-
-      // skip dir when it does not exists
-      {
-        "rc+rwx,dir1,dir2 ",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir2")),
-        new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
         )),
         false},
@@ -66,7 +52,6 @@ public class FileAccessParserTest {
       // for all users
       {
         "ru+rwx,dir1,dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
@@ -76,7 +61,6 @@ public class FileAccessParserTest {
       // for all users non recursive
       {
         "u+rwx,dir1,dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute))
@@ -86,7 +70,6 @@ public class FileAccessParserTest {
       // several acl entries
       {
         "rc+rwx,dir1;rc+rwx,dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
@@ -96,7 +79,6 @@ public class FileAccessParserTest {
       // several acl entries and spaces
       {
         "rc+rwx,dir1 ;   rc+rw x , dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
@@ -106,35 +88,30 @@ public class FileAccessParserTest {
       //invalid user spec
       {
         "rcz+rwx,dir1,dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //invalid access spec
       {
         "rc+rwz,dir1,dir2",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //no ant pattern spec
       {
         "rc+rw",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //invalid spec
       {
         "abc",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //empty spec
       {
         "",
-        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.<AccessControlEntry>asList()),
         false},
     };
@@ -143,11 +120,10 @@ public class FileAccessParserTest {
   @Test(dataProvider = "parseAclCases")
   public void shouldParseAcl(
     @NotNull final String aclStr,
-    @NotNull FileService fileService,
     @Nullable final AccessControlList expectedAcl,
     final boolean expectedThrowException) throws ExecutionException {
     // Given
-    final TextParser<AccessControlList> instance = createInstance(fileService);
+    final TextParser<AccessControlList> instance = createInstance();
 
     myCtx.checking(new Expectations() {{
       oneOf(myPathsService).getPath(WellKnownPaths.Bin);
@@ -170,10 +146,9 @@ public class FileAccessParserTest {
   }
 
   @NotNull
-  private TextParser<AccessControlList> createInstance(final FileService fileService)
+  private TextParser<AccessControlList> createInstance()
   {
     return new FileAccessParser(
-      myPathsService,
-      fileService);
+      myPathsService);
   }
 }
