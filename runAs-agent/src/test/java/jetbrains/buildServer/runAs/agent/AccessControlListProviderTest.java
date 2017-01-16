@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
+import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import org.jetbrains.annotations.NotNull;
@@ -18,12 +19,14 @@ import static org.assertj.core.api.BDDAssertions.then;
 public class AccessControlListProviderTest {
   private Mockery myCtx;
   private PathsService myPathsService;
+  private TextParser<AccessControlList> myFileAccessParser;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
     myPathsService = myCtx.mock(PathsService.class);
+    myFileAccessParser = (TextParser<AccessControlList>)myCtx.mock(TextParser.class);
   }
 
   @Test()
@@ -88,12 +91,14 @@ public class AccessControlListProviderTest {
 
       oneOf(myPathsService).getPath(WellKnownPaths.Plugins);
       will(returnValue(plugins));
+
+      never(myFileAccessParser).parse(with(any(String.class)));
     }});
 
     final AccessControlListProvider instance = createInstance();
 
     // When
-    final AccessControlList actualAcl = instance.getAfterAgentInitializedAcl();
+    final AccessControlList actualAcl = instance.getAfterAgentInitializedAcl(null);
 
     // Then
     myCtx.assertIsSatisfied();
@@ -102,9 +107,43 @@ public class AccessControlListProviderTest {
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))));
   }
 
+  @Test()
+  public void shouldGetAfterAgentInitializedAclWhenHasCustom() throws IOException {
+    // Given
+    final File tools = new File("tools");
+    final File plugins = new File("plugins");
+    final File custom1 = new File("custom1");
+    final String username = "user";
+    final AccessControlEntry baseAce1 = new AccessControlEntry(custom1, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive));
+    myCtx.checking(new Expectations() {{
+      oneOf(myPathsService).getPath(WellKnownPaths.Tools);
+      will(returnValue(tools));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.Plugins);
+      will(returnValue(plugins));
+
+      oneOf(myFileAccessParser).parse("agent initialize Acl");
+      will(returnValue(new AccessControlList(Arrays.asList(baseAce1))));
+    }});
+
+    final AccessControlListProvider instance = createInstance();
+
+    // When
+    final AccessControlList actualAcl = instance.getAfterAgentInitializedAcl("agent initialize Acl");
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
+      new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+      baseAce1)));
+  }
+
   @NotNull
   private AccessControlListProvider createInstance()
   {
-    return new AccessControlListProviderImpl(myPathsService);
+    return new AccessControlListProviderImpl(
+      myPathsService,
+      myFileAccessParser);
   }
 }

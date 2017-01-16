@@ -14,15 +14,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class FileAccessParser implements TextParser<AccessControlList> {
   private static final Pattern OutAccessPattern = Pattern.compile("\\s*([rcua\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
-  private final PathMatcher myPathMatcher;
   private final PathsService myPathsService;
   private final FileService myFileService;
 
   public FileAccessParser(
-    @NotNull final PathMatcher pathMatcher,
     @NotNull final PathsService pathsService,
     @NotNull final FileService fileService) {
-    myPathMatcher = pathMatcher;
     myPathsService = pathsService;
     myFileService = fileService;
   }
@@ -106,54 +103,12 @@ public class FileAccessParser implements TextParser<AccessControlList> {
         }
       }
 
-      final String[] antPatterns = antPatternsStr.split(",");
-      final ArrayList<String> include = new ArrayList<String>();
-      final ArrayList<String> exclude = new ArrayList<String>();
-
-      for (String antPatternStr: antPatterns) {
-        antPatternStr = antPatternStr.trim();
-        if(antPatternStr.length() == 0) {
-          continue;
-        }
-
-        final char firstChar = antPatternStr.charAt(0);
-        switch (firstChar) {
-          case '+':
-            final String includePattern = antPatternStr.substring(1, antPatternStr.length()).trim();
-            if(includePattern.length() > 0) {
-              include.add(includePattern);
-            }
-            break;
-
-          case '-':
-            final String excludePattern = antPatternStr.substring(1, antPatternStr.length()).trim();
-            if(excludePattern.length() > 0) {
-              exclude.add(excludePattern);
-            }
-            break;
-
-          default:
-            if(antPatternStr.length() > 0) {
-              include.add(antPatternStr);
-            }
-            break;
-        }
-      }
-
-      final List<File> files = myPathMatcher.scanFiles(agentBinDirectory, include.toArray(new String[include.size()]), exclude.toArray(new String[exclude.size()]));
-      if(files.size() > 0) {
-        for (File file : files) {
-          accessControlEntries.add(new AccessControlEntry(file, account, permissions));
-        }
-      }
-      else {
-        for (String includeItem: include) {
-          final File includeFile = new File(includeItem);
-          if (myFileService.exists(includeFile)) {
-            accessControlEntries.add(new AccessControlEntry(includeFile, account, permissions));
+      for (String pathItem: antPatternsStr.split(",")) {
+          final File path = new File(pathItem.trim());
+          if (myFileService.exists(path)) {
+            accessControlEntries.add(new AccessControlEntry(path, account, permissions));
           }
         }
-      }
     }
 
     return new AccessControlList(accessControlEntries);

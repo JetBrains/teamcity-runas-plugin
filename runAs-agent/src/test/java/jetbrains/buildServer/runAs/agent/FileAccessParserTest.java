@@ -21,18 +21,14 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 public class FileAccessParserTest {
   private Mockery myCtx;
-  private PathMatcher myPathMatcher;
   private PathsService myPathsService;
   private File myAgentHomeDirectory;
-  private FileService myFileService;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
-    myPathMatcher = myCtx.mock(PathMatcher.class);
     myPathsService = myCtx.mock(PathsService.class);
-    myFileService = myCtx.mock(FileService.class);
     myAgentHomeDirectory = new File("AgentHome");
   }
 
@@ -40,58 +36,37 @@ public class FileAccessParserTest {
   public Object[][] getParseAclCasesCases() {
     return new Object[][] {
       {
-        "rc+rwx,+dirIncl,-dirExcl",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"), new File("dir2"))
-          )),
+        "rc+rwx,dir1,dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
         )),
         false},
 
-      // for all
+      // with spaces
       {
-        "ra+rwx,+dirIncl,-dirExcl",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"), new File("dir2"))
-          )),
+        " r c + r wx , dir1 , dir2 ",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
         )),
         false},
 
-      // with spaces
+      // skip dir when it does not exists
       {
-        " r c + r wx , + dirIncl , - dirExcl ",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"), new File("dir2"))
-          )),
+        "rc+rwx,dir1,dir2 ",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
         )),
         false},
 
       // for all users
       {
-        "ru+rwx,+dirIncl,-dirExcl",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"), new File("dir2"))
-          )),
+        "ru+rwx,dir1,dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
@@ -100,13 +75,8 @@ public class FileAccessParserTest {
 
       // for all users non recursive
       {
-        "u+rwx,+dirIncl,-dirExcl",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"), new File("dir2"))
-          )),
+        "u+rwx,dir1,dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute))
@@ -115,19 +85,8 @@ public class FileAccessParserTest {
 
       // several acl entries
       {
-        "rc+rwx,+dirIncl,-dirExcl;rc+rwx,dirIncl2",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"))
-          ),
-          new PathMatcherData(
-            new String[] {"dirIncl2"},
-            new String[] {},
-            Arrays.asList(new File("dir2"))
-          )
-        ),
+        "rc+rwx,dir1;rc+rwx,dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
@@ -136,84 +95,46 @@ public class FileAccessParserTest {
 
       // several acl entries and spaces
       {
-        "rc+rwx,+dirIncl,- dirExcl   ;   rc+rw x , dirIncl2",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"))
-          ),
-          new PathMatcherData(
-            new String[] {"dirIncl2"},
-            new String[] {},
-            Arrays.asList(new File("dir2"))
-          )
-        ),
+        "rc+rwx,dir1 ;   rc+rw x , dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
         )),
-        false},
-
-      // include anr pattern without +
-      {
-        "rc+rwx,dirIncl,-dirExcl",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.asList(new File("dir1"), new File("dir2"))
-          )),
-        new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
-        )),
-        false},
-
-      // no files matched
-      {
-        "rc+rwx,+dirIncl,-dirExcl",
-        Arrays.asList(
-          new PathMatcherData(
-            new String[] {"dirIncl"},
-            new String[] {"dirExcl"},
-            Arrays.<File>asList()
-          )),
-        new AccessControlList(Arrays.<AccessControlEntry>asList()),
         false},
 
       //invalid user spec
       {
-        "rcz+rwx,+dirIncl,-dirExcl",
-        Arrays.asList(),
+        "rcz+rwx,dir1,dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //invalid access spec
       {
-        "rc+rwz,+dirIncl,-dirExcl",
-        Arrays.asList(),
+        "rc+rwz,dir1,dir2",
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //no ant pattern spec
       {
         "rc+rw",
-        Arrays.asList(),
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //invalid spec
       {
         "abc",
-        Arrays.asList(),
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         null,
         true},
 
       //empty spec
       {
         "",
-        Arrays.asList(),
+        new VirtualFileService(new VirtualFileService.VirtualDirectory("dir1"), new VirtualFileService.VirtualDirectory("dir2")),
         new AccessControlList(Arrays.<AccessControlEntry>asList()),
         false},
     };
@@ -222,23 +143,15 @@ public class FileAccessParserTest {
   @Test(dataProvider = "parseAclCases")
   public void shouldParseAcl(
     @NotNull final String aclStr,
-    @NotNull final List<PathMatcherData> pathMatcherData,
+    @NotNull FileService fileService,
     @Nullable final AccessControlList expectedAcl,
     final boolean expectedThrowException) throws ExecutionException {
     // Given
-    final TextParser<AccessControlList> instance = createInstance();
+    final TextParser<AccessControlList> instance = createInstance(fileService);
 
     myCtx.checking(new Expectations() {{
       oneOf(myPathsService).getPath(WellKnownPaths.Bin);
       will(returnValue(myAgentHomeDirectory));
-
-      oneOf(myFileService).exists(with(any(File.class)));
-      will(returnValue(false));
-
-      for(PathMatcherData pathMatcherItem: pathMatcherData) {
-        oneOf(myPathMatcher).scanFiles(myAgentHomeDirectory, pathMatcherItem.getIncludeRules(), pathMatcherItem.getExcludeRules());
-        will(returnValue(pathMatcherItem.getResult()));
-      }
     }});
 
     boolean actualThrowException = false;
@@ -257,41 +170,10 @@ public class FileAccessParserTest {
   }
 
   @NotNull
-  private TextParser<AccessControlList> createInstance()
+  private TextParser<AccessControlList> createInstance(final FileService fileService)
   {
     return new FileAccessParser(
-      myPathMatcher,
       myPathsService,
-      myFileService);
-  }
-
-  private static class PathMatcherData {
-    private final String[] myIncludeRules;
-    private final String[] myExcludeRules;
-    private final List<File> myResult;
-
-    public PathMatcherData(
-      @NotNull final String[] includeRules,
-      @NotNull final String[] excludeRules,
-      @NotNull final List<File> result) {
-      myIncludeRules = includeRules;
-      myExcludeRules = excludeRules;
-      myResult = result;
-    }
-
-    @NotNull
-    public String[] getIncludeRules() {
-      return myIncludeRules;
-    }
-
-    @NotNull
-    public String[] getExcludeRules() {
-      return myExcludeRules;
-    }
-
-    @NotNull
-    public List<File> getResult() {
-      return myResult;
-    }
+      fileService);
   }
 }

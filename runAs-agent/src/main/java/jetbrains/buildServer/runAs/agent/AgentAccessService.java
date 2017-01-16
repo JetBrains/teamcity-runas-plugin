@@ -1,5 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.Map;
 import jetbrains.buildServer.agent.AgentLifeCycleAdapter;
 import jetbrains.buildServer.agent.AgentLifeCycleListener;
 import jetbrains.buildServer.agent.BuildAgent;
@@ -8,6 +9,8 @@ import jetbrains.buildServer.util.positioning.PositionAware;
 import jetbrains.buildServer.util.positioning.PositionConstraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_AGENT_INITIALIZE_ACL;
 
 public class AgentAccessService extends AgentLifeCycleAdapter implements PositionAware {
   private final AccessControlListProvider myAccessControlListProvider;
@@ -40,7 +43,9 @@ public class AgentAccessService extends AgentLifeCycleAdapter implements Positio
   @Override
   public void agentInitialized(@NotNull final BuildAgent agent) {
     super.agentInitialized(agent);
+    final Map<String, String> params = agent.getConfiguration().getConfigurationParameters();
+    final String agentInitializeAcl = params.get(RUN_AS_AGENT_INITIALIZE_ACL);
     final FileAccessService currentFileAccessService = agent.getConfiguration().getSystemInfo().isWindows() ? myWindowsFileAccessService : myLinuxFileAccessService;
-    currentFileAccessService.setAccess(myAccessControlListProvider.getAfterAgentInitializedAcl());
+    currentFileAccessService.setAccess(myAccessControlListProvider.getAfterAgentInitializedAcl(agentInitializeAcl));
   }
 }

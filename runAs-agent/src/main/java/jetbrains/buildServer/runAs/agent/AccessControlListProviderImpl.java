@@ -4,24 +4,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
+import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class AccessControlListProviderImpl implements AccessControlListProvider {
   private final PathsService myPathsService;
+  private final TextParser<AccessControlList> myFileAccessParser;
 
   public AccessControlListProviderImpl(
-    @NotNull final PathsService pathsService) {
+    @NotNull final PathsService pathsService,
+    @NotNull final TextParser<AccessControlList> fileAccessParser) {
     myPathsService = pathsService;
+    myFileAccessParser = fileAccessParser;
   }
 
   @NotNull
   @Override
-  public AccessControlList getAfterAgentInitializedAcl() {
-    return new AccessControlList(
+  public AccessControlList getAfterAgentInitializedAcl(@Nullable final String additionalAcl) {
+    final List<AccessControlEntry> acl = new ArrayList<AccessControlEntry>(
       Arrays.asList(
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Tools), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Plugins), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))
     );
+
+    if(!StringUtil.isEmptyOrSpaces(additionalAcl)) {
+      for (AccessControlEntry ace : myFileAccessParser.parse(additionalAcl)) {
+        acl.add(ace);
+      }
+    }
+
+    return new AccessControlList(acl);
   }
 
   @NotNull
