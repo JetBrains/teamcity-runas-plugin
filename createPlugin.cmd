@@ -7,8 +7,13 @@ rd %root%plugin /s /q
 %zip% x %root%target\runAs.zip -o%root%plugin
 
 md %root%plugin\agent\new\bin
+
 copy %root%cmd\*.cmd %root%plugin\agent\new\bin /Y
+%root%tools\unix2dos.exe %root%plugin\agent\new\bin\runAs.cmd
+
 copy %root%cmd\*.sh %root%plugin\agent\new\bin /Y
+%root%tools\dos2unix.exe %root%plugin\agent\new\bin\runAs.sh
+
 md %root%plugin\agent\new\bin\x86
 copy %root%win32\x64\JetBrains.runAs.exe %root%plugin\agent\new\bin\x86 /Y
 md %root%plugin\agent\new\bin\x64
