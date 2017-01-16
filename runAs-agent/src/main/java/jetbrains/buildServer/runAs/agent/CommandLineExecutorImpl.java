@@ -23,7 +23,7 @@ public class CommandLineExecutorImpl implements CommandLineExecutor {
     }
 
     try {
-      LOG.info("Exec:" + cmd.getCommandLineString());
+      LOG.info("Exec: " + cmd.getCommandLineString());
       final jetbrains.buildServer.CommandLineExecutor executor = new jetbrains.buildServer.CommandLineExecutor(cmd);
       final ExecResult result = executor.runProcess(executionTimeoutSeconds);
       if(LOG.isDebugEnabled()) {
