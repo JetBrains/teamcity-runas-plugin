@@ -1,5 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
+import com.intellij.openapi.diagnostic.Logger;
+import java.io.File;
 import java.util.Map;
 import jetbrains.buildServer.agent.AgentLifeCycleAdapter;
 import jetbrains.buildServer.agent.AgentLifeCycleListener;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_AGENT_INITIALIZE_ACL;
 
 public class AgentAccessService extends AgentLifeCycleAdapter implements PositionAware {
+  private static final Logger LOG = Logger.getInstance(AgentAccessService.class.getName());
   private final AccessControlListProvider myAccessControlListProvider;
   private final FileAccessService myWindowsFileAccessService;
   private final FileAccessService myLinuxFileAccessService;
@@ -46,6 +49,21 @@ public class AgentAccessService extends AgentLifeCycleAdapter implements Positio
     final Map<String, String> params = agent.getConfiguration().getConfigurationParameters();
     final String agentInitializeAcl = params.get(RUN_AS_AGENT_INITIALIZE_ACL);
     final FileAccessService currentFileAccessService = agent.getConfiguration().getSystemInfo().isWindows() ? myWindowsFileAccessService : myLinuxFileAccessService;
-    currentFileAccessService.setAccess(myAccessControlListProvider.getAfterAgentInitializedAcl(agentInitializeAcl));
+    final AccessControlList acl = myAccessControlListProvider.getAfterAgentInitializedAcl(agentInitializeAcl);
+    for (AccessControlEntry ace: acl) {
+      final File path = ace.getFile();
+      if (!path.exists()) {
+        try {
+          LOG.info("Create directory: " + path);
+          //noinspection ResultOfMethodCallIgnored
+          path.mkdirs();
+        }
+        catch (Exception ex) {
+          LOG.error(ex);
+        }
+      }
+    }
+
+    currentFileAccessService.setAccess(acl);
   }
 }
