@@ -7,7 +7,6 @@
   <bean class="jetbrains.buildServer.runAs.agent.PathsServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.AccessControlListProviderImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.FileAccessParser" />
-  <bean class="jetbrains.buildServer.runAs.agent.AntPathMatcher" />
   <bean class="jetbrains.buildServer.runAs.agent.SecuredParametersServiceImpl" primary="true" />
   <bean class="jetbrains.buildServer.runAs.agent.SecuredLoggingServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.CommandLineExecutorImpl" />
