@@ -85,12 +85,16 @@ public class AccessControlListProviderTest {
     // Given
     final File tools = new File("tools");
     final File plugins = new File("plugins");
+    final File lib = new File("lib");
     myCtx.checking(new Expectations() {{
       oneOf(myPathsService).getPath(WellKnownPaths.Tools);
       will(returnValue(tools));
 
       oneOf(myPathsService).getPath(WellKnownPaths.Plugins);
       will(returnValue(plugins));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.Lib);
+      will(returnValue(lib));
 
       never(myFileAccessParser).parse(with(any(String.class)));
     }});
@@ -104,7 +108,8 @@ public class AccessControlListProviderTest {
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-      new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))));
+      new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))));
   }
 
   @Test()
@@ -112,6 +117,7 @@ public class AccessControlListProviderTest {
     // Given
     final File tools = new File("tools");
     final File plugins = new File("plugins");
+    final File lib = new File("lib");
     final File custom1 = new File("custom1");
     final String username = "user";
     final AccessControlEntry baseAce1 = new AccessControlEntry(custom1, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive));
@@ -121,6 +127,9 @@ public class AccessControlListProviderTest {
 
       oneOf(myPathsService).getPath(WellKnownPaths.Plugins);
       will(returnValue(plugins));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.Lib);
+      will(returnValue(lib));
 
       oneOf(myFileAccessParser).parse("agent initialize Acl");
       will(returnValue(new AccessControlList(Arrays.asList(baseAce1))));
@@ -136,6 +145,7 @@ public class AccessControlListProviderTest {
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       baseAce1)));
   }
 

@@ -13,5 +13,7 @@ public enum WellKnownPaths {
 
   Plugins,
 
-  Tools
+  Tools,
+
+  Lib
 }

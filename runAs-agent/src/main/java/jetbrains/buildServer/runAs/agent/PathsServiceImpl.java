@@ -43,6 +43,9 @@ public class PathsServiceImpl implements PathsService {
       case Tools:
         return myBuildAgentConfiguration.getAgentToolsDirectory();
 
+      case Lib:
+        return myBuildAgentConfiguration.getAgentLibDirectory();
+
       case Bin:
         return new File(myBuildAgentConfiguration.getAgentHomeDirectory(), "bin");
     }
