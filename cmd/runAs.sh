@@ -9,7 +9,7 @@ then
 
 	# if root
 	if [[ "$EUID" -eq 0 ]];
-	then		
+	then
 		su -c $command $args
 		exit $?
 	fi
@@ -81,7 +81,6 @@ then
 		command=$3
 		args=$4
 
-		echo su -c "$command" "$args"
 		su -c $command $args
 		exitCode=$?
 
