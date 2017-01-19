@@ -15,10 +15,17 @@ import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
 
-public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
+import static jetbrains.buildServer.runAs.agent.Constants.*;
+import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_TOOL_NAME;
+
+public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements RunAsAccessService {
   private static final Logger LOG = Logger.getInstance(RunAsPropertiesExtension.class.getName());
+  private static final CommandLineSetup OurIcaclsCmdLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
+  private static final CommandLineSetup OurChmodHelpCmdLineSetup = new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
+  private static final CommandLineSetup OurSuCmdLineSetup = new CommandLineSetup(SU_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
   private final ToolProvidersRegistry myToolProvidersRegistry;
   private final CommandLineExecutor myCommandLineExecutor;
+  private boolean myIsRunAsEnabled;
 
   public RunAsPropertiesExtension(
     @NotNull final EventDispatcher<AgentLifeCycleListener> events,
@@ -41,34 +48,66 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter {
     refreshProperties(build.getAgentConfiguration());
   }
 
+  @Override
+  public boolean getIsRunAsEnabled() {
+    return myIsRunAsEnabled;
+  }
+
   private void refreshProperties(final @NotNull BuildAgentConfiguration config) {
+    myIsRunAsEnabled = false;
     if(SystemInfo.isWindows) {
-      final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(Constants.RUN_AS_TOOL_NAME);
+      try {
+        myCommandLineExecutor.runProcess(OurIcaclsCmdLineSetup, 600);
+      } catch (ExecutionException e) {
+        LOG.warn(ICACLS_TOOL_NAME + " is not supported", e);
+        return;
+      }
+
+      final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(RUN_AS_TOOL_NAME);
       if (toolProvider == null) {
         return;
       }
 
-      final String pathToRunAsPlugin = toolProvider.getPath(Constants.RUN_AS_TOOL_NAME);
+      final String pathToRunAsPlugin = toolProvider.getPath(RUN_AS_TOOL_NAME);
+      final String runAsToolPath = new File("x86", RUN_AS_WIN32_TOOL_NAME).getPath();
       final CommandLineSetup cmdLineSetup = new CommandLineSetup(
-        new File(pathToRunAsPlugin, "x86/JetBrains.runAs.exe").getAbsolutePath(),
+        new File(pathToRunAsPlugin, runAsToolPath).getAbsolutePath(),
         Arrays.asList(new CommandLineArgument("-t", CommandLineArgument.Type.PARAMETER)),
         Collections.<CommandLineResource>emptyList());
 
       try {
         final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 600);
         if (result != null) {
-          LOG.info("runAs self-test exit code: " + result.getExitCode());
+          LOG.info(RUN_AS_WIN32_TOOL_NAME + " self-test exit code: " + result.getExitCode());
           final int bitness = result.getExitCode();
           if (bitness == 32 || bitness == 64) {
+            myIsRunAsEnabled = true;
             config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
+          } else {
+            LOG.warn("Invalid " + RUN_AS_WIN32_TOOL_NAME + " exit code: " + bitness);
           }
         }
       } catch (ExecutionException e) {
-        LOG.error(e);
+        LOG.warn(RUN_AS_WIN32_TOOL_NAME + " is not supported" , e);
       }
     }
     else
     {
+      try {
+        myCommandLineExecutor.runProcess(OurChmodHelpCmdLineSetup, 600);
+      } catch (ExecutionException e) {
+        LOG.warn(CHMOD_TOOL_NAME + " is not supported", e);
+        return;
+      }
+
+      try {
+        myCommandLineExecutor.runProcess(OurSuCmdLineSetup, 600);
+      } catch (ExecutionException e) {
+        LOG.warn(SU_TOOL_NAME + " is not supported", e);
+        return;
+      }
+
+      myIsRunAsEnabled = true;
       config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
     }
   }

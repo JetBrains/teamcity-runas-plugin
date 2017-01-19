@@ -51,6 +51,7 @@ public class UserCredentialsServiceTest {
     myPropertiesService = myCtx.mock(PropertiesService.class);
     myPathsService = myCtx.mock(PathsService.class);
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
+    //noinspection unchecked
     myFileAccessParser = (TextParser<AccessControlList>)myCtx.mock(TextParser.class);
   }
 

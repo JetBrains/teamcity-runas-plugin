@@ -1,8 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
 import jetbrains.buildServer.agent.BuildRunnerContext;
-import jetbrains.buildServer.agent.ToolProvidersRegistry;
-import jetbrains.buildServer.agent.plugins.beans.PluginDescriptor;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildRunnerContextProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
@@ -12,8 +10,6 @@ import org.testng.annotations.Test;
 
 public class SecuredLoggingServiceTest {
   private Mockery myCtx;
-  private ToolProvidersRegistry myToolProvidersRegistry;
-  private PluginDescriptor myPluginDescriptor;
   private BuildRunnerContextProvider myBuildRunnerContextProvider;
   private BuildRunnerContext myBuildRunnerContext;
 

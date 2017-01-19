@@ -3,7 +3,6 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import java.util.EnumSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 class AccessControlEntry {
   @NotNull private final File myFile;
@@ -31,7 +30,6 @@ class AccessControlEntry {
   public EnumSet<AccessPermissions> getPermissions() {
     return myPermissions;
   }
-
 
   @Override
   public boolean equals(final Object o) {

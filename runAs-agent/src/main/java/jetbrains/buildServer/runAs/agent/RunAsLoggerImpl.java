@@ -5,10 +5,10 @@ import java.io.File;
 import java.util.ArrayList;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
-import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.LoggerService;
-import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
+
+import static jetbrains.buildServer.runAs.agent.Constants.PASSWORD_REPLACEMENT_VAL;
 
 public class RunAsLoggerImpl implements RunAsLogger {
   private final LoggerService myLoggerService;
@@ -33,7 +33,7 @@ public class RunAsLoggerImpl implements RunAsLogger {
     final ArrayList<CommandLineArgument> args = new ArrayList<CommandLineArgument>(runAsCommandLineSetup.getArgs());
     if(args.size() > 0) {
       args.remove(args.size() - 1);
-      args.add(new CommandLineArgument(Constants.PASSWORD_REPLACEMENT_VAL, CommandLineArgument.Type.PARAMETER));
+      args.add(new CommandLineArgument(PASSWORD_REPLACEMENT_VAL, CommandLineArgument.Type.PARAMETER));
     }
 
     for(final CommandLineArgument arg: args)

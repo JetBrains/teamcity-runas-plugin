@@ -3,17 +3,19 @@ package jetbrains.buildServer.runAs.agent;
 import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.text.StringUtil;
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 import jetbrains.buildServer.ExecResult;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import org.jetbrains.annotations.NotNull;
 
+import static jetbrains.buildServer.runAs.agent.Constants.ICACLS_TOOL_NAME;
+
 public class WindowsFileAccessService implements FileAccessService {
-  public static final String CACLS_TOOL = "ICACLS";
   private static final Logger LOG = Logger.getInstance(WindowsFileAccessService.class.getName());
   private static final int EXECUTION_TIMEOUT_SECONDS = 600;
   private final CommandLineExecutor myCommandLineExecutor;
@@ -83,9 +85,9 @@ public class WindowsFileAccessService implements FileAccessService {
       args.add(new CommandLineArgument(permissionsStr, CommandLineArgument.Type.PARAMETER));
     }
 
-    final CommandLineSetup caclsCommandLineSetup = new CommandLineSetup(CACLS_TOOL, args, Collections.<CommandLineResource>emptyList());
+    final CommandLineSetup icaclsCommandLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, args, Collections.<CommandLineResource>emptyList());
     try {
-      final ExecResult result = myCommandLineExecutor.runProcess(caclsCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
+      final ExecResult result = myCommandLineExecutor.runProcess(icaclsCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
       ProcessResult(result);
     }
     catch (ExecutionException e) {

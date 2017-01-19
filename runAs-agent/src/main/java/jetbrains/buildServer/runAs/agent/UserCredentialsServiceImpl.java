@@ -3,7 +3,6 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import jetbrains.buildServer.agent.BuildAgentConfiguration;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;

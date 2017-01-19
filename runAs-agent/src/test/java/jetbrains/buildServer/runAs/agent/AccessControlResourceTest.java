@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineExecutionContext;
-import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -14,7 +13,6 @@ import org.testng.annotations.Test;
 
 public class AccessControlResourceTest {
   private Mockery myCtx;
-  private FileService myFileService;
   private FileAccessService myFileAccessService;
 
   @BeforeMethod

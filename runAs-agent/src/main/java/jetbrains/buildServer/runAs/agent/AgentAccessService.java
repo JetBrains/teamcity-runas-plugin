@@ -6,26 +6,30 @@ import java.util.Map;
 import jetbrains.buildServer.agent.AgentLifeCycleAdapter;
 import jetbrains.buildServer.agent.AgentLifeCycleListener;
 import jetbrains.buildServer.agent.BuildAgent;
+import jetbrains.buildServer.runAs.common.*;
+import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.EventDispatcher;
 import jetbrains.buildServer.util.positioning.PositionAware;
 import jetbrains.buildServer.util.positioning.PositionConstraint;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_AGENT_INITIALIZE_ACL;
 
 public class AgentAccessService extends AgentLifeCycleAdapter implements PositionAware {
   private static final Logger LOG = Logger.getInstance(AgentAccessService.class.getName());
   private final AccessControlListProvider myAccessControlListProvider;
+  private final RunAsAccessService myRunAsAccessService;
   private final FileAccessService myWindowsFileAccessService;
   private final FileAccessService myLinuxFileAccessService;
 
   public AgentAccessService(
     @NotNull final EventDispatcher<AgentLifeCycleListener> agentDispatcher,
     @NotNull final AccessControlListProvider accessControlListProvider,
+    @NotNull final RunAsAccessService runAsAccessService,
     @NotNull final FileAccessService windowsFileAccessService,
     @NotNull final FileAccessService linuxFileAccessService) {
     myAccessControlListProvider = accessControlListProvider;
+    myRunAsAccessService = runAsAccessService;
     myWindowsFileAccessService = windowsFileAccessService;
     myLinuxFileAccessService = linuxFileAccessService;
     agentDispatcher.addListener(this);
@@ -46,6 +50,10 @@ public class AgentAccessService extends AgentLifeCycleAdapter implements Positio
   @Override
   public void agentInitialized(@NotNull final BuildAgent agent) {
     super.agentInitialized(agent);
+    if(!myRunAsAccessService.getIsRunAsEnabled()) {
+      return;
+    }
+
     final Map<String, String> params = agent.getConfiguration().getConfigurationParameters();
     final String agentInitializeAcl = params.get(RUN_AS_AGENT_INITIALIZE_ACL);
     final FileAccessService currentFileAccessService = agent.getConfiguration().getSystemInfo().isWindows() ? myWindowsFileAccessService : myLinuxFileAccessService;

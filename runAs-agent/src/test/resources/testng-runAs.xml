@@ -10,7 +10,7 @@
       <class name="jetbrains.buildServer.runAs.agent.WIndowsFileAccessServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.LinuxSettingsGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ParametersServiceTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.RunAsLogger"/>
+      <class name="jetbrains.buildServer.runAs.agent.RunAsLoggerTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsSetupBuilderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsToolProviderTest"/>

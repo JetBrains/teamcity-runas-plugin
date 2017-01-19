@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static jetbrains.buildServer.runAs.agent.Constants.ICACLS_TOOL_NAME;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class WIndowsFileAccessServiceTest {
@@ -38,7 +39,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -50,7 +51,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -62,7 +63,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Revoke, AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -76,7 +77,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowRead)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -88,7 +89,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowWrite)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -100,7 +101,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -112,7 +113,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Revoke)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
@@ -124,7 +125,7 @@ public class WIndowsFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite)))),
         Arrays.asList(
-          new CommandLineSetup(WindowsFileAccessService.CACLS_TOOL, Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),

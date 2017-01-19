@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static jetbrains.buildServer.runAs.agent.Constants.CHMOD_TOOL_NAME;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class LinuxFileAccessServiceTest {
@@ -37,27 +38,27 @@ public class LinuxFileAccessServiceTest {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))),
         Arrays.asList(
-          new CommandLineSetup(LinuxFileAccessService.CHMOD_TOOL, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+          new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
           new AccessControlEntry(new File("my_file2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute)))),
         Arrays.asList(
-          new CommandLineSetup(LinuxFileAccessService.CHMOD_TOOL, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()),
-          new CommandLineSetup(LinuxFileAccessService.CHMOD_TOOL, Arrays.asList(new CommandLineArgument("+x", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file2").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+          new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()),
+          new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("+x", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file2").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Revoke, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))),
         Arrays.asList(
-          new CommandLineSetup(LinuxFileAccessService.CHMOD_TOOL, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a-rwx+rx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+          new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a-rwx+rx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       {
         new AccessControlList(Arrays.asList(
           new AccessControlEntry(new File("my_file"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.Revoke)))),
         Arrays.asList(
-          new CommandLineSetup(LinuxFileAccessService.CHMOD_TOOL, Arrays.asList(new CommandLineArgument("-rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+          new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       {
         new AccessControlList(Arrays.asList(

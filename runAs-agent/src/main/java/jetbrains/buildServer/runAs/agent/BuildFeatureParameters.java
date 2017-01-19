@@ -1,6 +1,5 @@
 package jetbrains.buildServer.runAs.agent;
 
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

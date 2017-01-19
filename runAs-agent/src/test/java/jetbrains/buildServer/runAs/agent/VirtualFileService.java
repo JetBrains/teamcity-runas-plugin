@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
 import org.jetbrains.annotations.NotNull;
+import org.jmock.util.NotImplementedException;
 
 public class VirtualFileService implements FileService {
   private final HashMap<File, VirtualEntry> myEntries = new HashMap<File, VirtualEntry>();
@@ -22,25 +23,25 @@ public class VirtualFileService implements FileService {
   @NotNull
   @Override
   public File getCheckoutDirectory() {
-    return null;
+    throw new NotImplementedException();
   }
 
   @NotNull
   @Override
   public File getTempDirectory() {
-    return null;
+    throw new NotImplementedException();
   }
 
   @NotNull
   @Override
   public File getTempFileName(@NotNull final String s) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @NotNull
   @Override
   public File getRelativePath(@NotNull final File file, @NotNull final File file1) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override

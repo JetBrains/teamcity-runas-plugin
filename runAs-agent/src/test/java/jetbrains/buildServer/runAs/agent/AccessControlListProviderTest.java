@@ -26,6 +26,7 @@ public class AccessControlListProviderTest {
   {
     myCtx = new Mockery();
     myPathsService = myCtx.mock(PathsService.class);
+    //noinspection unchecked
     myFileAccessParser = (TextParser<AccessControlList>)myCtx.mock(TextParser.class);
   }
 

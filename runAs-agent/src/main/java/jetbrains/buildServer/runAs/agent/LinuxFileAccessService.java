@@ -2,7 +2,6 @@ package jetbrains.buildServer.runAs.agent;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -10,11 +9,11 @@ import jetbrains.buildServer.ExecResult;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import org.jetbrains.annotations.NotNull;
 
+import static jetbrains.buildServer.runAs.agent.Constants.CHMOD_TOOL_NAME;
+
 public class LinuxFileAccessService implements FileAccessService {
-  public static final String CHMOD_TOOL = "chmod";
   private static final Logger LOG = Logger.getInstance(LinuxFileAccessService.class.getName());
   private static final int EXECUTION_TIMEOUT_SECONDS = 600;
   private final CommandLineExecutor myCommandLineExecutor;
@@ -81,7 +80,7 @@ public class LinuxFileAccessService implements FileAccessService {
 
     args.add(new CommandLineArgument(permissionsSb.toString(), CommandLineArgument.Type.PARAMETER));
     args.add(new CommandLineArgument(entry.getFile().getAbsolutePath(), CommandLineArgument.Type.PARAMETER));
-    final CommandLineSetup chmodCommandLineSetup = new CommandLineSetup(CHMOD_TOOL, args, Collections.<CommandLineResource>emptyList());
+    final CommandLineSetup chmodCommandLineSetup = new CommandLineSetup(CHMOD_TOOL_NAME, args, Collections.<CommandLineResource>emptyList());
     try {
       final ExecResult result = myCommandLineExecutor.runProcess(chmodCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
       ProcessResult(result);

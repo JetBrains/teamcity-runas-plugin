@@ -1,12 +1,10 @@
 package jetbrains.buildServer.runAs.agent;
 
-import com.intellij.openapi.util.SystemInfo;
 import java.io.File;
 import java.util.*;
 import jetbrains.buildServer.agent.BuildAgentSystemInfo;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
-import jetbrains.buildServer.util.Bitness;
 import org.jetbrains.annotations.NotNull;
 
 public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilder {
@@ -24,6 +22,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final CommandLineArgumentsService myCommandLineArgumentsService;
   private final FileAccessService myFileAccessService;
   private final RunAsLogger myRunAsLogger;
+  private final RunAsAccessService myRunAsAccessService;
   private final String myCommandFileExtension;
 
   public RunAsPlatformSpecificSetupBuilder(
@@ -39,6 +38,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final CommandLineArgumentsService commandLineArgumentsService,
     @NotNull final FileAccessService fileAccessService,
     @NotNull final RunAsLogger runAsLogger,
+    @NotNull final RunAsAccessService runAsAccessService,
     @NotNull final String commandFileExtension) {
     myUserCredentialsService = userCredentialsService;
     myRunnerParametersService = runnerParametersService;
@@ -52,6 +52,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myCommandLineArgumentsService = commandLineArgumentsService;
     myFileAccessService = fileAccessService;
     myRunAsLogger = runAsLogger;
+    myRunAsAccessService = runAsAccessService;
     myCommandFileExtension = commandFileExtension;
   }
 
@@ -62,6 +63,10 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     final UserCredentials userCredentials = myUserCredentialsService.tryGetUserCredentials();
     if(userCredentials == null) {
       return Collections.singleton(commandLineSetup);
+    }
+
+    if(!myRunAsAccessService.getIsRunAsEnabled()) {
+      throw new BuildStartException("RunAs is not enabled");
     }
 
     // Resources

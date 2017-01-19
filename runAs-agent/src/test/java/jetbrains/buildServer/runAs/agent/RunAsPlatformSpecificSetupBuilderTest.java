@@ -37,6 +37,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private RunnerParametersService myRunnerParametersService;
   private AccessControlListProvider myAccessControlListProvider;
   private BuildAgentSystemInfo myBuildAgentSystemInfo;
+  private RunAsAccessService myRunAsAccessService;
 
   @BeforeMethod
   public void setUp()
@@ -59,6 +60,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
     myFileAccessService = myCtx.mock(FileAccessService.class);
+    myRunAsAccessService = myCtx.mock(RunAsAccessService.class);
   }
 
   @Test()
@@ -97,6 +99,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
         myAccessControlResource));
 
     myCtx.checking(new Expectations() {{
+      oneOf(myRunAsAccessService).getIsRunAsEnabled();
+      will(returnValue(true));
+
       oneOf(myUserCredentialsService).tryGetUserCredentials();
       will(returnValue(userCredentials));
 
@@ -167,6 +172,41 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     then(setup).isEqualTo(baseSetup);
   }
 
+  @Test()
+  public void shouldThrowBuildStartExceptionWhenRunAsIsNotEnabled() throws IOException {
+    // Given
+    final String user = "nik";
+    final String password = "abc";
+    final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER));
+    final UserCredentials userCredentials = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList()));
+    final String toolName = "tool";
+    final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
+    final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
+    final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
+    myCtx.checking(new Expectations() {{
+      oneOf(myUserCredentialsService).tryGetUserCredentials();
+      will(returnValue(userCredentials));
+
+      oneOf(myRunAsAccessService).getIsRunAsEnabled();
+      will(returnValue(false));
+    }});
+
+    final CommandLineSetupBuilder instance = createInstance();
+
+    // When
+    BuildStartException actualException = null;
+    try {
+      instance.build(new CommandLineSetup(toolName, args, resources)).iterator().next();
+    }
+    catch (BuildStartException ex) {
+      actualException = ex;
+    }
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(actualException).isNotNull();
+  }
+
   @DataProvider(name = "configurationParametersCases")
   public Object[][] getConfigurationParametersCases() {
     return new Object[][] {
@@ -190,6 +230,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myCommandLineArgumentsService,
       myFileAccessService,
       myRunAsLogger,
+      myRunAsAccessService,
       ".abc");
   }
 }

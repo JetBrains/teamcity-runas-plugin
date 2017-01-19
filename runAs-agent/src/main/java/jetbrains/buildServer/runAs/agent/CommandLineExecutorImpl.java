@@ -52,7 +52,6 @@ public class CommandLineExecutorImpl implements CommandLineExecutor {
       return result;
     }
     catch (RuntimeException ex) {
-      LOG.error(cmd.getCommandLineString(), ex);
       throw new ExecutionException(ex.getMessage());
     }
   }

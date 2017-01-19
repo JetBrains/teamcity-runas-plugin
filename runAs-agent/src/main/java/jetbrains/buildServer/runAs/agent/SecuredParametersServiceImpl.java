@@ -15,6 +15,8 @@ import jetbrains.buildServer.util.positioning.PositionConstraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static jetbrains.buildServer.runAs.agent.Constants.PASSWORD_REPLACEMENT_VAL;
+
 public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implements SecuredParametersService, PositionAware {
   private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD, Constants.PASSWORD, Constants.CREDENTIALS_PROFILE_ID, Constants.CREDENTIALS_DIRECTORY };
   private final BuildRunnerContextProvider myContextProvider;
@@ -133,7 +135,7 @@ public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implemen
     for (final String protectedParamName: OurProtectedParams) {
       final String configParameterValue = configParameters.get(protectedParamName);
       if (!StringUtil.isEmptyOrSpaces(configParameterValue)) {
-        agent.getConfiguration().addConfigurationParameter(protectedParamName, Constants.PASSWORD_REPLACEMENT_VAL);
+        agent.getConfiguration().addConfigurationParameter(protectedParamName, PASSWORD_REPLACEMENT_VAL);
         agentProtectedParameters.getConfigParameters().put(protectedParamName, configParameterValue);
       }
     }
@@ -146,29 +148,28 @@ public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implemen
     buildProtectedParameters.clear();
     if(runningBuild instanceof AgentRunningBuildEx)
     {
-      AgentRunningBuildEx agentRunningBuildEx = (AgentRunningBuildEx)runningBuild;
       myContextProvider.initialize(((AgentRunningBuildEx)runningBuild).getCurrentRunnerContext());
-      final Map<String, String> configParameters = this.myContextProvider.getContext().getConfigParameters();
-      final Map<String, String> runnerParameters = this.myContextProvider.getContext().getRunnerParameters();
+      final Map<String, String> configParameters = myContextProvider.getContext().getConfigParameters();
+      final Map<String, String> runnerParameters = myContextProvider.getContext().getRunnerParameters();
 
       for (final String protectedParamName: OurProtectedParams) {
         // Config parameters
         final String configParameterValue = configParameters.get(protectedParamName);
         if(!StringUtil.isEmptyOrSpaces(configParameterValue)) {
-          myContextProvider.getContext().addConfigParameter(protectedParamName, Constants.PASSWORD_REPLACEMENT_VAL);
+          myContextProvider.getContext().addConfigParameter(protectedParamName, PASSWORD_REPLACEMENT_VAL);
           buildProtectedParameters.getConfigParameters().put(protectedParamName, configParameterValue);
         }
 
         // Runner parameters
         final String runnerParameterValue = runnerParameters.get(protectedParamName);
         if(!StringUtil.isEmptyOrSpaces(runnerParameterValue)) {
-          myContextProvider.getContext().addRunnerParameter(protectedParamName, Constants.PASSWORD_REPLACEMENT_VAL);
+          myContextProvider.getContext().addRunnerParameter(protectedParamName, PASSWORD_REPLACEMENT_VAL);
           buildProtectedParameters.getRunnerParameters().put(protectedParamName, runnerParameterValue);
         }
 
         // Build Feature parameters
         final List<String> buildFeatureParameterValues = getBuildFeatureParametersInternal(Constants.BUILD_FEATURE_TYPE, protectedParamName);
-        setBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, protectedParamName, Constants.PASSWORD_REPLACEMENT_VAL);
+        setBuildFeatureParameters(Constants.BUILD_FEATURE_TYPE, PASSWORD_REPLACEMENT_VAL);
         if (buildFeatureParameterValues.size() != 0) {
           final String buildFeatureParameterValue = buildFeatureParameterValues.get(0);
           if(!StringUtil.isEmptyOrSpaces(buildFeatureParameterValue)) {
@@ -221,7 +222,7 @@ public class SecuredParametersServiceImpl extends AgentLifeCycleAdapter implemen
     return params;
   }
 
-  private void setBuildFeatureParameters(@NotNull final String buildFeatureType, @NotNull final String parameterName, @Nullable final String parameterValue) {
+  private void setBuildFeatureParameters(@NotNull final String buildFeatureType, @Nullable final String parameterValue) {
     for(AgentBuildFeature buildFeature: myContextProvider.getContext().getBuild().getBuildFeaturesOfType(buildFeatureType))
     {
       if (!buildFeatureType.equalsIgnoreCase(buildFeature.getType()))

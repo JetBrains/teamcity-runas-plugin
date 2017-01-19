@@ -3,8 +3,10 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import jetbrains.buildServer.dotNet.buildRunner.agent.*;
-import jetbrains.buildServer.runAs.common.Constants;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
+import jetbrains.buildServer.dotNet.buildRunner.agent.LoggerService;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -13,6 +15,7 @@ import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static jetbrains.buildServer.runAs.agent.Constants.PASSWORD_REPLACEMENT_VAL;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class RunAsLoggerTest {
@@ -75,7 +78,7 @@ public class RunAsLoggerTest {
     myCtx.assertIsSatisfied();
     then(logMessages.size()).isEqualTo(2);
     then(logMessages).containsSequence(
-      "Starting: tool cred cmd " + Constants.PASSWORD_REPLACEMENT_VAL,
+      "Starting: tool cred cmd " + PASSWORD_REPLACEMENT_VAL,
       "in directory: CheckoutDirectory");
   }
 

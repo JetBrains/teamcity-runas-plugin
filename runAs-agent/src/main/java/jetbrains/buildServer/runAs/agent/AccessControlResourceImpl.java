@@ -3,9 +3,7 @@ package jetbrains.buildServer.runAs.agent;
 import java.util.ArrayList;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineExecutionContext;
-import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class AccessControlResourceImpl implements AccessControlResource {
   private final FileAccessService myFileAccessService;

@@ -19,7 +19,4 @@ public class Constants {
     public static final String RUN_AS_UI_ENABLED = "teamcity.runAs.ui.enabled";
     public static final String RUN_AS_BEFORE_STEP_ACL = "teamcity.runAs.before.step.acl";
     public static final String RUN_AS_AGENT_INITIALIZE_ACL = "teamcity.runAs.agent.initialize.acl";
-
-    // Others
-    public static final String PASSWORD_REPLACEMENT_VAL = "*****";
 }
