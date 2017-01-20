@@ -50,7 +50,7 @@ public class LinuxFileAccessService implements FileAccessService {
 
     final StringBuilder allowPermissionsSb = new StringBuilder();
     if (permissions.contains(AccessPermissions.AllowRead)) {
-      allowPermissionsSb.append('r');
+      allowPermissionsSb.append("rX");
     }
 
     if (permissions.contains(AccessPermissions.AllowWrite)) {
