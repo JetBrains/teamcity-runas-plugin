@@ -84,10 +84,18 @@ public class AccessControlListProviderTest {
   @Test()
   public void shouldGetAfterAgentInitializedAcl() throws IOException {
     // Given
+    final File work = new File("work");
+    final File system = new File("system");
     final File tools = new File("tools");
     final File plugins = new File("plugins");
     final File lib = new File("lib");
     myCtx.checking(new Expectations() {{
+      oneOf(myPathsService).getPath(WellKnownPaths.Work);
+      will(returnValue(work));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.System);
+      will(returnValue(system));
+
       oneOf(myPathsService).getPath(WellKnownPaths.Tools);
       will(returnValue(tools));
 
@@ -108,6 +116,8 @@ public class AccessControlListProviderTest {
     // Then
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
+      new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
+      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))));
@@ -116,6 +126,8 @@ public class AccessControlListProviderTest {
   @Test()
   public void shouldGetAfterAgentInitializedAclWhenHasCustom() throws IOException {
     // Given
+    final File work = new File("work");
+    final File system = new File("system");
     final File tools = new File("tools");
     final File plugins = new File("plugins");
     final File lib = new File("lib");
@@ -123,6 +135,12 @@ public class AccessControlListProviderTest {
     final String username = "user";
     final AccessControlEntry baseAce1 = new AccessControlEntry(custom1, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive));
     myCtx.checking(new Expectations() {{
+      oneOf(myPathsService).getPath(WellKnownPaths.Work);
+      will(returnValue(work));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.System);
+      will(returnValue(system));
+
       oneOf(myPathsService).getPath(WellKnownPaths.Tools);
       will(returnValue(tools));
 
@@ -144,6 +162,8 @@ public class AccessControlListProviderTest {
     // Then
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
+      new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
+      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),

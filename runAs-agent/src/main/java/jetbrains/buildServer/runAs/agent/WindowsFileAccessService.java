@@ -99,12 +99,14 @@ public class WindowsFileAccessService implements FileAccessService {
     if(result != null && result.getExitCode() != 0) {
       final String[] outLines = result.getOutLines();
       if(outLines != null && outLines.length > 0) {
-        LOG.error(outLines);
+        for (String line: outLines) {
+          LOG.warn(line);
+        }
       }
 
       final String stderr = result.getStderr();
       if(stderr.length() > 0) {
-        LOG.error(stderr);
+        LOG.warn(stderr);
       }
     }
   }

@@ -15,5 +15,9 @@ public enum WellKnownPaths {
 
   Tools,
 
-  Lib
+  Lib,
+
+  Work,
+
+  System
 }
