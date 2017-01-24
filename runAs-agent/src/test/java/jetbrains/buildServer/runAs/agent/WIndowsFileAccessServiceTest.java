@@ -46,6 +46,32 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("user1:(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
+      // deny full access
+      {
+        new AccessControlList(Arrays.asList(
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute)))),
+        Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
+            new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/deny", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("user1:(R,W,D,DC,X)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+
+      // grant & deny access
+      {
+        new AccessControlList(Arrays.asList(
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.DenyWrite, AccessPermissions.AllowExecute)))),
+        Arrays.asList(
+          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
+            new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("user1:(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("/deny", CommandLineArgument.Type.PARAMETER),
+            new CommandLineArgument("user1:(W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
+
       // full access recursive
       {
         new AccessControlList(Arrays.asList(
@@ -55,20 +81,6 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("user1:(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
-
-      // full access recursive and revoke
-      {
-        new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Revoke, AccessPermissions.Recursive, AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)))),
-        Arrays.asList(
-          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
-            new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("user1", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("user1:(OI)(CI)(R,W,D,DC,RX)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
@@ -107,18 +119,6 @@ public class WIndowsFileAccessServiceTest {
             new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER),
             new CommandLineArgument("user1:(R,W,D,DC)", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
-
-      // revoke access
-      {
-        new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Revoke)))),
-        Arrays.asList(
-          new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
-            new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER),
-            new CommandLineArgument("user1", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // replace by read/write access
       {

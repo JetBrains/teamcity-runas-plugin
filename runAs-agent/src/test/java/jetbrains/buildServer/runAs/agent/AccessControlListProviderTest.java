@@ -34,6 +34,7 @@ public class AccessControlListProviderTest {
   public void shouldGetBeforeBuildStepAcl() throws IOException {
     // Given
     final String username = "user";
+    final File config = new File("config");
     final File checkout = new File("checkout");
     final File agentTemp = new File("agentTemp");
     final File buildTemp = new File("buildTemp");
@@ -52,6 +53,9 @@ public class AccessControlListProviderTest {
       baseAccessControlList);
 
     myCtx.checking(new Expectations() {{
+      oneOf(myPathsService).getPath(WellKnownPaths.Config);
+      will(returnValue(config));
+
       oneOf(myPathsService).getPath(WellKnownPaths.Checkout);
       will(returnValue(checkout));
 
@@ -73,6 +77,7 @@ public class AccessControlListProviderTest {
     // Then
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
+      new AccessControlEntry(config, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(checkout, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(agentTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(buildTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
@@ -117,7 +122,7 @@ public class AccessControlListProviderTest {
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
       new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
-      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
+      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)))));
@@ -163,7 +168,7 @@ public class AccessControlListProviderTest {
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
       new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
-      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive)),
+      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),

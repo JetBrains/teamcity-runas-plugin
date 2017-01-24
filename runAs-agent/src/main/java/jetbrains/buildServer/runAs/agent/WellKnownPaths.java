@@ -19,5 +19,7 @@ public enum WellKnownPaths {
 
   Work,
 
-  System
+  System,
+
+  Config
 }

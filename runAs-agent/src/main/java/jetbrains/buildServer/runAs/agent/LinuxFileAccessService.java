@@ -67,16 +67,29 @@ public class LinuxFileAccessService implements FileAccessService {
     }
 
     final StringBuilder denyPermissionsSb = new StringBuilder();
-    if (permissions.contains(AccessPermissions.Revoke)) {
-      denyPermissionsSb.append("-rwx");
+    if (permissions.contains(AccessPermissions.DenyRead)) {
+      denyPermissionsSb.append("r");
+    }
+
+    if (permissions.contains(AccessPermissions.DenyWrite)) {
+      denyPermissionsSb.append('w');
+    }
+
+    if (permissions.contains(AccessPermissions.DenyExecute)) {
+      denyPermissionsSb.append('x');
+    }
+
+    if(denyPermissionsSb.length() > 0)
+    {
+      denyPermissionsSb.insert(0, "-");
     }
 
     if(denyPermissionsSb.length() == 0 && allowPermissionsSb.length() == 0) {
       return;
     }
 
-    permissionsSb.append(denyPermissionsSb.toString());
     permissionsSb.append(allowPermissionsSb.toString());
+    permissionsSb.append(denyPermissionsSb.toString());
 
     args.add(new CommandLineArgument(permissionsSb.toString(), CommandLineArgument.Type.PARAMETER));
     args.add(new CommandLineArgument(entry.getFile().getAbsolutePath(), CommandLineArgument.Type.PARAMETER));

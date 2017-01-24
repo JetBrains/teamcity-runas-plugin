@@ -60,28 +60,43 @@ public class WindowsFileAccessService implements FileAccessService {
     args.add(new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER));
     args.add(new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER));
 
-    if(permissions.contains(AccessPermissions.Revoke)) {
-      args.add(new CommandLineArgument("/remove", CommandLineArgument.Type.PARAMETER));
-      args.add(new CommandLineArgument(username, CommandLineArgument.Type.PARAMETER));
-    }
-
-    List<String> permissionList = new ArrayList<String>();
+    List<String> allowedPermissionList = new ArrayList<String>();
     if(permissions.contains(AccessPermissions.AllowRead)) {
-      permissionList.add("R");
+      allowedPermissionList.add("R");
     }
 
     if(permissions.contains(AccessPermissions.AllowWrite)) {
-      permissionList.add("W,D,DC");
+      allowedPermissionList.add("W,D,DC");
     }
 
     if(permissions.contains(AccessPermissions.AllowExecute)) {
-      permissionList.add("RX");
+      allowedPermissionList.add("RX");
     }
 
-    if(permissionList.size() > 0) {
+    List<String> deniedPermissionList = new ArrayList<String>();
+    if(permissions.contains(AccessPermissions.DenyRead)) {
+      deniedPermissionList.add("R");
+    }
+
+    if(permissions.contains(AccessPermissions.DenyWrite)) {
+      deniedPermissionList.add("W,D,DC");
+    }
+
+    if(permissions.contains(AccessPermissions.DenyExecute)) {
+      deniedPermissionList.add("X");
+    }
+
+    if(allowedPermissionList.size() > 0) {
       args.add(new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER));
       final boolean recursive = permissions.contains(AccessPermissions.Recursive);
-      final String permissionsStr = username + ":" + (recursive ? "(OI)(CI)" : "") + "(" + StringUtil.join(permissionList, ",") + ")";
+      final String permissionsStr = username + ":" + (recursive ? "(OI)(CI)" : "") + "(" + StringUtil.join(allowedPermissionList, ",") + ")";
+      args.add(new CommandLineArgument(permissionsStr, CommandLineArgument.Type.PARAMETER));
+    }
+
+    if(deniedPermissionList.size() > 0) {
+      args.add(new CommandLineArgument("/deny", CommandLineArgument.Type.PARAMETER));
+      final boolean recursive = permissions.contains(AccessPermissions.Recursive);
+      final String permissionsStr = username + ":" + (recursive ? "(OI)(CI)" : "") + "(" + StringUtil.join(deniedPermissionList, ",") + ")";
       args.add(new CommandLineArgument(permissionsStr, CommandLineArgument.Type.PARAMETER));
     }
 

@@ -71,26 +71,43 @@ public class FileAccessParser implements TextParser<AccessControlList> {
         throw new BuildStartException(String.format("Invalid ACL specification \"%s\"", aclEntryStr));
       }
 
+      boolean allow = true;
       for(char permissionChar: permissionsStr.toCharArray()) {
         switch (permissionChar) {
           case ' ':
           case '+':
+            allow = true;
             break;
 
           case '-':
-            permissions.add(AccessPermissions.Revoke);
+            allow = false;
             break;
 
           case 'r':
-            permissions.add(AccessPermissions.AllowRead);
+            if(allow) {
+              permissions.add(AccessPermissions.AllowRead);
+            }
+            else {
+              permissions.add(AccessPermissions.DenyRead);
+            }
             break;
 
           case 'w':
-            permissions.add(AccessPermissions.AllowWrite);
+            if(allow) {
+              permissions.add(AccessPermissions.AllowWrite);
+            }
+            else {
+              permissions.add(AccessPermissions.DenyWrite);
+            }
             break;
 
           case 'x':
-            permissions.add(AccessPermissions.AllowExecute);
+            if(allow) {
+              permissions.add(AccessPermissions.AllowExecute);
+            }
+            else {
+              permissions.add(AccessPermissions.DenyExecute);
+            }
             break;
 
           default:

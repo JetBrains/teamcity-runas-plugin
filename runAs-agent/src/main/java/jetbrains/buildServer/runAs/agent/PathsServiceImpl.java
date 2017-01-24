@@ -54,6 +54,9 @@ public class PathsServiceImpl implements PathsService {
 
       case Bin:
         return new File(myBuildAgentConfiguration.getAgentHomeDirectory(), "bin");
+
+      case Config:
+        return myBuildAgentConfigurablePaths.getAgentConfDirectory();
     }
 
     throw new BuildStartException(String.format("Invalid path type \"%s\"", wellKnownPath));
