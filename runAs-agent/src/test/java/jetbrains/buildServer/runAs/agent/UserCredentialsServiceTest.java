@@ -40,7 +40,7 @@ public class UserCredentialsServiceTest {
     myRunAsCredDir = new File(myAgentBinDir, "RunAsCredDir");
     myUser2Cred = new File(myRunAsCredDir, "user2cred.properties");
     myDefaultCred = new File(myRunAsCredDir, UserCredentialsServiceImpl.DEFAULT_CREDENTIALS + ".properties");
-    myAccessControlList = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive))));
+    myAccessControlList = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive))));
   }
 
   @BeforeMethod
@@ -617,7 +617,7 @@ public class UserCredentialsServiceTest {
           WindowsIntegrityLevel.High,
           LoggingLevel.Debug,
           Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)),
-          new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser("user78"), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.Recursive))))),
+          new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser("user78"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive))))),
         null
       },
     };

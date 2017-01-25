@@ -33,19 +33,19 @@ public class FileAccessParserTest {
   public Object[][] getParseAclCasesCases() {
     return new Object[][] {
       {
-        "rc+rwx,dir1,dir2",
+        "ra+rwx,dir1,dir2",
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive))
         )),
         false},
 
       // with spaces
       {
-        " r c + r wx , dir1 , dir2 ",
+        " r a + r wx , dir1 , dir2 ",
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive))
         )),
         false},
 
@@ -53,8 +53,8 @@ public class FileAccessParserTest {
       {
         "ru+rwx,dir1,dir2",
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive))
         )),
         false},
 
@@ -62,26 +62,26 @@ public class FileAccessParserTest {
       {
         "u+rwx,dir1,dir2",
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute))
         )),
         false},
 
       // several acl entries
       {
-        "rc+rwx,dir1;rc+rwx,dir2",
+        "ra+rwx,dir1;ra+rwx,dir2",
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive))
         )),
         false},
 
       // several acl entries and spaces
       {
-        "rc+rwx,dir1 ;   rc+rw x , dir2",
+        "ra+rwx,dir1 ;   ra+rw x , dir2",
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("dir1"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("dir2"), AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowRead, AccessPermissions.AllowWrite, AccessPermissions.AllowExecute, AccessPermissions.Recursive))
+          new AccessControlEntry(new File("dir1"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+          new AccessControlEntry(new File("dir2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive))
         )),
         false},
 

@@ -11,11 +11,6 @@ class AccessControlAccount {
     myUserName = userName;
   }
 
-  static AccessControlAccount forCurrent()
-  {
-    return new AccessControlAccount(AccessControlAccountType.Current, "");
-  }
-
   static AccessControlAccount forUser(@NotNull final String userName)
   {
     return new AccessControlAccount(AccessControlAccountType.User, userName);

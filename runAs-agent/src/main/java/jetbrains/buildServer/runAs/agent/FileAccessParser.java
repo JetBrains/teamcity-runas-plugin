@@ -50,10 +50,6 @@ public class FileAccessParser implements TextParser<AccessControlList> {
             permissions.add(AccessPermissions.Recursive);
             break;
 
-          case 'c':
-            account = AccessControlAccount.forCurrent();
-            break;
-
           case 'u':
             account = AccessControlAccount.forUser("");
             break;
@@ -85,7 +81,7 @@ public class FileAccessParser implements TextParser<AccessControlList> {
 
           case 'r':
             if(allow) {
-              permissions.add(AccessPermissions.AllowRead);
+              permissions.add(AccessPermissions.GrantRead);
             }
             else {
               permissions.add(AccessPermissions.DenyRead);
@@ -94,7 +90,7 @@ public class FileAccessParser implements TextParser<AccessControlList> {
 
           case 'w':
             if(allow) {
-              permissions.add(AccessPermissions.AllowWrite);
+              permissions.add(AccessPermissions.GrantWrite);
             }
             else {
               permissions.add(AccessPermissions.DenyWrite);
@@ -103,7 +99,7 @@ public class FileAccessParser implements TextParser<AccessControlList> {
 
           case 'x':
             if(allow) {
-              permissions.add(AccessPermissions.AllowExecute);
+              permissions.add(AccessPermissions.GrantExecute);
             }
             else {
               permissions.add(AccessPermissions.DenyExecute);

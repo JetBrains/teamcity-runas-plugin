@@ -71,7 +71,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsPlatformSpecificSetupBuilder.TOOL_FILE_NAME + ".abc");
-    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forCurrent(), EnumSet.of(AccessPermissions.AllowExecute))));
+    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantExecute))));
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
@@ -82,7 +82,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final RunAsParams params = new RunAsParams("cmd line");
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     final UserCredentials userCredentials = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList()));
-    final AccessControlEntry beforeBuildStepAce = new AccessControlEntry(new File("tools"), AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.AllowExecute));
+    final AccessControlEntry beforeBuildStepAce = new AccessControlEntry(new File("tools"), AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute));
     final AccessControlList beforeBuildStepAcl = new AccessControlList(Arrays.asList(beforeBuildStepAce));
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
       runAsTool.getAbsolutePath(),
@@ -133,7 +133,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myFileService).validatePath(runAsTool);
       oneOf(myFileAccessService).setAccess(runAsToolAcl);
 
-      oneOf(myAccessControlResource).addEntry(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.AllowExecute)));
+      oneOf(myAccessControlResource).addEntry(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)));
       oneOf(myAccessControlResource).addEntry(beforeBuildStepAce);
 
       oneOf(myRunAsLogger).LogRunAs(runAsCommandLineSetup);

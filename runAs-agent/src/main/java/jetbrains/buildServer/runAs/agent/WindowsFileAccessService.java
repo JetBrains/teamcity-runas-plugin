@@ -60,17 +60,17 @@ public class WindowsFileAccessService implements FileAccessService {
     args.add(new CommandLineArgument("/C", CommandLineArgument.Type.PARAMETER));
     args.add(new CommandLineArgument("/Q", CommandLineArgument.Type.PARAMETER));
 
-    List<String> allowedPermissionList = new ArrayList<String>();
-    if(permissions.contains(AccessPermissions.AllowRead)) {
-      allowedPermissionList.add("R");
+    List<String> grantedPermissionList = new ArrayList<String>();
+    if(permissions.contains(AccessPermissions.GrantRead)) {
+      grantedPermissionList.add("R");
     }
 
-    if(permissions.contains(AccessPermissions.AllowWrite)) {
-      allowedPermissionList.add("W,D,DC");
+    if(permissions.contains(AccessPermissions.GrantWrite)) {
+      grantedPermissionList.add("W,D,DC");
     }
 
-    if(permissions.contains(AccessPermissions.AllowExecute)) {
-      allowedPermissionList.add("RX");
+    if(permissions.contains(AccessPermissions.GrantExecute)) {
+      grantedPermissionList.add("RX");
     }
 
     List<String> deniedPermissionList = new ArrayList<String>();
@@ -86,10 +86,10 @@ public class WindowsFileAccessService implements FileAccessService {
       deniedPermissionList.add("X");
     }
 
-    if(allowedPermissionList.size() > 0) {
+    if(grantedPermissionList.size() > 0) {
       args.add(new CommandLineArgument("/grant", CommandLineArgument.Type.PARAMETER));
       final boolean recursive = permissions.contains(AccessPermissions.Recursive);
-      final String permissionsStr = username + ":" + (recursive ? "(OI)(CI)" : "") + "(" + StringUtil.join(allowedPermissionList, ",") + ")";
+      final String permissionsStr = username + ":" + (recursive ? "(OI)(CI)" : "") + "(" + StringUtil.join(grantedPermissionList, ",") + ")";
       args.add(new CommandLineArgument(permissionsStr, CommandLineArgument.Type.PARAMETER));
     }
 
@@ -103,14 +103,14 @@ public class WindowsFileAccessService implements FileAccessService {
     final CommandLineSetup icaclsCommandLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, args, Collections.<CommandLineResource>emptyList());
     try {
       final ExecResult result = myCommandLineExecutor.runProcess(icaclsCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
-      ProcessResult(result);
+      processResult(result);
     }
     catch (ExecutionException e) {
       LOG.error(e);
     }
   }
 
-  private void ProcessResult(final ExecResult result) {
+  private void processResult(final ExecResult result) {
     if(result != null && result.getExitCode() != 0) {
       final String[] outLines = result.getOutLines();
       if(outLines != null && outLines.length > 0) {
