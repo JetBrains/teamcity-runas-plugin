@@ -86,12 +86,14 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
 
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
     resources.add(new CommandLineFile(myBeforeBuildPublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
-    myAccessControlResource.addEntry(new AccessControlEntry(commandFile, AccessControlAccount.forUser(userCredentials.getUser()), EnumSet.of(AccessPermissions.GrantExecute)));
+    final ArrayList<AccessControlEntry> acl = new ArrayList<AccessControlEntry>();
+    acl.add(new AccessControlEntry(commandFile, AccessControlAccount.forUser(userCredentials.getUser()), EnumSet.of(AccessPermissions.GrantExecute)));
     final AccessControlList beforeBuildStepAcl = myAccessControlListProvider.getBeforeBuildStepAcl(userCredentials);
     for (AccessControlEntry ace: beforeBuildStepAcl) {
-      myAccessControlResource.addEntry(ace);
+      acl.add(ace);
     }
 
+    myAccessControlResource.setAcl(new AccessControlList(acl));
     resources.add(myAccessControlResource);
 
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(

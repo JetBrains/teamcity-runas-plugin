@@ -4,5 +4,5 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import org.jetbrains.annotations.NotNull;
 
 public interface AccessControlResource extends CommandLineResource {
-  public void addEntry(@NotNull final AccessControlEntry accessControlEntry);
+  public void setAcl(@NotNull final AccessControlList accessControlList);
 }

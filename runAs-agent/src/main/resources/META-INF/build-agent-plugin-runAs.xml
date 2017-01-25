@@ -21,6 +21,14 @@
     <constructor-arg ref="windowsFileAccessService"/>
     <constructor-arg ref="linuxFileAccessService"/>
   </bean>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
+    <constructor-arg ref="runAsWindowsSetupBuilder"/>
+    <constructor-arg ref="runAsLinuxSetupBuilder"/>
+  </bean>
+
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
+    <constructor-arg ref="runAsSetupBuilder"/>
+  </bean>
 
   <!-- Windows -->
   <bean class="jetbrains.buildServer.runAs.agent.WindowsFileAccessService" id="windowsFileAccessService"/>
@@ -52,16 +60,6 @@
     <constructor-arg ref="shGenerator"/>
     <constructor-arg ref="linuxFileAccessService"/>
     <constructor-arg type="java.lang.String" value=".sh"/>
-  </bean>
-
-
-  <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
-    <constructor-arg ref="runAsWindowsSetupBuilder"/>
-    <constructor-arg ref="runAsLinuxSetupBuilder"/>
-  </bean>
-
-  <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
-    <constructor-arg ref="runAsSetupBuilder"/>
   </bean>
 
 </beans>

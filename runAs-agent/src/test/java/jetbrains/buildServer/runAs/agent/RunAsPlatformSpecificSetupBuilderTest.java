@@ -133,8 +133,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myFileService).validatePath(runAsTool);
       oneOf(myFileAccessService).setAccess(runAsToolAcl);
 
-      oneOf(myAccessControlResource).addEntry(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)));
-      oneOf(myAccessControlResource).addEntry(beforeBuildStepAce);
+      oneOf(myAccessControlResource).setAcl(new AccessControlList(Arrays.asList(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)), beforeBuildStepAce)));
 
       oneOf(myRunAsLogger).LogRunAs(runAsCommandLineSetup);
     }});

@@ -33,7 +33,7 @@ public class AccessControlResourceTest {
     }});
 
     final AccessControlResource instance = createInstance();
-    instance.addEntry(ace);
+    instance.setAcl(acl);
 
     // When
     instance.publishBeforeBuild(executionContext);

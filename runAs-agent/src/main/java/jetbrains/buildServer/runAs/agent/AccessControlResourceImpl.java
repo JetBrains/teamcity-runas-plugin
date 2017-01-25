@@ -1,26 +1,27 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineExecutionContext;
 import org.jetbrains.annotations.NotNull;
 
 public class AccessControlResourceImpl implements AccessControlResource {
   private final FileAccessService myFileAccessService;
-  private final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
+  private AccessControlList myAccessControlList = new AccessControlList(Collections.<AccessControlEntry>emptyList());
 
   public AccessControlResourceImpl(@NotNull final FileAccessService fileAccessService) {
     myFileAccessService = fileAccessService;
   }
 
   @Override
-  public void addEntry(@NotNull final AccessControlEntry accessControlEntry) {
-    aceList.add(accessControlEntry);
+  public void setAcl(@NotNull final AccessControlList accessControlList) {
+    myAccessControlList = accessControlList;
   }
 
   @Override
   public void publishBeforeBuild(@NotNull final CommandLineExecutionContext commandLineExecutionContext) {
-    myFileAccessService.setAccess(new AccessControlList(aceList));
+    myFileAccessService.setAccess(myAccessControlList);
   }
 
   @Override
