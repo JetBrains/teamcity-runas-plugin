@@ -122,7 +122,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       return null;
     }
 
-    final File credentialsDirectory = new File(myPathsService.getPath(WellKnownPaths.Bin), credentialsDirectoryStr);
+    File credentialsDirectory = new File(credentialsDirectoryStr);
+    if(!myFileService.exists(credentialsDirectory) || !myFileService.isAbsolute(credentialsDirectory))
+    {
+      credentialsDirectory = new File(myPathsService.getPath(WellKnownPaths.Bin), credentialsDirectoryStr);
+    }
+
     if(!myFileService.exists(credentialsDirectory) || !myFileService.isDirectory(credentialsDirectory)) {
       if(trowException) {
         throw new BuildStartException("Credentials directory was not found");

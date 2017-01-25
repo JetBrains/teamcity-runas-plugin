@@ -27,6 +27,8 @@ public class UserCredentialsServiceTest {
   private final File myDefaultCred;
   private final File myAgentBinDir;
   private final AccessControlList myAccessControlList;
+  private final File myRunAsCredDirAbsolute;
+  private final File myUser2CredrAbsolute;
   private Mockery myCtx;
   private ParametersService myParametersService;
   private PropertiesService myPropertiesService;
@@ -38,7 +40,9 @@ public class UserCredentialsServiceTest {
     final File agentHomeDir = new File("homeDir");
     myAgentBinDir = new File(agentHomeDir, "bin");
     myRunAsCredDir = new File(myAgentBinDir, "RunAsCredDir");
+    myRunAsCredDirAbsolute = new File("RunAsCredDirAbsolute");
     myUser2Cred = new File(myRunAsCredDir, "user2cred.properties");
+    myUser2CredrAbsolute = new File(myRunAsCredDirAbsolute, "user2cred.properties");
     myDefaultCred = new File(myRunAsCredDir, UserCredentialsServiceImpl.DEFAULT_CREDENTIALS + ".properties");
     myAccessControlList = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive))));
   }
@@ -100,6 +104,29 @@ public class UserCredentialsServiceTest {
         new VirtualFileService(
           new VirtualFileService.VirtualDirectory(myRunAsCredDir),
           new VirtualFileService.VirtualFile(myUser2Cred, "")),
+        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        null
+      },
+
+      // Predefined credentials by absolute path
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user1");
+          put(Constants.PASSWORD, "password1");
+        }},
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");
+          put(Constants.CREDENTIALS_DIRECTORY, myRunAsCredDirAbsolute.getName());
+        }},
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user2");
+          put(Constants.PASSWORD, "password2");
+        }},
+        new VirtualFileService(
+          new VirtualFileService.VirtualDirectory(myRunAsCredDirAbsolute) {{ setIsAbsolute(true);}},
+          new VirtualFileService.VirtualFile(myUser2CredrAbsolute, "")),
         new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },

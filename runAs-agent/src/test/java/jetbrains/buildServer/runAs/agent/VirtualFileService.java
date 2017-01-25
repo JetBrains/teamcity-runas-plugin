@@ -56,7 +56,7 @@ public class VirtualFileService implements FileService {
 
   @Override
   public boolean isAbsolute(@NotNull final File file) {
-    return false;
+    return myEntries.get(file).getIsAbsolute();
   }
 
   @NotNull
@@ -76,10 +76,13 @@ public class VirtualFileService implements FileService {
 
   public interface VirtualEntry {
     public File getPath();
+
+    public boolean getIsAbsolute();
   }
 
   public static class VirtualDirectory implements VirtualEntry {
     private final File myPath;
+    private boolean myIsAbsolute = true;
 
     public VirtualDirectory(
       @NotNull final File path) {
@@ -95,11 +98,21 @@ public class VirtualFileService implements FileService {
     public File getPath() {
       return myPath;
     }
+
+    @Override
+    public boolean getIsAbsolute() {
+      return myIsAbsolute;
+    }
+
+    public void setIsAbsolute(boolean isAbsolute) {
+      myIsAbsolute = isAbsolute;
+    }
   }
 
   public static class VirtualFile implements VirtualEntry {
     private final File myPath;
     private final String myContent;
+    private boolean myIsAbsolute = true;
 
     public VirtualFile(
       @NotNull final File path,
@@ -117,6 +130,15 @@ public class VirtualFileService implements FileService {
     @Override
     public File getPath() {
       return myPath;
+    }
+
+    @Override
+    public boolean getIsAbsolute() {
+      return myIsAbsolute;
+    }
+
+    public void setIsAbsolute(boolean isAbsolute) {
+      myIsAbsolute = isAbsolute;
     }
 
     public String getContent() {
