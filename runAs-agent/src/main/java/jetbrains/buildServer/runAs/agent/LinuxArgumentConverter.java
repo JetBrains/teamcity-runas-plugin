@@ -6,6 +6,6 @@ public class LinuxArgumentConverter implements Converter<String, String> {
   @NotNull
   @Override
   public String convert(@NotNull final String arg) {
-    return "$'" + arg.replace("\\", "\\\\'").replace("'", "\\'") + "'";
+    return "$'" + arg.replace("\\", "\\\\").replace("'", "\\'") + "'";
   }
 }

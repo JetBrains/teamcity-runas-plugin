@@ -6,9 +6,10 @@
       <class name="jetbrains.buildServer.runAs.agent.AccessControlResourceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.FileAccessParserTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.LinuxArgumentConverterTest"/>
       <class name="jetbrains.buildServer.runAs.agent.LinuxFileAccessServiceTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.WIndowsFileAccessServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.LinuxSettingsGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.NoModificationArgumentConverterTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ParametersServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsLoggerTest"/>
       <class name="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilderTest"/>
@@ -17,6 +18,8 @@
       <class name="jetbrains.buildServer.runAs.agent.SecuredLoggingServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ShGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.UserCredentialsServiceTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.WindowsArgumentConverterTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.WindowsFileAccessServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.WindowsSettingsGeneratorTest"/>
     </classes>
   </test>

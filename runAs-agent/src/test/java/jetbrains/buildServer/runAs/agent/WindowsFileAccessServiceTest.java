@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import static jetbrains.buildServer.runAs.agent.Constants.ICACLS_TOOL_NAME;
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class WIndowsFileAccessServiceTest {
+public class WindowsFileAccessServiceTest {
   private Mockery myCtx;
   private CommandLineExecutor myCommandLineExecutor;
 
