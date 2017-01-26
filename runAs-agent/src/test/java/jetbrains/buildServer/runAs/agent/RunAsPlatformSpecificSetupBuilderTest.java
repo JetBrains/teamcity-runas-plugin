@@ -128,7 +128,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
 
       oneOf(myAccessControlResource).setAcl(new AccessControlList(Arrays.asList(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)), beforeBuildStepAce)));
 
-      oneOf(myRunAsLogger).LogRunAs(runAsCommandLineSetup);
+      oneOf(myRunAsLogger).LogRunAs(userCredentials, commandLineSetup, runAsCommandLineSetup);
     }});
 
     final CommandLineSetupBuilder instance = createInstance();

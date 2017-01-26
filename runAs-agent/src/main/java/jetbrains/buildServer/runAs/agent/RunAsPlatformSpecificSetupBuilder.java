@@ -102,7 +102,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
         new CommandLineArgument(userCredentials.getPassword(), CommandLineArgument.Type.PARAMETER)),
       resources);
 
-    myRunAsLogger.LogRunAs(runAsCommandLineSetup);
+    myRunAsLogger.LogRunAs(userCredentials, commandLineSetup, runAsCommandLineSetup);
     return Collections.singleton(runAsCommandLineSetup);
   }
 
