@@ -17,6 +17,7 @@
   <bean class="jetbrains.buildServer.runAs.agent.PropertiesServiceImpl" scope="prototype" />
   <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl"/>
   <bean class="jetbrains.buildServer.dotNet.buildRunner.agent.BeforeBuildPublisher" id="beforeBuildPublisher"/>
+  <bean class="jetbrains.buildServer.runAs.agent.NoModificationArgumentConverter" id="noModificationArgumentConverter"/>
   <bean class="jetbrains.buildServer.runAs.agent.AgentAccessService">
     <constructor-arg ref="windowsFileAccessService"/>
     <constructor-arg ref="linuxFileAccessService"/>
@@ -66,7 +67,7 @@
     <constructor-arg ref="linuxSettingsGenerator"/>
     <constructor-arg ref="shGenerator"/>
     <constructor-arg ref="linuxFileAccessService"/>
-    <constructor-arg ref="linuxArgumentConverter"/>
+    <constructor-arg ref="noModificationArgumentConverter"/>
     <constructor-arg type="java.lang.String" value=".sh"/>
   </bean>
 
