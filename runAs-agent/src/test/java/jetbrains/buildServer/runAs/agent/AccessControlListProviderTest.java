@@ -35,6 +35,7 @@ public class AccessControlListProviderTest {
     // Given
     final String username = "user";
     final File config = new File("config");
+    final File log = new File("log");
     final File checkout = new File("checkout");
     final File agentTemp = new File("agentTemp");
     final File buildTemp = new File("buildTemp");
@@ -55,6 +56,9 @@ public class AccessControlListProviderTest {
     myCtx.checking(new Expectations() {{
       oneOf(myPathsService).getPath(WellKnownPaths.Config);
       will(returnValue(config));
+
+      oneOf(myPathsService).getPath(WellKnownPaths.Log);
+      will(returnValue(log));
 
       oneOf(myPathsService).getPath(WellKnownPaths.Checkout);
       will(returnValue(checkout));
@@ -78,6 +82,7 @@ public class AccessControlListProviderTest {
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
       new AccessControlEntry(config, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(log, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(checkout, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(agentTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(buildTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),

@@ -21,5 +21,7 @@ public enum WellKnownPaths {
 
   System,
 
-  Config
+  Config,
+
+  Log
 }
