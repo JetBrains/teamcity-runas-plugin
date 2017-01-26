@@ -12,6 +12,8 @@ import jetbrains.buildServer.util.Bitness;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,6 +36,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private AccessControlListProvider myAccessControlListProvider;
   private BuildAgentSystemInfo myBuildAgentSystemInfo;
   private RunAsAccessService myRunAsAccessService;
+  private Converter<String, String> myArgumentConverter;
 
   @BeforeMethod
   public void setUp()
@@ -56,6 +59,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
     myFileAccessService = myCtx.mock(FileAccessService.class);
     myRunAsAccessService = myCtx.mock(RunAsAccessService.class);
+    //noinspection unchecked
+    myArgumentConverter = (Converter<String, String>)myCtx.mock(Converter.class);
   }
 
   @Test()
@@ -87,7 +92,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
         new CommandLineArgument(credentialsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument(cmdFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument("64", CommandLineArgument.Type.PARAMETER),
-        new CommandLineArgument(password, CommandLineArgument.Type.PARAMETER)),
+        new CommandLineArgument("'" + password + "'", CommandLineArgument.Type.PARAMETER)),
       Arrays.asList(
         myCommandLineResource1,
         myCommandLineResource2,
@@ -129,6 +134,14 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myAccessControlResource).setAcl(new AccessControlList(Arrays.asList(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)), beforeBuildStepAce)));
 
       oneOf(myRunAsLogger).LogRunAs(userCredentials, commandLineSetup, runAsCommandLineSetup);
+
+      allowing(myArgumentConverter).convert(with(any(String.class)));
+      will(new CustomAction("convert") {
+        @Override
+        public Object invoke(final Invocation invocation) throws Throwable {
+          return "'" + invocation.getParameter(0) + "'";
+        }
+      });
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -222,6 +235,7 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myFileAccessService,
       myRunAsLogger,
       myRunAsAccessService,
+      myArgumentConverter,
       ".abc");
   }
 }

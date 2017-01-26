@@ -4,6 +4,11 @@ import java.util.Arrays;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
 import org.jetbrains.annotations.NotNull;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -11,6 +16,16 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 public class ShGeneratorTest {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  private Mockery myCtx;
+  private Converter<String, String> myArgumentConverter;
+
+  @BeforeMethod
+  public void setUp()
+  {
+    myCtx = new Mockery();
+    //noinspection unchecked
+    myArgumentConverter = (Converter<String, String>)myCtx.mock(Converter.class);
+  }
 
   @DataProvider(name = "cmdLinesCases")
   public Object[][] getCmdLinesCases() {
@@ -28,18 +43,26 @@ public class ShGeneratorTest {
   public void shouldGenerateContent(@NotNull final RunAsParams runAsParams, @NotNull final String expectedCmdLine) {
     // Given
     final ResourceGenerator<RunAsParams> instance = createInstance();
+    myCtx.checking(new Expectations() {{
+      allowing(myArgumentConverter).convert(with(any(String.class)));
+      will(new CustomAction("convert") {
+        @Override
+        public Object invoke(final Invocation invocation) throws Throwable {
+          return "'" + invocation.getParameter(0) + "'";
+        }
+      });
+    }});
 
     // When
     final String content = instance.create(runAsParams);
 
     // Then
-    then(content).isEqualTo(ShGenerator.BASH_HEADER
-                            + LINE_SEPARATOR + expectedCmdLine);
+    then(content).isEqualTo(ShGenerator.BASH_HEADER + LINE_SEPARATOR + expectedCmdLine);
   }
 
   @NotNull
   private ResourceGenerator<RunAsParams> createInstance()
   {
-    return new ShGenerator();
+    return new ShGenerator(myArgumentConverter);
   }
 }

@@ -7,6 +7,12 @@ import org.jetbrains.annotations.NotNull;
 public class ShGenerator implements ResourceGenerator<RunAsParams> {
   public static final String BASH_HEADER = "#!/bin/bash";
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  private final Converter<String, String> myArgumentConverter;
+
+  public ShGenerator(
+    @NotNull final Converter<String, String> argumentConverter) {
+    myArgumentConverter = argumentConverter;
+  }
 
   @NotNull
   @Override
@@ -24,9 +30,7 @@ public class ShGenerator implements ResourceGenerator<RunAsParams> {
         sb.append(' ');
       }
 
-      sb.append('\'');
-      sb.append(arg.getValue());
-      sb.append('\'');
+      sb.append(myArgumentConverter.convert(arg.getValue()));
     }
 
     return sb.toString();

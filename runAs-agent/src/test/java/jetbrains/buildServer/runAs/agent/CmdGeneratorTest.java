@@ -1,10 +1,18 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
+import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -12,6 +20,16 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 public class CmdGeneratorTest {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  private Mockery myCtx;
+  private Converter<String, String> myArgumentConverter;
+
+  @BeforeMethod
+  public void setUp()
+  {
+    myCtx = new Mockery();
+    //noinspection unchecked
+    myArgumentConverter = (Converter<String, String>)myCtx.mock(Converter.class);
+  }
 
   @DataProvider(name = "cmdLinesCases")
   public Object[][] getCmdLinesCases() {
@@ -21,15 +39,7 @@ public class CmdGeneratorTest {
           Arrays.asList(
             new CommandLineArgument("tool", CommandLineArgument.Type.TOOL),
             new CommandLineArgument("a b", CommandLineArgument.Type.PARAMETER))),
-      "\"tool\" \"a b\""},
-
-      // using double quotes
-      {
-        new RunAsParams(
-          Arrays.asList(
-            new CommandLineArgument("tool", CommandLineArgument.Type.TOOL),
-            new CommandLineArgument("a \" b", CommandLineArgument.Type.PARAMETER))),
-        "\"tool\" \"a \"\" b\""},
+      "'tool' 'a b'"},
 
       // empty args
       {
@@ -43,6 +53,15 @@ public class CmdGeneratorTest {
   public void shouldGenerateContent(@NotNull final RunAsParams runAsParams, @NotNull final String expectedCmdLine) {
     // Given
     final ResourceGenerator<RunAsParams> instance = createInstance();
+    myCtx.checking(new Expectations() {{
+      allowing(myArgumentConverter).convert(with(any(String.class)));
+      will(new CustomAction("convert") {
+        @Override
+        public Object invoke(final Invocation invocation) throws Throwable {
+          return "'" + invocation.getParameter(0) + "'";
+        }
+      });
+    }});
 
     // When
     final String content = instance.create(runAsParams);
@@ -57,6 +76,6 @@ public class CmdGeneratorTest {
   @NotNull
   private ResourceGenerator<RunAsParams> createInstance()
   {
-    return new CmdGenerator();
+    return new CmdGenerator(myArgumentConverter);
   }
 }

@@ -6,13 +6,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class CmdGenerator implements ResourceGenerator<RunAsParams> {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  private final Converter<String, String> myArgumentConverter;
+
+  public CmdGenerator(
+    @NotNull final Converter<String, String> argumentConverter) {
+    myArgumentConverter = argumentConverter;
+  }
 
   @NotNull
   @Override
   public String create(@NotNull final RunAsParams settings) {
     final StringBuilder sb = new StringBuilder();
     sb.append("@ECHO OFF");
-
     sb.append(LINE_SEPARATOR);
     boolean first = true;
     for (CommandLineArgument arg: settings.getCommandLineArguments()) {
@@ -23,9 +28,7 @@ public class CmdGenerator implements ResourceGenerator<RunAsParams> {
         sb.append(' ');
       }
 
-      sb.append('\"');
-      sb.append(arg.getValue().replace("\"", "\"\""));
-      sb.append('\"');
+      sb.append(myArgumentConverter.convert(arg.getValue()));
     }
 
     sb.append(LINE_SEPARATOR);
