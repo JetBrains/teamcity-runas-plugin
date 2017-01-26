@@ -2,10 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import jetbrains.buildServer.agent.BuildAgentSystemInfo;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.runAs.common.Constants;
@@ -30,7 +27,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   private CommandLineResource myCommandLineResource1;
   private CommandLineResource myCommandLineResource2;
   private ResourceGenerator<RunAsParams> myArgsGenerator;
-  private CommandLineArgumentsService myCommandLineArgumentsService;
   private UserCredentialsService myUserCredentialsService;
   private AccessControlResource myAccessControlResource;
   private FileAccessService myFileAccessService;
@@ -58,7 +54,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     //noinspection unchecked
     myCommandLineResource1 = myCtx.mock(CommandLineResource.class, "Res1");
     myCommandLineResource2 = myCtx.mock(CommandLineResource.class, "Res2");
-    myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
     myFileAccessService = myCtx.mock(FileAccessService.class);
     myRunAsAccessService = myCtx.mock(RunAsAccessService.class);
   }
@@ -79,7 +74,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String credentialsContent = "credentials content";
     final String cmdContent = "args content";
     final CommandLineSetup commandLineSetup = new CommandLineSetup(toolName, args, resources);
-    final RunAsParams params = new RunAsParams("cmd line");
+    final List<CommandLineArgument> runAsParamsArgs = new ArrayList<CommandLineArgument>(args);
+    runAsParamsArgs.add(0, new CommandLineArgument(toolName, CommandLineArgument.Type.PARAMETER));
+    final RunAsParams params = new RunAsParams(runAsParamsArgs);
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
     final UserCredentials userCredentials = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList()));
     final AccessControlEntry beforeBuildStepAce = new AccessControlEntry(new File("tools"), AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute));
@@ -119,10 +116,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
 
       oneOf(myCredentialsGenerator).create(with(userCredentials));
       will(returnValue(credentialsContent));
-
-      //noinspection unchecked
-      oneOf(myCommandLineArgumentsService).createCommandLineString(with(any(List.class)));
-      will(returnValue("cmd line"));
 
       oneOf(myArgsGenerator).create(params);
       will(returnValue(cmdContent));
@@ -226,7 +219,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myAccessControlResource,
       myCredentialsGenerator,
       myArgsGenerator,
-      myCommandLineArgumentsService,
       myFileAccessService,
       myRunAsLogger,
       myRunAsAccessService,

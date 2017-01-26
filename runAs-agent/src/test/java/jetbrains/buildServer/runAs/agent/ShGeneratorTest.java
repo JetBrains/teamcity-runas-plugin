@@ -1,5 +1,7 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.Arrays;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.DataProvider;
@@ -13,23 +15,26 @@ public class ShGeneratorTest {
   @DataProvider(name = "cmdLinesCases")
   public Object[][] getCmdLinesCases() {
     return new Object[][] {
-      { "cmd line", "cmd line" },
+      {
+        new RunAsParams(
+          Arrays.asList(
+            new CommandLineArgument("tool", CommandLineArgument.Type.TOOL),
+            new CommandLineArgument("a b", CommandLineArgument.Type.PARAMETER))),
+        "'tool' 'a b'"},
     };
   }
 
   @Test(dataProvider = "cmdLinesCases")
-  public void shouldGenerateContent(@NotNull final String cmdLine, @NotNull final String cmdLineInMessage) {
+  public void shouldGenerateContent(@NotNull final RunAsParams runAsParams, @NotNull final String expectedCmdLine) {
     // Given
     final ResourceGenerator<RunAsParams> instance = createInstance();
 
     // When
-    final String content = instance.create(new RunAsParams(cmdLine));
+    final String content = instance.create(runAsParams);
 
     // Then
-    then(content).isEqualTo(
-      ShGenerator.BASH_HEADER
-      + LINE_SEPARATOR + "echo \"##teamcity[message text='Starting: " + cmdLineInMessage + "' status='NORMAL']\""
-      + LINE_SEPARATOR + cmdLine);
+    then(content).isEqualTo(ShGenerator.BASH_HEADER
+                            + LINE_SEPARATOR + expectedCmdLine);
   }
 
   @NotNull

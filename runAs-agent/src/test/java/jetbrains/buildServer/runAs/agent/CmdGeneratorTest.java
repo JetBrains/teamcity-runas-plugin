@@ -1,5 +1,8 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.Arrays;
+import java.util.Collections;
+import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.DataProvider;
@@ -13,34 +16,40 @@ public class CmdGeneratorTest {
   @DataProvider(name = "cmdLinesCases")
   public Object[][] getCmdLinesCases() {
     return new Object[][] {
-      { "cmd line", "cmd line" },
-      { "^", "^^" },
-      { "^^", "^^^^" },
-      { "\\", "^\\" },
-      { "&", "^&" },
-      { "|", "^|^|" },
-      { "\\", "^\\" },
-      { "'", "^|^'" },
-      { ">", "^>" },
-      { "<", "^<" },
-      { "cmd line where cat!=OOMT&&cat!=OOM", "cmd line where cat!=OOMT^&^&cat!=OOM" },
-      { "cmd line where cat!='OOMT&&cat!=OOM'", "cmd line where cat!=^|^'OOMT^&^&cat!=OOM^|^'" },
-      { "'\\&|><^'", "^|^'^\\^&^|^|^>^<^^^|^'" },
+      {
+        new RunAsParams(
+          Arrays.asList(
+            new CommandLineArgument("tool", CommandLineArgument.Type.TOOL),
+            new CommandLineArgument("a b", CommandLineArgument.Type.PARAMETER))),
+      "\"tool\" \"a b\""},
+
+      // using double quotes
+      {
+        new RunAsParams(
+          Arrays.asList(
+            new CommandLineArgument("tool", CommandLineArgument.Type.TOOL),
+            new CommandLineArgument("a \" b", CommandLineArgument.Type.PARAMETER))),
+        "\"tool\" \"a \"\" b\""},
+
+      // empty args
+      {
+        new RunAsParams(
+          Collections.<CommandLineArgument>emptyList()),
+          ""},
     };
   }
 
   @Test(dataProvider = "cmdLinesCases")
-  public void shouldGenerateContent(@NotNull final String cmdLine, @NotNull final String cmdLineInMessage) {
+  public void shouldGenerateContent(@NotNull final RunAsParams runAsParams, @NotNull final String expectedCmdLine) {
     // Given
     final ResourceGenerator<RunAsParams> instance = createInstance();
 
     // When
-    final String content = instance.create(new RunAsParams(cmdLine));
+    final String content = instance.create(runAsParams);
 
     // Then
     then(content).isEqualTo("@ECHO OFF"
-                            + LINE_SEPARATOR + "ECHO ##teamcity[message text=^'Starting: " + cmdLineInMessage + "^' status=^'NORMAL^']"
-                            + LINE_SEPARATOR + cmdLine
+                            + LINE_SEPARATOR + expectedCmdLine
                             + LINE_SEPARATOR + "SET \"EXIT_CODE=%ERRORLEVEL%\""
                             + LINE_SEPARATOR + "EXIT /B %EXIT_CODE%");
   }

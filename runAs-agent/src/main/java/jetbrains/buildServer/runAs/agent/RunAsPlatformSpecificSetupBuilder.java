@@ -19,7 +19,6 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final AccessControlResource myAccessControlResource;
   private final ResourceGenerator<UserCredentials> myUserCredentialsGenerator;
   private final ResourceGenerator<RunAsParams> myRunAsCmdGenerator;
-  private final CommandLineArgumentsService myCommandLineArgumentsService;
   private final FileAccessService myFileAccessService;
   private final RunAsLogger myRunAsLogger;
   private final RunAsAccessService myRunAsAccessService;
@@ -35,7 +34,6 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final AccessControlResource accessControlResource,
     @NotNull final ResourceGenerator<UserCredentials> userCredentialsGenerator,
     @NotNull final ResourceGenerator<RunAsParams> runAsCmdGenerator,
-    @NotNull final CommandLineArgumentsService commandLineArgumentsService,
     @NotNull final FileAccessService fileAccessService,
     @NotNull final RunAsLogger runAsLogger,
     @NotNull final RunAsAccessService runAsAccessService,
@@ -49,7 +47,6 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myAccessControlResource = accessControlResource;
     myUserCredentialsGenerator = userCredentialsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
-    myCommandLineArgumentsService = commandLineArgumentsService;
     myFileAccessService = fileAccessService;
     myRunAsLogger = runAsLogger;
     myRunAsAccessService = runAsAccessService;
@@ -82,7 +79,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     cmdLineArgs.add(new CommandLineArgument(commandLineSetup.getToolPath(), CommandLineArgument.Type.PARAMETER));
     cmdLineArgs.addAll(commandLineSetup.getArgs());
 
-    final RunAsParams params = new RunAsParams(myCommandLineArgumentsService.createCommandLineString(cmdLineArgs));
+    final RunAsParams params = new RunAsParams(cmdLineArgs);
 
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
     resources.add(new CommandLineFile(myBeforeBuildPublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
