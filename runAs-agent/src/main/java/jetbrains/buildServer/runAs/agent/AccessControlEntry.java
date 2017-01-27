@@ -1,8 +1,12 @@
 package jetbrains.buildServer.runAs.agent;
 
+import com.intellij.openapi.util.text.StringUtil;
 import java.io.File;
 import java.util.EnumSet;
+import java.util.HashMap;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 class AccessControlEntry {
   @NotNull private final File myFile;
@@ -50,5 +54,16 @@ class AccessControlEntry {
     result = 31 * result + myAccount.hashCode();
     result = 31 * result + myPermissions.hashCode();
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return LogUtils.toString(
+      "ACE",
+      new HashMap<String, Object>() {{
+      this.put("File", myFile);
+      this.put("Account", myAccount);
+      this.put("Permissions", LogUtils.toString(myPermissions));
+    }});
   }
 }

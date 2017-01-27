@@ -1,5 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.HashMap;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
@@ -82,5 +83,19 @@ public class UserCredentials {
     result = 31 * result + myAdditionalArgs.hashCode();
     result = 31 * result + myBeforeStepAcl.hashCode();
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return LogUtils.toString(
+      "UserCredentials",
+      new HashMap<String, Object>() {{
+        this.put("User", myUser);
+        this.put("WindowsIntegrityLevel", myWindowsIntegrityLevel);
+        this.put("LoggingLevel", myLoggingLevel);
+        this.put("AdditionalArgs", LogUtils.toString(myAdditionalArgs));
+        this.put("User", myUser);
+        this.put("BeforeStepAcl", LogUtils.toString(myBeforeStepAcl));
+      }});
   }
 }

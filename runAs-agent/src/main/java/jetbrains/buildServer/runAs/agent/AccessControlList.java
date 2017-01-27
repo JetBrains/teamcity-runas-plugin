@@ -1,5 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -30,5 +31,13 @@ public class AccessControlList implements Iterable<AccessControlEntry> {
   @Override
   public Iterator<AccessControlEntry> iterator() {
     return myAccessControlEntries.iterator();
+  }
+
+
+  @Override
+  public String toString() {
+    return LogUtils.toString(
+      "ACL",
+      LogUtils.toString(this));
   }
 }

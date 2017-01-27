@@ -2,6 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.IOException;
 import java.util.HashMap;
+import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,13 +19,15 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 public class ParametersServiceTest{
   private Mockery myCtx;
-  private SecuredParametersService mySecuredParametersService;
+  private RunnerParametersService myRunnerParametersService;
+  private BuildFeatureParametersService myBuildFeatureParametersService;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
-    mySecuredParametersService = myCtx.mock(SecuredParametersService.class);
+    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
+    myBuildFeatureParametersService = myCtx.mock(BuildFeatureParametersService.class);
   }
 
   @DataProvider(name = "getParamCases")
@@ -131,7 +134,7 @@ public class ParametersServiceTest{
     @Nullable final String expectedValue) throws IOException {
     // Given
     myCtx.checking(new Expectations() {{
-      allowing(mySecuredParametersService).tryGetRunnerParameter(with(any(String.class)));
+      allowing(myRunnerParametersService).tryGetRunnerParameter(with(any(String.class)));
       will(new CustomAction("tryGetRunnerParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -140,8 +143,8 @@ public class ParametersServiceTest{
         }
       });
 
-      allowing(mySecuredParametersService).tryGetBuildFeatureParameter(with(any(String.class)), with(any(String.class)));
-      will(new CustomAction("getBuildFeatureParameters") {
+      allowing(myBuildFeatureParametersService).tryGetBuildFeatureParameter(with(any(String.class)), with(any(String.class)));
+      will(new CustomAction("tryGetBuildFeatureParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
           Assert.assertEquals(invocation.getParameter(0), Constants.BUILD_FEATURE_TYPE);
@@ -155,7 +158,7 @@ public class ParametersServiceTest{
         }
       });
 
-      allowing(mySecuredParametersService).tryGetConfigParameter(with(any(String.class)));
+      allowing(myRunnerParametersService).tryGetConfigParameter(with(any(String.class)));
       will(new CustomAction("tryGetConfigParameter") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -179,6 +182,7 @@ public class ParametersServiceTest{
   private ParametersService createInstance()
   {
     return new ParametersServiceImpl(
-      mySecuredParametersService);
+      myRunnerParametersService,
+      myBuildFeatureParametersService);
   }
 }

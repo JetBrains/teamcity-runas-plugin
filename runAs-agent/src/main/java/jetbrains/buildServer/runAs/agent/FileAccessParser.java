@@ -1,5 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.text.StringUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -11,24 +12,18 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import org.jetbrains.annotations.NotNull;
 
 public class FileAccessParser implements TextParser<AccessControlList> {
+  private static final Logger LOG = Logger.getInstance(FileAccessParser.class.getName());
   private static final Pattern OutAccessPattern = Pattern.compile("\\s*([rcua\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
-  private final PathsService myPathsService;
-
-  public FileAccessParser(
-    @NotNull final PathsService pathsService) {
-    myPathsService = pathsService;
-  }
 
   @NotNull
   @Override
-  public AccessControlList parse(@NotNull final String acl) {
+  public AccessControlList parse(@NotNull final String aclString) {
     final ArrayList<AccessControlEntry> accessControlEntries = new ArrayList<AccessControlEntry>();
-    if(StringUtil.isEmptyOrSpaces(acl)) {
+    if(StringUtil.isEmptyOrSpaces(aclString)) {
       return new AccessControlList(accessControlEntries);
     }
 
-    final File agentBinDirectory = myPathsService.getPath(WellKnownPaths.Bin);
-    final String[] entries = acl.split(";");
+    final String[] entries = aclString.split(";");
     for (String aclEntryStr: entries) {
       final Matcher aclMatch = OutAccessPattern.matcher(aclEntryStr);
       if(!aclMatch.find() || aclMatch.groupCount() != 3) {
@@ -117,6 +112,11 @@ public class FileAccessParser implements TextParser<AccessControlList> {
         }
     }
 
-    return new AccessControlList(accessControlEntries);
+    final AccessControlList acl = new AccessControlList(accessControlEntries);
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("parse: \"" + aclString + "\" as " + acl);
+    }
+
+    return acl;
   }
 }

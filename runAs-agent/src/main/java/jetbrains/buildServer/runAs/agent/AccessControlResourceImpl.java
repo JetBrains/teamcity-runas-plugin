@@ -2,6 +2,7 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineExecutionContext;
 import org.jetbrains.annotations.NotNull;
@@ -26,5 +27,12 @@ public class AccessControlResourceImpl implements AccessControlResource {
 
   @Override
   public void publishAfterBuild(@NotNull final CommandLineExecutionContext commandLineExecutionContext) {
+  }
+
+  @Override
+  public String toString() {
+    return LogUtils.toString(
+      "AclResource",
+      myAccessControlList);
   }
 }

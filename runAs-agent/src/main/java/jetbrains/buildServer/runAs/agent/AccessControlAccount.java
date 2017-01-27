@@ -1,5 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.HashMap;
 import org.jetbrains.annotations.NotNull;
 
 class AccessControlAccount {
@@ -48,5 +49,15 @@ class AccessControlAccount {
     int result = myTargetType.hashCode();
     result = 31 * result + myUserName.hashCode();
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return LogUtils.toString(
+      "Account",
+      new HashMap<String, Object>() {{
+      this.put("Type", myTargetType);
+      this.put("UserName", myUserName);
+    }});
   }
 }

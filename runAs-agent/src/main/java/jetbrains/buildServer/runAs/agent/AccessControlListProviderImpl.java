@@ -1,5 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
+import com.intellij.openapi.diagnostic.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AccessControlListProviderImpl implements AccessControlListProvider {
+  private static final Logger LOG = Logger.getInstance(AccessControlListProviderImpl.class.getName());
   private final PathsService myPathsService;
   private final TextParser<AccessControlList> myFileAccessParser;
 
@@ -23,7 +25,7 @@ public class AccessControlListProviderImpl implements AccessControlListProvider 
   @NotNull
   @Override
   public AccessControlList getAfterAgentInitializedAcl(@Nullable final String additionalAcl) {
-    final List<AccessControlEntry> acl = new ArrayList<AccessControlEntry>(
+    final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>(
       Arrays.asList(
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Work), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive)),
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.System), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
@@ -34,18 +36,23 @@ public class AccessControlListProviderImpl implements AccessControlListProvider 
 
     if(!StringUtil.isEmptyOrSpaces(additionalAcl)) {
       for (AccessControlEntry ace : myFileAccessParser.parse(additionalAcl)) {
-        acl.add(ace);
+        aceList.add(ace);
       }
     }
 
-    return new AccessControlList(acl);
+    final AccessControlList acl = new AccessControlList(aceList);
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("getAfterAgentInitializedAcl: " + acl);
+    }
+
+    return acl;
   }
 
   @NotNull
   @Override
   public AccessControlList getBeforeBuildStepAcl(@NotNull final UserCredentials userCredentials) {
     final String username = userCredentials.getUser();
-    final List<AccessControlEntry> acl = new ArrayList<AccessControlEntry>(
+    final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>(
       Arrays.asList(
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Config), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Log), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
@@ -56,9 +63,14 @@ public class AccessControlListProviderImpl implements AccessControlListProvider 
     );
 
     for (AccessControlEntry ace: userCredentials.getBeforeStepAcl()) {
-      acl.add(ace);
+      aceList.add(ace);
     }
 
-    return new AccessControlList(acl);
+    final AccessControlList acl = new AccessControlList(aceList);
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("getBeforeBuildStepAcl: " + acl);
+    }
+
+    return acl;
   }
 }

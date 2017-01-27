@@ -8,27 +8,12 @@ import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class FileAccessParserTest {
-  private Mockery myCtx;
-  private PathsService myPathsService;
-  private File myAgentHomeDirectory;
-
-  @BeforeMethod
-  public void setUp()
-  {
-    myCtx = new Mockery();
-    myPathsService = myCtx.mock(PathsService.class);
-    myAgentHomeDirectory = new File("AgentHome");
-  }
-
   @DataProvider(name = "parseAclCases")
   public Object[][] getParseAclCasesCases() {
     return new Object[][] {
@@ -125,11 +110,6 @@ public class FileAccessParserTest {
     // Given
     final TextParser<AccessControlList> instance = createInstance();
 
-    myCtx.checking(new Expectations() {{
-      oneOf(myPathsService).getPath(WellKnownPaths.Bin);
-      will(returnValue(myAgentHomeDirectory));
-    }});
-
     boolean actualThrowException = false;
     AccessControlList actualAcl = null;
     // When
@@ -148,7 +128,6 @@ public class FileAccessParserTest {
   @NotNull
   private TextParser<AccessControlList> createInstance()
   {
-    return new FileAccessParser(
-      myPathsService);
+    return new FileAccessParser();
   }
 }

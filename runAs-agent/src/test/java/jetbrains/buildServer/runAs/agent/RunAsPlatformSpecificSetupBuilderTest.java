@@ -23,7 +23,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 public class RunAsPlatformSpecificSetupBuilderTest {
   private Mockery myCtx;
   private FileService myFileService;
-  private RunAsLogger myRunAsLogger;
   private ResourcePublisher myBeforeBuildPublisher;
   private ResourceGenerator<UserCredentials> myCredentialsGenerator;
   private CommandLineResource myCommandLineResource1;
@@ -43,7 +42,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
   {
     myCtx = new Mockery();
     myUserCredentialsService = myCtx.mock(UserCredentialsService.class);
-    myRunAsLogger = myCtx.mock(RunAsLogger.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
     myFileService = myCtx.mock(FileService.class);
     myBuildAgentSystemInfo = myCtx.mock(BuildAgentSystemInfo.class);
@@ -132,8 +130,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myFileAccessService).setAccess(runAsToolAcl);
 
       oneOf(myAccessControlResource).setAcl(new AccessControlList(Arrays.asList(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)), beforeBuildStepAce)));
-
-      oneOf(myRunAsLogger).LogRunAs(userCredentials, commandLineSetup, runAsCommandLineSetup);
 
       allowing(myArgumentConverter).convert(with(any(String.class)));
       will(new CustomAction("convert") {
@@ -233,7 +229,6 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       myCredentialsGenerator,
       myArgsGenerator,
       myFileAccessService,
-      myRunAsLogger,
       myRunAsAccessService,
       myArgumentConverter,
       ".abc");

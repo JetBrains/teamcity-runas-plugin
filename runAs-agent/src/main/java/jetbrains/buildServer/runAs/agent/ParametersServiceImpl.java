@@ -1,29 +1,33 @@
 package jetbrains.buildServer.runAs.agent;
 
+import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ParametersServiceImpl implements ParametersService {
-  private final SecuredParametersService mySecuredParametersService;
+  private final RunnerParametersService myRunnerParametersService;
+  private final BuildFeatureParametersService myBuildFeatureParametersService;
 
   public ParametersServiceImpl(
-    @NotNull final SecuredParametersService securedParametersService) {
-    mySecuredParametersService = securedParametersService;
+      @NotNull final RunnerParametersService runnerParametersService,
+      @NotNull final BuildFeatureParametersService buildFeatureParametersService) {
+    myRunnerParametersService = runnerParametersService;
+    myBuildFeatureParametersService = buildFeatureParametersService;
   }
 
   @Nullable
   @Override
   public String tryGetParameter(@NotNull final String paramName) {
-    final String isRunAsEnabled = mySecuredParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED);
+    final String isRunAsEnabled = myRunnerParametersService.tryGetConfigParameter(Constants.RUN_AS_UI_ENABLED);
     if(!StringUtil.isEmpty(isRunAsEnabled) && Boolean.toString(true).equalsIgnoreCase(isRunAsEnabled)) {
-      String paramValue = mySecuredParametersService.tryGetRunnerParameter(paramName);
+      String paramValue = myRunnerParametersService.tryGetRunnerParameter(paramName);
       if (!StringUtil.isEmptyOrSpaces(paramValue)) {
         return paramValue;
       }
 
-      paramValue = mySecuredParametersService.tryGetBuildFeatureParameter(Constants.BUILD_FEATURE_TYPE, paramName);
+      paramValue = myBuildFeatureParametersService.tryGetBuildFeatureParameter(Constants.BUILD_FEATURE_TYPE, paramName);
       if (!StringUtil.isEmptyOrSpaces(paramValue)) {
         return paramValue;
       }
@@ -34,6 +38,6 @@ public class ParametersServiceImpl implements ParametersService {
 
   @Override
   public String tryGetConfigParameter(@NotNull final String configParamName) {
-    return mySecuredParametersService.tryGetConfigParameter(configParamName);
+    return myRunnerParametersService.tryGetConfigParameter(configParamName);
   }
 }

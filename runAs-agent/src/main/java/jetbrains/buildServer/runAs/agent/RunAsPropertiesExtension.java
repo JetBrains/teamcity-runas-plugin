@@ -4,48 +4,50 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.SystemInfo;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Set;
 import jetbrains.buildServer.ExecResult;
 import jetbrains.buildServer.agent.*;
+import jetbrains.buildServer.dotNet.buildRunner.agent.BuildRunnerContextProvider;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.EventDispatcher;
+import jetbrains.buildServer.util.StringUtil;
+import jetbrains.buildServer.util.positioning.PositionAware;
+import jetbrains.buildServer.util.positioning.PositionConstraint;
 import org.jetbrains.annotations.NotNull;
 
 import static jetbrains.buildServer.runAs.agent.Constants.*;
 import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_TOOL_NAME;
 
-public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements RunAsAccessService {
+public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements RunAsAccessService, PositionAware {
   private static final Logger LOG = Logger.getInstance(RunAsPropertiesExtension.class.getName());
+  private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD };
   private static final CommandLineSetup OurIcaclsCmdLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
   private static final CommandLineSetup OurChmodHelpCmdLineSetup = new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
   private static final CommandLineSetup OurSuCmdLineSetup = new CommandLineSetup(SU_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
   private final ToolProvidersRegistry myToolProvidersRegistry;
+  private final BuildRunnerContextProvider myBuildRunnerContextProvider;
   private final CommandLineExecutor myCommandLineExecutor;
+  private final PropertiesService myPropertiesService;
   private boolean myIsRunAsEnabled;
+  private boolean myIsHidingOfPropertyIsNotSupported;
 
   public RunAsPropertiesExtension(
     @NotNull final EventDispatcher<AgentLifeCycleListener> events,
-    @NotNull ToolProvidersRegistry toolProvidersRegistry,
-    @NotNull final CommandLineExecutor commandLineExecutor) {
+    @NotNull final ToolProvidersRegistry toolProvidersRegistry,
+    @NotNull final BuildRunnerContextProvider buildRunnerContextProvider,
+    @NotNull final CommandLineExecutor commandLineExecutor,
+    @NotNull final PropertiesService propertiesService) {
     myToolProvidersRegistry = toolProvidersRegistry;
+    myBuildRunnerContextProvider = buildRunnerContextProvider;
     myCommandLineExecutor = commandLineExecutor;
+    myPropertiesService = propertiesService;
     events.addListener(this);
-  }
-
-  @Override
-  public void agentInitialized(@NotNull final BuildAgent agent) {
-    super.agentInitialized(agent);
-    refreshProperties(agent.getConfiguration());
-  }
-
-  @Override
-  public void buildFinished(@NotNull final AgentRunningBuild build, @NotNull final BuildFinishedStatus buildStatus) {
-    super.buildFinished(build, buildStatus);
-    refreshProperties(build.getAgentConfiguration());
   }
 
   @Override
@@ -53,7 +55,32 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
     return myIsRunAsEnabled;
   }
 
-  private void refreshProperties(final @NotNull BuildAgentConfiguration config) {
+  @NotNull
+  @Override
+  public String getOrderId() {
+    return "";
+  }
+
+  @NotNull
+  @Override
+  public PositionConstraint getConstraint() {
+    return PositionConstraint.first();
+  }
+
+  @Override
+  public void agentInitialized(@NotNull final BuildAgent agent) {
+    updateIsRunAsEnabled(agent.getConfiguration());
+    super.agentInitialized(agent);
+  }
+
+  @Override
+  public void buildStarted(@NotNull final AgentRunningBuild runningBuild) {
+    myBuildRunnerContextProvider.initialize(((AgentRunningBuildEx)runningBuild).getCurrentRunnerContext());
+    protectProperties(runningBuild);
+    super.buildStarted(runningBuild);
+  }
+
+  private void updateIsRunAsEnabled(final @NotNull BuildAgentConfiguration config) {
     myIsRunAsEnabled = false;
     if(SystemInfo.isWindows) {
       try {
@@ -110,5 +137,64 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
       myIsRunAsEnabled = true;
       config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
     }
+  }
+
+  private void protectProperties(final @NotNull AgentRunningBuild runningBuild) {
+    myPropertiesService.load();
+    final Set<String> propertySets = myPropertiesService.getPropertySets();
+    for (final String protectedPropertyName: OurProtectedParams) {
+      // Properties
+      for (String propertySet: propertySets) {
+        final String propertyValue = myPropertiesService.tryGetProperty(propertySet, protectedPropertyName);
+        if(StringUtil.isEmptyOrSpaces(propertyValue)) {
+          continue;
+        }
+
+        protectProperty(runningBuild, propertyValue);
+      }
+    }
+  }
+
+  private void protectProperty(
+    final @NotNull AgentRunningBuild runningBuild,
+    final String propertyValue) {
+    if(myIsHidingOfPropertyIsNotSupported) {
+      return;
+    }
+
+    try {
+      final Method getPasswordReplacerMethod = AgentRunningBuild.class.getMethod("getPasswordReplacer");
+      if(getPasswordReplacerMethod == null) {
+        onHidingOfPropertyIsNotSupportedMessage();
+        return;
+      }
+
+      Object passwordReplacer = getPasswordReplacerMethod.invoke(runningBuild);
+      if(passwordReplacer == null) {
+        onHidingOfPropertyIsNotSupportedMessage();
+        return;
+      }
+
+      final Class<?> passwordReplacerClass = Class.forName("jetbrains.buildServer.util.PasswordReplacer");
+      if(passwordReplacerClass == null) {
+        onHidingOfPropertyIsNotSupportedMessage();
+        return;
+      }
+
+      final Method addPasswordMethod = passwordReplacerClass.getMethod("addPassword", String.class);
+      if(addPasswordMethod == null) {
+        onHidingOfPropertyIsNotSupportedMessage();
+        return;
+      }
+
+      addPasswordMethod.invoke(passwordReplacer, propertyValue);
+    } catch(Exception ignored) {
+      onHidingOfPropertyIsNotSupportedMessage();
+    }
+  }
+
+  private void onHidingOfPropertyIsNotSupportedMessage() {
+    myIsHidingOfPropertyIsNotSupported = true;
+    LOG.debug("Hiding of property is not yet supported.");
   }
 }
