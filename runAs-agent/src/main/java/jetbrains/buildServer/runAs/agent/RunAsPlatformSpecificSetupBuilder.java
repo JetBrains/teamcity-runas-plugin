@@ -20,6 +20,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private final ResourceGenerator<UserCredentials> myUserCredentialsGenerator;
   private final ResourceGenerator<RunAsParams> myRunAsCmdGenerator;
   private final FileAccessService myFileAccessService;
+  private final RunAsLogger myRunAsLogger;
   private final RunAsAccessService myRunAsAccessService;
   private final Converter<String, String> myArgumentConverter;
   private final String myCommandFileExtension;
@@ -35,6 +36,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     @NotNull final ResourceGenerator<UserCredentials> userCredentialsGenerator,
     @NotNull final ResourceGenerator<RunAsParams> runAsCmdGenerator,
     @NotNull final FileAccessService fileAccessService,
+    @NotNull final RunAsLogger runAsLogger,
     @NotNull final RunAsAccessService runAsAccessService,
     @NotNull final Converter<String, String> argumentConverter,
     @NotNull final String commandFileExtension) {
@@ -48,6 +50,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     myUserCredentialsGenerator = userCredentialsGenerator;
     myRunAsCmdGenerator = runAsCmdGenerator;
     myFileAccessService = fileAccessService;
+    myRunAsLogger = runAsLogger;
     myRunAsAccessService = runAsAccessService;
     myArgumentConverter = argumentConverter;
     myCommandFileExtension = commandFileExtension;
@@ -102,6 +105,7 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
         new CommandLineArgument(myArgumentConverter.convert(userCredentials.getPassword()), CommandLineArgument.Type.PARAMETER)),
       resources);
 
+    myRunAsLogger.LogRunAs(userCredentials, commandLineSetup, runAsCommandLineSetup);
     return Collections.singleton(runAsCommandLineSetup);
   }
 

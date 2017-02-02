@@ -1,7 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
 public class Constants {
-    public static final String PASSWORD_REPLACEMENT_VAL = "*****";
     @SuppressWarnings("SpellCheckingInspection")
     public static final String ICACLS_TOOL_NAME = "ICACLS";
     public static final String CHMOD_TOOL_NAME = "chmod";
