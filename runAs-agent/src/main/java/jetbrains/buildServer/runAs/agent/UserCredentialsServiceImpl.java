@@ -68,11 +68,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     }
 
     if(allowCustomCredentials) {
-      String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
-      if (!StringUtil.isEmptyOrSpaces(credentialsRef)) {
-        throw new BuildStartException("The usage of credentials is prohibited");
-      }
-
       userCredentials = tryGetCustomCredentials();
       if(LOG.isDebugEnabled()) {
         LOG.debug("tryGetUserCredentials custom: " + userCredentials);
