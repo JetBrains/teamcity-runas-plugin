@@ -37,6 +37,7 @@ public class AccessControlListProviderTest {
     final File config = new File("config");
     final File log = new File("log");
     final File checkout = new File("checkout");
+    final File system = new File("system");
     final File agentTemp = new File("agentTemp");
     final File buildTemp = new File("buildTemp");
     final File globalTemp = new File("globalTemp");
@@ -63,6 +64,9 @@ public class AccessControlListProviderTest {
       oneOf(myPathsService).getPath(WellKnownPaths.Checkout);
       will(returnValue(checkout));
 
+      oneOf(myPathsService).getPath(WellKnownPaths.System);
+      will(returnValue(system));
+
       oneOf(myPathsService).getPath(WellKnownPaths.AgentTemp);
       will(returnValue(agentTemp));
 
@@ -84,6 +88,7 @@ public class AccessControlListProviderTest {
       new AccessControlEntry(config, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(log, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(checkout, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(system, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(agentTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(buildTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(globalTemp, AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
@@ -95,16 +100,12 @@ public class AccessControlListProviderTest {
   public void shouldGetAfterAgentInitializedAcl() throws IOException {
     // Given
     final File work = new File("work");
-    final File system = new File("system");
     final File tools = new File("tools");
     final File plugins = new File("plugins");
     final File lib = new File("lib");
     myCtx.checking(new Expectations() {{
       oneOf(myPathsService).getPath(WellKnownPaths.Work);
       will(returnValue(work));
-
-      oneOf(myPathsService).getPath(WellKnownPaths.System);
-      will(returnValue(system));
 
       oneOf(myPathsService).getPath(WellKnownPaths.Tools);
       will(returnValue(tools));
@@ -126,8 +127,7 @@ public class AccessControlListProviderTest {
     // Then
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
-      new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive)),
-      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead)),
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)))));
@@ -137,7 +137,6 @@ public class AccessControlListProviderTest {
   public void shouldGetAfterAgentInitializedAclWhenHasCustom() throws IOException {
     // Given
     final File work = new File("work");
-    final File system = new File("system");
     final File tools = new File("tools");
     final File plugins = new File("plugins");
     final File lib = new File("lib");
@@ -147,9 +146,6 @@ public class AccessControlListProviderTest {
     myCtx.checking(new Expectations() {{
       oneOf(myPathsService).getPath(WellKnownPaths.Work);
       will(returnValue(work));
-
-      oneOf(myPathsService).getPath(WellKnownPaths.System);
-      will(returnValue(system));
 
       oneOf(myPathsService).getPath(WellKnownPaths.Tools);
       will(returnValue(tools));
@@ -172,8 +168,7 @@ public class AccessControlListProviderTest {
     // Then
     myCtx.assertIsSatisfied();
     then(actualAcl).isEqualTo(new AccessControlList(Arrays.asList(
-      new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive)),
-      new AccessControlEntry(system, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
+      new AccessControlEntry(work, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead)),
       new AccessControlEntry(tools, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(plugins, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
       new AccessControlEntry(lib, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
