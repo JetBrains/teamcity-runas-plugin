@@ -26,7 +26,7 @@ popd
 rd %root%plugin\agent\new /s /q
 
 pushd plugin
-%zip% a -tzip %root%runAs.zip *
+%zip% a -tzip %root%teamcity-runas-plugin.zip *
 popd
 
 rd plugin /s /q
