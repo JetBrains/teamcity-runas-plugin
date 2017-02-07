@@ -86,7 +86,7 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
       try {
         myCommandLineExecutor.runProcess(OurIcaclsCmdLineSetup, 600);
       } catch (ExecutionException e) {
-        LOG.warn(ICACLS_TOOL_NAME + " is not supported", e);
+        LOG.warn(ICACLS_TOOL_NAME + " is not supported");
         return;
       }
 
@@ -115,7 +115,7 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
           }
         }
       } catch (ExecutionException e) {
-        LOG.warn(RUN_AS_WIN32_TOOL_NAME + " is not supported" , e);
+        LOG.warn(RUN_AS_WIN32_TOOL_NAME + " is not supported");
       }
     }
     else
@@ -123,14 +123,14 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
       try {
         myCommandLineExecutor.runProcess(OurChmodHelpCmdLineSetup, 600);
       } catch (ExecutionException e) {
-        LOG.warn(CHMOD_TOOL_NAME + " is not supported", e);
+        LOG.warn(CHMOD_TOOL_NAME + " is not supported");
         return;
       }
 
       try {
         myCommandLineExecutor.runProcess(OurSuCmdLineSetup, 600);
       } catch (ExecutionException e) {
-        LOG.warn(SU_TOOL_NAME + " is not supported", e);
+        LOG.warn(SU_TOOL_NAME + " is not supported");
         return;
       }
 
