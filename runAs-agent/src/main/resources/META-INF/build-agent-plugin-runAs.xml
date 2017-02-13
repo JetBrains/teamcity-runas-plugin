@@ -6,6 +6,7 @@
 
   <bean class="jetbrains.buildServer.runAs.agent.PathsServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.AccessControlListProviderImpl" />
+  <bean class="jetbrains.buildServer.runAs.agent.CryptographicServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.FileAccessParser" />
   <bean class="jetbrains.buildServer.runAs.agent.PropertiesServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.SecuredLoggingServiceImpl" />

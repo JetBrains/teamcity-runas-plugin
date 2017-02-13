@@ -22,14 +22,17 @@ public class PropertiesServiceImpl implements PropertiesService {
   private final RunnerParametersService myRunnerParametersService;
   private final PathsService myPathsService;
   private final FileService myFileService;
+  private final CryptographicService myCryptographicService;
 
   public PropertiesServiceImpl(
     @NotNull final RunnerParametersService runnerParametersService,
     @NotNull final PathsService pathsService,
-    @NotNull final FileService fileService) {
+    @NotNull final FileService fileService,
+    @NotNull final CryptographicService cryptographicService) {
     myRunnerParametersService = runnerParametersService;
     myPathsService = pathsService;
     myFileService = fileService;
+    myCryptographicService = cryptographicService;
   }
 
   @Override
@@ -92,6 +95,18 @@ public class PropertiesServiceImpl implements PropertiesService {
       }
       final ByteArrayInputStream stream = new ByteArrayInputStream(myFileService.readAllTextFile(propertyFile).getBytes(StandardCharsets.UTF_8));
       properties.load(stream);
+
+      for(Map.Entry<Object, Object> entry: properties.entrySet())
+      {
+        if(!(entry.getValue() instanceof String))
+        {
+          continue;
+        }
+
+        final String decryptedString = myCryptographicService.unscramble((String)entry.getValue());
+        entry.setValue(decryptedString);
+      }
+
 
       if(LOG.isDebugEnabled()) {
         LOG.debug(properties.size() + " properties were loaded from \"" + propertyFile + "\"");
