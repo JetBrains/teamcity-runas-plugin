@@ -15,6 +15,7 @@
   <bean class="jetbrains.buildServer.runAs.agent.RunAsToolProvider" />
   <bean class="jetbrains.buildServer.runAs.agent.RunAsLoggerImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.BuildFeatureParametersServiceImpl"/>
+  <bean class="jetbrains.buildServer.runAs.agent.AgentParametersServiceImpl"/>
   <bean class="jetbrains.buildServer.runAs.agent.ParametersServiceImpl"/>
   <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl"/>
   <bean class="jetbrains.buildServer.dotNet.buildRunner.agent.BeforeBuildPublisher" id="beforeBuildPublisher"/>

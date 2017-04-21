@@ -38,7 +38,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   public UserCredentials tryGetUserCredentials() {
     UserCredentials userCredentials;
     final boolean allowCustomCredentials = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_CUSTOM_CREDENTIALS), true);
-    final boolean allowProfileIdFromServer = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), true);
+    final boolean allowProfileIdFromServer = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), false);
     if(allowCustomCredentials && allowProfileIdFromServer) {
       userCredentials = tryGetCustomCredentials();
       if(userCredentials != null) {
@@ -113,7 +113,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   @Nullable
   private UserCredentials tryGetCustomCredentials() {
     final String userName = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.USER));
-    final String password = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.PASSWORD));
+    final String password = tryGetFirstNotEmpty(myParametersService.tryGetParameter(Constants.PASSWORD), myParametersService.tryGetParameter(Constants.CONFIG_PASSWORD));
 
     if(StringUtil.isEmptyOrSpaces(userName) || StringUtil.isEmptyOrSpaces(password)) {
       return null;
@@ -137,7 +137,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       }
     }
 
-    password = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(credentials, Constants.PASSWORD));
+    password = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(credentials, Constants.PASSWORD), myPropertiesService.tryGetProperty(credentials, Constants.CONFIG_PASSWORD));
     if(StringUtil.isEmptyOrSpaces(password)) {
       if(trowException) {
         throw new BuildStartException("RunAs password must be defined for \"" + credentials + "\"");
@@ -162,18 +162,20 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       additionalArgs = "";
     }
 
-    final String beforeStepAclStr = getParam(credentials, Constants.RUN_AS_BEFORE_STEP_ACL, isPredefined);
     AccessControlList beforeStepAcl = OurBeforeStepDefaultAcl;
-    if(!StringUtil.isEmptyOrSpaces(beforeStepAclStr)) {
-      final ArrayList<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
-      for (AccessControlEntry ace: myFileAccessParser.parse(beforeStepAclStr)) {
-        if(ace.getAccount().getTargetType() == AccessControlAccountType.User) {
-          ace = new AccessControlEntry(ace.getFile(), AccessControlAccount.forUser(userName), ace.getPermissions());
+    if(isPredefined && credentials != null) {
+      final String beforeStepAclStr = myPropertiesService.tryGetProperty(credentials, Constants.RUN_AS_BEFORE_STEP_ACL);
+      if (!StringUtil.isEmptyOrSpaces(beforeStepAclStr)) {
+        final ArrayList<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
+        for (AccessControlEntry ace : myFileAccessParser.parse(beforeStepAclStr)) {
+          if (ace.getAccount().getTargetType() == AccessControlAccountType.User) {
+            ace = new AccessControlEntry(ace.getFile(), AccessControlAccount.forUser(userName), ace.getPermissions());
+          }
+          aceList.add(ace);
         }
-        aceList.add(ace);
-      }
 
-      beforeStepAcl = new AccessControlList(aceList);
+        beforeStepAcl = new AccessControlList(aceList);
+      }
     }
 
     return new UserCredentials(

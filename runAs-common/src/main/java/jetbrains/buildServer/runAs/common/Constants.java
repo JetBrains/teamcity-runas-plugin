@@ -8,6 +8,7 @@ public class Constants {
     // Parameter names
     public static final String USER = "teamcity.runAs.username";
     public static final String PASSWORD = "secure:teamcity.runAs.password";
+    public static final String CONFIG_PASSWORD = "teamcity.runAs.password";
     public static final String ADDITIONAL_ARGS = "teamcity.runAs.additionalCommandLine";
     public static final String RUN_AS_ENABLED = "teamcity.agent.runAs.enabled";
     public static final String CREDENTIALS_PROFILE_ID = "teamcity.runAs.profileId";

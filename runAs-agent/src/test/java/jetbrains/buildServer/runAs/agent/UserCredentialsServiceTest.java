@@ -82,7 +82,7 @@ public class UserCredentialsServiceTest {
         new HashMap<String, HashMap<String, String>>() {{
           put("user2cred", new HashMap<String, String>() {{
             put(Constants.USER, "user2");
-            put(Constants.PASSWORD, "password2");
+            put(Constants.CONFIG_PASSWORD, "password2");
           }});
         }},
         new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
@@ -124,7 +124,7 @@ public class UserCredentialsServiceTest {
         new HashMap<String, HashMap<String, String>>() {{
           put("user2cred", new HashMap<String, String>() {{
             put(Constants.USER, "user2");
-            put(Constants.PASSWORD, "password2");
+            put(Constants.CONFIG_PASSWORD, "password2");
           }});
         }},
         new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
@@ -134,7 +134,9 @@ public class UserCredentialsServiceTest {
       // PredefinedCredentials && default credentials
       {
         new HashMap<String, String>(),
-        new HashMap<String, String>(),
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+        }},
         new HashMap<String, HashMap<String, String>>() {{
           put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
             put(Constants.USER, "user3");
@@ -240,7 +242,7 @@ public class UserCredentialsServiceTest {
         new HashMap<String, HashMap<String, String>>() {{
           put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
             put(Constants.USER, "user4");
-            put(Constants.PASSWORD, "password4");
+            put(Constants.CONFIG_PASSWORD, "password4");
           }});
         }},
         new UserCredentials("user4", "password4", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
@@ -392,11 +394,11 @@ public class UserCredentialsServiceTest {
         }},
         new HashMap<String, HashMap<String, String>>() {{
           put("user2cred", new HashMap<String, String>() {{
-            put(Constants.USER, "user2");
-            put(Constants.PASSWORD, "password2");
-            put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
-            put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
-            put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
+          put(Constants.USER, "user2");
+          put(Constants.PASSWORD, "password2");
+          put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
+          put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
+          put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
           }});
         }},
         new UserCredentials("user2", "password2", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
@@ -406,15 +408,18 @@ public class UserCredentialsServiceTest {
       // Enabled && default credentials && update username in ACL
       {
         new HashMap<String, String>(),
-        new HashMap<String, String>(),
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
+        }},
         new HashMap<String, HashMap<String, String>>() {{
           put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
-            put(Constants.USER, "user78");
-            put(Constants.PASSWORD, "password78");
-            put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
-            put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
-            put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
-            put(Constants.RUN_AS_BEFORE_STEP_ACL, "acl");
+          put(Constants.USER, "user78");
+          put(Constants.PASSWORD, "password78");
+          put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
+          put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
+          put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
+          put(Constants.RUN_AS_BEFORE_STEP_ACL, "acl");
           }});
         }},
         new UserCredentials(
@@ -424,6 +429,31 @@ public class UserCredentialsServiceTest {
           LoggingLevel.Debug,
           Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)),
           new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser("user78"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive))))),
+        null
+      },
+
+      // ALLOW_PROFILE_ID_FROM_SERVER is false by default
+      {
+        new HashMap<String, String>(),
+        new HashMap<String, String>(),
+        new HashMap<String, HashMap<String, String>>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+            put(Constants.USER, "user3");
+            put(Constants.PASSWORD, "password3");
+          }});
+        }},
+        null,
+        null
+      },
+
+      // ALLOW_CUSTOM_CREDENTIALS is true by default
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user1");
+          put(Constants.PASSWORD, "password1"); }},
+        new HashMap<String, String>(),
+        new HashMap<String, HashMap<String, String>>(),
+        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
     };

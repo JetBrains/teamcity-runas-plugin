@@ -5,6 +5,7 @@
       <class name="jetbrains.buildServer.runAs.agent.AccessControlListProviderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.AccessControlResourceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.ConfigurationImplTest"/>
       <class name="jetbrains.buildServer.runAs.agent.FileAccessParserTest"/>
       <class name="jetbrains.buildServer.runAs.agent.LinuxArgumentConverterTest"/>
       <class name="jetbrains.buildServer.runAs.agent.LinuxFileAccessServiceTest"/>

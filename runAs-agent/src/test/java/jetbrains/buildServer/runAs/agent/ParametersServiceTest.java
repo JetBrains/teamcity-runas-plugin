@@ -36,7 +36,7 @@ public class ParametersServiceTest{
       // from buildFeature
       {
         new HashMap<String, String>(),
-        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.CONFIG_PASSWORD, "password2"); }},
         new HashMap<String, String>() {{ put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER,
         "user2"
@@ -53,7 +53,7 @@ public class ParametersServiceTest{
 
       // from buildFeature when UI was enabled
       {
-        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.CONFIG_PASSWORD, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
         new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER,
@@ -80,9 +80,9 @@ public class ParametersServiceTest{
 
       // from runnerParameters
       {
-        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.CONFIG_PASSWORD, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.CONFIG_PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "true"); }},
         Constants.USER,
         "user1"
       },
@@ -109,7 +109,7 @@ public class ParametersServiceTest{
       {
         new HashMap<String, String>() {{ put(Constants.USER, "user1"); put(Constants.PASSWORD, "password1"); }},
         new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
-        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "false"); }},
+        new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.CONFIG_PASSWORD, "password3"); put(Constants.RUN_AS_UI_ENABLED, "false"); }},
         Constants.USER,
         "user3"
       },

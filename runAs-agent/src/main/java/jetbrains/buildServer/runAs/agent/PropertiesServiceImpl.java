@@ -18,18 +18,18 @@ import org.jetbrains.annotations.Nullable;
 
 public class PropertiesServiceImpl implements PropertiesService {
   private static final Logger LOG = Logger.getInstance(PropertiesServiceImpl.class.getName());
-  private final Map<String, Properties> myPropertySets = new HashMap<String, Properties>();
-  private final RunnerParametersService myRunnerParametersService;
+  private final Map<String, Configuration> myPropertySets = new HashMap<String, Configuration>();
+  private final AgentParametersService myAgentParametersService;
   private final PathsService myPathsService;
   private final FileService myFileService;
   private final CryptographicService myCryptographicService;
 
   public PropertiesServiceImpl(
-    @NotNull final RunnerParametersService runnerParametersService,
+    @NotNull final AgentParametersService runnerParametersService,
     @NotNull final PathsService pathsService,
     @NotNull final FileService fileService,
     @NotNull final CryptographicService cryptographicService) {
-    myRunnerParametersService = runnerParametersService;
+    myAgentParametersService = runnerParametersService;
     myPathsService = pathsService;
     myFileService = fileService;
     myCryptographicService = cryptographicService;
@@ -38,7 +38,7 @@ public class PropertiesServiceImpl implements PropertiesService {
   @Override
   public void load() {
     myPropertySets.clear();
-    final String credentialsDirectoryStr = myRunnerParametersService.tryGetConfigParameter(jetbrains.buildServer.runAs.common.Constants.CREDENTIALS_DIRECTORY);
+    final String credentialsDirectoryStr = myAgentParametersService.tryGetConfigParameter(jetbrains.buildServer.runAs.common.Constants.CREDENTIALS_DIRECTORY);
     if(StringUtil.isEmptyOrSpaces(credentialsDirectoryStr)) {
       LOG.error("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined");
       return;
@@ -76,7 +76,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
   @Nullable
   public String tryGetProperty(@NotNull final String propertySet, @NotNull final String key) {
-    Properties properties = myPropertySets.get(propertySet);
+    Configuration properties = myPropertySets.get(propertySet);
     if(properties == null) {
       properties = myPropertySets.get(propertySet + ".properties");
       if(properties == null) {
@@ -87,8 +87,13 @@ public class PropertiesServiceImpl implements PropertiesService {
     return properties.getProperty(key);
   }
 
+  protected Configuration CreateConfiguration()
+  {
+    return new ConfigurationImpl();
+  }
+
   private void load(@NotNull final File propertyFile) {
-    Properties properties = new Properties();
+    Configuration properties = CreateConfiguration();
     try {
       if(LOG.isDebugEnabled()) {
         LOG.debug("Loading credentials from \"" + propertyFile + "\"");

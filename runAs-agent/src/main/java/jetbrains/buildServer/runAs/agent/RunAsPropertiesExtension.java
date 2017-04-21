@@ -26,7 +26,7 @@ import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_TOOL_NAME;
 
 public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements RunAsAccessService, PositionAware {
   private static final Logger LOG = Logger.getInstance(RunAsPropertiesExtension.class.getName());
-  private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD };
+  private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD, Constants.CONFIG_PASSWORD };
   private static final CommandLineSetup OurIcaclsCmdLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
   private static final CommandLineSetup OurChmodHelpCmdLineSetup = new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
   private static final CommandLineSetup OurSuCmdLineSetup = new CommandLineSetup(SU_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
