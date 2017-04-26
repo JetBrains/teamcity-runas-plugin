@@ -4,7 +4,7 @@
 
 This plugin provides an ability to run builds under the specified windows user account. See [Wiki](https://github.com/JetBrains/teamcity-runas-plugin/wiki) for more information.
 
-To enable UI set the server internal property (https://confluence.jetbrains.com/display/TCD10/Configuring+TeamCity+Server+Startup+Properties) "teamcity.runAs.ui.enabled" to "True"
+To enable UI set the server [internal property](https://confluence.jetbrains.com/display/TCD10/Configuring+TeamCity+Server+Startup+Properties) "teamcity.runAs.ui.enabled" to "True"
 
 ## License ##
 
