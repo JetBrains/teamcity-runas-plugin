@@ -18,13 +18,13 @@
 </tr>
 
 <tr>
-  <th><label for="${bean.runAsUserKey}">User name:</label></th>
+  <th><label for="${bean.runAsUserKey}">Username:</label></th>
   <td>
     <div class="posRel">
       <props:textProperty name="${bean.runAsUserKey}" className="longField"/>
     </div>
     <span class="error" id="error_${bean.runAsUserKey}"></span>
-    <span class="smallNote">Specify the user name.</span>
+    <span class="smallNote">Specify the username</span>
   </td>
 </tr>
 
@@ -35,12 +35,13 @@
       <props:passwordProperty name="${bean.runAsPasswordKey}" className="longField"/>
     </div>
     <span class="error" id="error_${bean.runAsPasswordKey}"></span>
-    <span class="smallNote">Specify the password.</span>
+    <span class="smallNote">Specify the password</span>
   </td>
 </tr>
 
 <tr>
-  <th rowspan="2"><label>Windows: </label></th>
+  <th rowspan="2"><label>
+    dows: </label></th>
   <td>
     <label for="${bean.windowsIntegrityLevelKey}" class="fixedLabel">Integrity:</label>
     <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
@@ -48,7 +49,7 @@
         <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
       </c:forEach>
     </props:selectProperty>
-    <span class="smallNote">Enter windows integrity level</span>
+    <span class="smallNote">Select Windows integrity level</span>
   </td>
 </tr>
 
@@ -60,7 +61,7 @@
         <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
       </c:forEach>
     </props:selectProperty>
-    <span class="smallNote">Enter logging level</span>
+    <span class="smallNote">Select logging level</span>
   </td>
 </tr>
 
