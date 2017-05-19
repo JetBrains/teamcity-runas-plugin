@@ -3,19 +3,22 @@
 #  runAs (settings_file_name, command, bitness, password)
 if [ $# -eq 4 ];
 then
-	args=$(cat "$1")
-	command="$2"
-	password="$4"
+	eval "argsFile="$1""
+	args=$(cat "$argsFile")
+	eval "command="$2""
+	eval "password="$4""
+
+	#echo command="$command"
 
 	# if root
 	if [[ "$EUID" -eq 0 ]];
 	then
-		su -c $command $args
+		su -c "\"$command\"" "$args"
 		exit $?
 	fi
 
 	# if not root
-	${0} runAs "$args" "$command" "$password" arg5
+	"${0}" runAs "$args" "$command" "$password" arg5
 	exit $?
 fi
 
@@ -24,14 +27,15 @@ if [ $# -eq 5 ];
 then
 	if [ "$1" = "runAs" ];
 	then
-		args="\"$2\""
+		args="$2"
 		command="$3"
 		password="$4"
 
 		tmpFile=$(tempfile)
 		chmod a+rw "$tmpFile"
 
-		cmd="${0} su $tmpFile $command $args arg5"
+		cmd="'${0}' su '$tmpFile' '$command' '$args' arg5"
+		eval "export -- SOCAT_CMD=\"$cmd\""
 
 		# run command
 		(
@@ -59,7 +63,7 @@ then
 			done
 		) | (
 			# su
-			socat - EXEC:"$cmd",pty,ctty,setsid;
+			socat - $'EXEC:"bash -exec +x \'eval $SOCAT_CMD\'",pty,ctty,setsid'
 		) 2> >(tee > "$tmpFile" >(grep -v "[Pp]assword:" >&2))
 
 		# if exit file is empty
@@ -77,11 +81,11 @@ then
 	# su (su, tmp_file, command, args, arg5)
 	if [ "$1" = "su" ];
 	then
-		tmpFile=$2
-		command=$3
-		args=$4
+		tmpFile="$2"
+		command="$3"
+		args="$4"
 
-		su -c $command $args
+		su -c "\"$command\"" "$args"
 		exitCode=$?
 
 		echo -e "$exitCode\n" > "$tmpFile"
