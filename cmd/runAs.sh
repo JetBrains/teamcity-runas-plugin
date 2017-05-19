@@ -3,6 +3,7 @@
 # runAs (settings_file_name, command, bitness, password)
 if [ $# -eq 4 ];
 then
+	# unqote args
 	eval "argsFile="$1""
 	args=$(cat "$argsFile")
 	eval "command="$2""
@@ -25,8 +26,8 @@ then
 			exit $?
 		else
 			# Permission problem
-			echo 'Incorrect user or password' >&2
-			exit 126
+			echo 'Authentication failure' >&2
+			exit 255
 		fi
 	fi
 
@@ -36,42 +37,39 @@ then
 fi
 
 # runAs(auth, password)
+# check user and password
 if [ $# -eq 2 ];
 then
 	if [ "$1" = "auth" ];
 	then
 		password="$2"
 
-		tmpFile1=$(tempfile)
 		sudo -k
-		#sudo -lS &> /dev/null << EOF
-		sudo -lS &> "$tmpFile1" << EOF
+		out1=$( sudo -lS 2>&1 << EOF
 $password
 EOF
-
+)
 		authCode=$?
 		if [ $authCode -eq 0 ];
 		then
-			"$tmpFile1" &> /dev/null
+			# user has sudo permission and the password is valid
 			exit 0
 		fi
 
-		tmpFile2=$(tempfile)
 		sudo -k
-		#sudo -lS &> /dev/null << EOF
-		sudo -lS &> "$tmpFile2" << EOF
-solt$password
+		out2=$( sudo -lS 2>&1 << EOF
+salt_$password_salt
 EOF
+)
 
-		if cmp -s "$tmpFile1" "$tmpFile2"
+		if [ "$out1" == "$out2" ]
 		then
-			authCode=126
+			# incorrect user or password
+			authCode=255
 		else
+			# user has no sudo pemission, but the password is valid
 			authCode=0
 		fi
-
-		rm "$tmpFile1" &> /dev/null
-		rm "$tmpFile2" &> /dev/null
 
 		exit $authCode
 	fi
@@ -80,6 +78,7 @@ fi
 # runAs (runAs, args, command, password, arg5)
 if [ $# -eq 5 ];
 then
+	# runAs without ROOT
 	if [ "$1" = "runAs" ];
 	then
 		args="$2"
@@ -128,11 +127,13 @@ then
 		fi
 
 		# take exid code from file
-		exitCode=$(cat "$tmpFile")
-		rm "$tmpFile" 1> /dev/null 2> /dev/null
+		read -r exitCode<"$tmpFile"
+		#rm "$tmpFile" & > /dev/null
+
 		exit $exitCode
 	fi
 
+	# change the user
 	# su (su, tmp_file, command, args, arg5)
 	if [ "$1" = "su" ];
 	then
