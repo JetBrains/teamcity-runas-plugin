@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#  runAs (settings_file_name, command, bitness, password)
+# runAs (settings_file_name, command, bitness, password)
 if [ $# -eq 4 ];
 then
 	eval "argsFile="$1""
@@ -9,12 +9,25 @@ then
 	eval "password="$4""
 
 	#echo command="$command"
+	#echo password="$password"
 
 	# if root
 	if [[ "$EUID" -eq 0 ]];
 	then
-		su -c "\"$command\"" "$args"
-		exit $?
+		# auth
+		su -c "\"${0}\" auth \"$password\"" "$args"
+		authCode=$?
+
+		if [ "$authCode" = "0" ];
+		then
+			# su
+			su -c "\"$command\"" "$args"
+			exit $?
+		else
+			# Permission problem
+			echo 'Incorrect user or password' >&2
+			exit 126
+		fi
 	fi
 
 	# if not root
@@ -22,7 +35,49 @@ then
 	exit $?
 fi
 
-#  runAs (runAs, args, command, password, arg5)
+# runAs(auth, password)
+if [ $# -eq 2 ];
+then
+	if [ "$1" = "auth" ];
+	then
+		password="$2"
+
+		tmpFile1=$(tempfile)
+		sudo -k
+		#sudo -lS &> /dev/null << EOF
+		sudo -lS &> "$tmpFile1" << EOF
+$password
+EOF
+
+		authCode=$?
+		if [ $authCode -eq 0 ];
+		then
+			"$tmpFile1" &> /dev/null
+			exit 0
+		fi
+
+		tmpFile2=$(tempfile)
+		sudo -k
+		#sudo -lS &> /dev/null << EOF
+		sudo -lS &> "$tmpFile2" << EOF
+solt$password
+EOF
+
+		if cmp -s "$tmpFile1" "$tmpFile2"
+		then
+			authCode=126
+		else
+			authCode=0
+		fi
+
+		rm "$tmpFile1" &> /dev/null
+		rm "$tmpFile2" &> /dev/null
+
+		exit $authCode
+	fi
+fi
+
+# runAs (runAs, args, command, password, arg5)
 if [ $# -eq 5 ];
 then
 	if [ "$1" = "runAs" ];
