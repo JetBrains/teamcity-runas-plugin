@@ -40,8 +40,7 @@
 </tr>
 
 <tr>
-  <th rowspan="2"><label>
-    dows: </label></th>
+  <th rowspan="2"><label>Windows: </label></th>
   <td>
     <label for="${bean.windowsIntegrityLevelKey}" class="fixedLabel">Integrity:</label>
     <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
