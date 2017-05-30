@@ -37,7 +37,7 @@
   </tr>
 
   <tr class="advancedSetting">
-    <th rowspan="2"><label>Windows: </label></th>
+    <th rowspan="3"><label>Windows: </label></th>
     <td>
       <label for="${bean.windowsIntegrityLevelKey}" class="fixedLabel">Integrity:</label>
       <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
@@ -62,9 +62,9 @@
   </tr>
 
   <tr class="advancedSetting">
-    <th rowspan="2"/>
     <td>
       <label for="${bean.additionalCommandLineParametersKey}">Additional parameters:</label>
+      <br/>
       <props:textProperty name="${bean.additionalCommandLineParametersKey}" className="longField"/>
       <span class="error" id="error_${bean.additionalCommandLineParametersKey}"></span>
       <span class="smallNote">Enter additional parameters</span>
