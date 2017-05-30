@@ -9,9 +9,6 @@ then
 	eval "command="$2""
 	eval "password="$4""
 
-	#echo command="$command"
-	#echo password="$password"
-
 	# if root
 	if [[ "$EUID" -eq 0 ]];
 	then
@@ -25,9 +22,29 @@ then
 			su -c "\"$command\"" "$args"
 			exit $?
 		else
-			# Permission problem
-			echo 'Authentication failure' >&2
-			exit 255
+			if [ "$authCode" = "254" ];
+			then
+				# if run as root for the agent under root, create temp user and run as from this user to check the root's password
+				tmpuser="U$(date +%s)"
+				adduser --system --no-create-home "$tmpuser" &>/dev/null
+
+				tmpScriptFile=$(tempfile)
+				cp -f "${0}" "$tmpScriptFile"
+				chmod a+rwx "$tmpScriptFile"
+
+				sudo -u "$tmpuser" "$tmpScriptFile" runAs "$args" "$command" "$password" arg5
+				exitCode=$?
+
+				rm "$tmpScriptFile" &>/dev/null
+				userdel "$tmpuser" &>/dev/null
+				if [ "$authCode" != "0" ];
+    				then
+				    exit $exitCode
+				fi
+			else
+				echo "Authentication failure" >&2
+				exit 1
+			fi
 		fi
 	fi
 
@@ -36,13 +53,19 @@ then
 	exit $?
 fi
 
-# runAs(auth, password)
+# runAs(auth, args, command, password)
 # check user and password
 if [ $# -eq 2 ];
 then
 	if [ "$1" = "auth" ];
 	then
 		password="$2"
+		# if root
+		if [[ "$EUID" -eq 0 ]];
+		then
+			# run as root for the agent under root, we should check the root's password
+			exit 254
+		fi
 
 		sudo -k
 		out1=$( sudo -lS 2>&1 << EOF
@@ -81,6 +104,15 @@ then
 	# runAs without ROOT
 	if [ "$1" = "runAs" ];
 	then
+		# check installed socat
+		socat -h &>/dev/null
+		socatExitCode=$?
+		if [ "$socatExitCode" != "0" ];
+		then
+			echo "##teamcity[message text='socat was not installed, see https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install#teamcity-agent-on-linux' status='ERROR']"
+			exit 255
+		fi
+
 		args="$2"
 		command="$3"
 		password="$4"
@@ -103,7 +135,7 @@ then
 
 			if [[ $attempts -eq 0 ]];
 			then
-				echo "##teamcity[message text='Error during sending password.' status='ERROR']"
+				echo "##teamcity[message text='Error during sending password' status='ERROR']"
 				exit 255
 			fi
 
@@ -128,7 +160,7 @@ then
 
 		# take exid code from file
 		read -r exitCode<"$tmpFile"
-		#rm "$tmpFile" & > /dev/null
+		rm "$tmpFile" & > /dev/null
 
 		exit $exitCode
 	fi
@@ -150,5 +182,16 @@ then
 fi
 
 echo Invalid arguments. >&2
-echo Usage: runAs.sh settings_file_name command_file_name password >&2
+echo Usage: runAs.sh settings_file_name command_file_name bitness password >&2
+if [[ "$EUID" -eq 0 ]];
+then
+    exit 0
+else
+    # check installed socat
+    socat -h &>/dev/null
+    if [ "$?" = "0" ];
+    then
+	exit 0
+    fi
+fi
 exit 255
