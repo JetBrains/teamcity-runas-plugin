@@ -24,7 +24,9 @@ import org.jetbrains.annotations.NotNull;
 import static jetbrains.buildServer.runAs.agent.Constants.*;
 import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_TOOL_NAME;
 
+@SuppressWarnings("deprecation")
 public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements RunAsAccessService, PositionAware {
+  private static final String TOOL_FILE_NAME_LINUX = "runAs.sh";
   private static final Logger LOG = Logger.getInstance(RunAsPropertiesExtension.class.getName());
   private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD, Constants.CONFIG_PASSWORD };
   private static final CommandLineSetup OurIcaclsCmdLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
@@ -82,16 +84,18 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
 
   private void updateIsRunAsEnabled(final @NotNull BuildAgentConfiguration config) {
     myIsRunAsEnabled = false;
+
+    final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(RUN_AS_TOOL_NAME);
+    if (toolProvider == null) {
+      LOG.warn("Can not find tool " + RUN_AS_TOOL_NAME);
+      return;
+    }
+
     if(SystemInfo.isWindows) {
       try {
         myCommandLineExecutor.runProcess(OurIcaclsCmdLineSetup, 600);
       } catch (ExecutionException e) {
         LOG.warn(ICACLS_TOOL_NAME + " is not supported");
-        return;
-      }
-
-      final ToolProvider toolProvider = myToolProvidersRegistry.findToolProvider(RUN_AS_TOOL_NAME);
-      if (toolProvider == null) {
         return;
       }
 
@@ -131,6 +135,19 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
         myCommandLineExecutor.runProcess(OurSuCmdLineSetup, 600);
       } catch (ExecutionException e) {
         LOG.warn(SU_TOOL_NAME + " is not supported");
+        return;
+      }
+
+      final File pathToRunAsScript = new File(toolProvider.getPath(RUN_AS_TOOL_NAME), TOOL_FILE_NAME_LINUX);
+      final CommandLineSetup scriptCmd = new CommandLineSetup(pathToRunAsScript.getAbsolutePath(), Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
+      try {
+        final ExecResult res = myCommandLineExecutor.runProcess(scriptCmd, 600);
+        if(res.getExitCode() != 0) {
+          LOG.warn("RunAs is not supported");
+          return;
+        }
+      } catch (ExecutionException e) {
+        LOG.warn(CHMOD_TOOL_NAME + " is not supported");
         return;
       }
 
