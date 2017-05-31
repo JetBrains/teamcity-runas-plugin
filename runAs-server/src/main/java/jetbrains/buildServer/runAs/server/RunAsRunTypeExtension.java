@@ -126,12 +126,12 @@ public class RunAsRunTypeExtension extends RunTypeExtension implements PositionA
         final String user = properties.get(RunAsBean.Shared.getRunAsUserKey());
         final String password = properties.get(RunAsBean.Shared.getRunAsPasswordKey());
 
-        if(!(StringUtil.isEmptyOrSpaces(user) && StringUtil.isEmptyOrSpaces(password))) {
+        if(!(StringUtil.isEmpty(user) && StringUtil.isEmpty(password))) {
           if (StringUtil.isEmptyOrSpaces(user)) {
             result.add(new InvalidProperty(RunAsBean.Shared.getRunAsUserKey(), "The user must be specified."));
           }
 
-          if (StringUtil.isEmptyOrSpaces(password)) {
+          if (StringUtil.isEmpty(password)) {
             result.add(new InvalidProperty(RunAsBean.Shared.getRunAsPasswordKey(), "The password must be specified."));
           }
         }

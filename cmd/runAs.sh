@@ -64,7 +64,10 @@ then
 		if [[ "$EUID" -eq 0 ]];
 		then
 			# run as root for the agent under root, we should check the root's password
-			exit 254
+			# exit 254
+
+			# do not check root password under root agent, see https://youtrack.jetbrains.com/issue/TW-50088
+			exit 0
 		fi
 
 		sudo -k
