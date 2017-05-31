@@ -9,12 +9,24 @@
       var winSize = BS.Util.windowSize();
       BS.Util.popupWindow('https://github.com/JetBrains/teamcity-runas-plugin/wiki', 'runAs', { width: 0.9 * winSize[0], height: 0.9 * winSize[1] });
       BS.stopPropagation(event);
+    },
+
+    showIntegrityLevelsPage: function() {
+      var winSize = BS.Util.windowSize();
+      BS.Util.popupWindow('https://github.com/JetBrains/runAs/wiki#windows-integrity-mechanism', 'runAs', {width: 0.9 * winSize[0], height: 0.9 * winSize[1]});
+      BS.stopPropagation(event);
+    },
+
+    showCommandLinePage: function() {
+      var winSize = BS.Util.windowSize();
+      BS.Util.popupWindow('https://github.com/JetBrains/runAs/blob/master/README.md#command-line-arguments', 'runAs', {width: 0.9 * winSize[0], height: 0.9 * winSize[1]});
+      BS.stopPropagation(event);
     }
   }
 </script>
 
 <tr>
-  <td colspan="2"><em>This build feature allows running build steps under the specified user account <i class='icon-external-link' title='Open in new window' onclick='BS.RunAsFeature.showHomePage()'/i></em></td>
+  <td colspan="2"><em>This build feature allows running build steps under the specified user account <i class='icon-external-link' title='Open in new window' onclick='BS.RunAsFeature.showHomePage()'/></em></td>
 </tr>
 
 <tr>
@@ -39,11 +51,12 @@
   </td>
 </tr>
 
-<tr>
-  <th rowspan="2"><label>
-    dows: </label></th>
+<tr class="advancedSetting">
+  <th rowspan="3"><label>Windows: </label></th>
   <td>
-    <label for="${bean.windowsIntegrityLevelKey}" class="fixedLabel">Integrity:</label>
+    <label for="${bean.windowsIntegrityLevelKey}">Integrity:
+      <a class="helpIcon" onclick="BS.RunAsFeature.showIntegrityLevelsPage()" title="View help"><bs:helpIcon/></a>
+    </label>
     <props:selectProperty name="${bean.windowsIntegrityLevelKey}" enableFilter="true" className="smallField">
       <c:forEach var="item" items="${bean.windowsIntegrityLevels}">
         <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
@@ -53,9 +66,9 @@
   </td>
 </tr>
 
-<tr>
+<tr class="advancedSetting">
   <td>
-    <label for="${bean.windowsLoggingLevelKey}" class="fixedLabel">Logging:</label>
+    <label for="${bean.windowsLoggingLevelKey}">Logging:</label>
     <props:selectProperty name="${bean.windowsLoggingLevelKey}" enableFilter="true" className="smallField">
       <c:forEach var="item" items="${bean.loggingLevels}">
         <props:option value="${item.value}"><c:out value="${item.description}"/></props:option>
@@ -65,10 +78,12 @@
   </td>
 </tr>
 
-<tr>
-  <th rowspan="2"/>
+<tr class="advancedSetting">
   <td>
-    <label for="${bean.additionalCommandLineParametersKey}">Additional parameters:</label>
+    <label for="${bean.additionalCommandLineParametersKey}">Additional parameters:
+      <a class="helpIcon" onclick="BS.RunAsFeature.showCommandLinePage()" title="View help"><bs:helpIcon/></a>
+    </label>
+    <br/>
     <props:textProperty name="${bean.additionalCommandLineParametersKey}" className="longField"/>
     <span class="error" id="error_${bean.additionalCommandLineParametersKey}"></span>
     <span class="smallNote">Enter additional parameters</span>
