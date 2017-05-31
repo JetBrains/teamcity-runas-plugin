@@ -36,44 +36,52 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   @Nullable
   @Override
   public UserCredentials tryGetUserCredentials() {
-    UserCredentials userCredentials;
     final boolean allowCustomCredentials = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_CUSTOM_CREDENTIALS), true);
     final boolean allowProfileIdFromServer = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), false);
     if(allowCustomCredentials && allowProfileIdFromServer) {
-      userCredentials = tryGetCustomCredentials();
-      if(userCredentials != null) {
-        if(LOG.isDebugEnabled()) {
-          LOG.debug("tryGetUserCredentials custom: " + userCredentials);
-        }
-
-        return userCredentials;
-      }
-
       String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
-      if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
-        userCredentials = getPredefinedCredentials("default", false);
+      final boolean profileWasDefined = !StringUtil.isEmptyOrSpaces(credentialsRef);
+      UserCredentials profileCredentials = null;
+      if(!profileWasDefined) {
+        profileCredentials = getPredefinedCredentials(DEFAULT_CREDENTIALS, false);
         if(LOG.isDebugEnabled()) {
-          LOG.debug("tryGetUserCredentials predefined \"" + Constants.CREDENTIALS_PROFILE_ID + "\": " + userCredentials);
+          LOG.debug("tryGetUserCredentials predefined \"" + Constants.CREDENTIALS_PROFILE_ID + "\": " + profileCredentials);
+        }
+      }
+
+      UserCredentials customCredentials = tryGetCustomCredentials();
+      if(customCredentials != null) {
+        if(profileWasDefined || profileCredentials != null) {
+          LOG.info("Build step attempted to use custom credentials while credentials profiles are configured on the agent. Build step has not been executed and build problem was raised.");
+          throw new BuildStartException("Build step cannot be executed with custom credentials on this agent. Please contact system administrator.");
         }
 
-        return userCredentials;
+        if(LOG.isDebugEnabled()) {
+          LOG.debug("tryGetUserCredentials custom: " + customCredentials);
+        }
+
+        return customCredentials;
       }
 
-      userCredentials = getPredefinedCredentials(credentialsRef, true);
+      if (!profileWasDefined) {
+        return profileCredentials;
+      }
+
+      profileCredentials = getPredefinedCredentials(credentialsRef, true);
       if(LOG.isDebugEnabled()) {
-        LOG.debug("tryGetUserCredentials predefined \"" + credentialsRef + "\": " + userCredentials);
+        LOG.debug("tryGetUserCredentials predefined \"" + credentialsRef + "\": " + profileCredentials);
       }
 
-      return userCredentials;
+      return profileCredentials;
     }
 
     if(allowCustomCredentials) {
-      userCredentials = tryGetCustomCredentials();
+      UserCredentials customCredentials = tryGetCustomCredentials();
       if(LOG.isDebugEnabled()) {
-        LOG.debug("tryGetUserCredentials custom: " + userCredentials);
+        LOG.debug("tryGetUserCredentials custom: " + customCredentials);
       }
 
-      return userCredentials;
+      return customCredentials;
     }
 
     if(allowProfileIdFromServer) {
@@ -82,12 +90,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         credentialsRef = DEFAULT_CREDENTIALS;
       }
 
-      userCredentials = getPredefinedCredentials(credentialsRef, true);
+      UserCredentials profileCredentials = getPredefinedCredentials(credentialsRef, true);
       if(LOG.isDebugEnabled()) {
-        LOG.debug("tryGetUserCredentials predefined \"" + credentialsRef + "\": " + userCredentials);
+        LOG.debug("tryGetUserCredentials predefined \"" + credentialsRef + "\": " + profileCredentials);
       }
 
-      return userCredentials;
+      return profileCredentials;
     }
 
     LOG.debug("tryGetUserCredentials returns null");

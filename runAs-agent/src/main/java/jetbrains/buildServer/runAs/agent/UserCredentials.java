@@ -94,7 +94,6 @@ public class UserCredentials {
         this.put("WindowsIntegrityLevel", myWindowsIntegrityLevel);
         this.put("LoggingLevel", myLoggingLevel);
         this.put("AdditionalArgs", LogUtils.toString(myAdditionalArgs));
-        this.put("User", myUser);
         this.put("BeforeStepAcl", LogUtils.toString(myBeforeStepAcl));
       }});
   }

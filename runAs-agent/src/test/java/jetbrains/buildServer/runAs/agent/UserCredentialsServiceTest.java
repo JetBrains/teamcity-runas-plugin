@@ -456,6 +456,94 @@ public class UserCredentialsServiceTest {
         new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
         null
       },
+
+      // Throw exception WHEN predefined credentials was enabled and defined but custom credentials is defined too
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user1");
+          put(Constants.PASSWORD, "password1");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");}},
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
+        }},
+        new HashMap<String, HashMap<String, String>>() {{
+          put("user2cred", new HashMap<String, String>() {{
+            put(Constants.USER, "user2");
+            put(Constants.PASSWORD, "password2");
+          }});
+        }},
+        null,
+        "Build step cannot be executed with custom credentials on this agent. Please contact system administrator."
+      },
+
+      // Throw exception WHEN predefined credentials was enabled but default is specified only and defined but custom credentials is defined too
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user1");
+          put(Constants.PASSWORD, "password1");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred");}},
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
+        }},
+        new HashMap<String, HashMap<String, String>>() {{
+          // default
+          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+            put(Constants.USER, "user3");
+            put(Constants.PASSWORD, "password3");
+          }});
+        }},
+        null,
+        "Build step cannot be executed with custom credentials on this agent. Please contact system administrator."
+      },
+
+      // Throw exception WHEN predefined credentials was enabled but default is specified only and defined but custom credentials is defined too and credential profile was not specified
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user1");
+          put(Constants.PASSWORD, "password1");}},
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
+        }},
+        new HashMap<String, HashMap<String, String>>() {{
+          // default
+          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+            put(Constants.USER, "user3");
+            put(Constants.PASSWORD, "password3");
+          }});
+        }},
+        null,
+        "Build step cannot be executed with custom credentials on this agent. Please contact system administrator."
+      },
+
+      // Throw exception WHEN predefined credentials is enabled, but it was nod used and default is specified  and defined but custom credentials is defined too
+      {
+        new HashMap<String, String>() {{
+          put(Constants.USER, "user1");
+          put(Constants.PASSWORD, "password1");
+          put(Constants.CREDENTIALS_PROFILE_ID, "user2cred_AAAAA");}},
+        new HashMap<String, String>() {{
+          put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
+          put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
+        }},
+        new HashMap<String, HashMap<String, String>>() {{
+          // was not used
+          put("user2cred", new HashMap<String, String>() {{
+            put(Constants.USER, "user2");
+            put(Constants.PASSWORD, "password2");
+          }});
+
+          // default
+          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+            put(Constants.USER, "user3");
+            put(Constants.PASSWORD, "password3");
+          }});
+        }},
+        null,
+        "Build step cannot be executed with custom credentials on this agent. Please contact system administrator."
+      },
     };
   }
 
@@ -466,6 +554,7 @@ public class UserCredentialsServiceTest {
     @NotNull final HashMap<String, HashMap<String, String>> properties,
     @Nullable final UserCredentials expectedUserCredentials,
     @Nullable final String expectedExceptionMessage) throws IOException {
+
     // Given
     myCtx.checking(new Expectations() {{
       allowing(myParametersService).tryGetParameter(with(any(String.class)));
