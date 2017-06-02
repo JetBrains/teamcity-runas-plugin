@@ -15,6 +15,7 @@ public class WindowsArgumentConverterTest {
       { "", "\"\"" },
       { " ", "\" \"" },
       { "a \"b", "\"a \"\"b\"" },
+      { "\"a b\"", "\"a b\"" }, //TW-50069 runAs fails to run NUnit tests if path to an agent contains spaces
     };
   }
 
