@@ -20,6 +20,7 @@
   <bean class="jetbrains.buildServer.runAs.agent.UserCredentialsServiceImpl"/>
   <bean class="jetbrains.buildServer.dotNet.buildRunner.agent.BeforeBuildPublisher" id="beforeBuildPublisher"/>
   <bean class="jetbrains.buildServer.runAs.agent.NoModificationArgumentConverter" id="noModificationArgumentConverter"/>
+  <bean class="jetbrains.buildServer.runAs.agent.FileAccessCacheImpl"/>
   <bean class="jetbrains.buildServer.runAs.agent.AgentAccessService">
     <constructor-arg ref="windowsFileAccessService"/>
     <constructor-arg ref="linuxFileAccessService"/>
@@ -36,8 +37,11 @@
   <!-- Windows -->
   <bean class="jetbrains.buildServer.runAs.agent.WindowsArgumentConverter" id="windowsArgumentConverter"/>
   <bean class="jetbrains.buildServer.runAs.agent.WindowsFileAccessService" id="windowsFileAccessService"/>
-  <bean class="jetbrains.buildServer.runAs.agent.AccessControlResourceImpl" id="windowsAccessControlResource" scope="prototype">
+  <bean class="jetbrains.buildServer.runAs.agent.CachingFileAccessService" id="windowsCachingFileAccessService">
     <constructor-arg ref="windowsFileAccessService"/>
+  </bean>
+  <bean class="jetbrains.buildServer.runAs.agent.AccessControlResourceImpl" id="windowsAccessControlResource" scope="prototype">
+    <constructor-arg ref="windowsCachingFileAccessService"/>
   </bean>
   <bean class="jetbrains.buildServer.runAs.agent.CmdGenerator" id="cmdGenerator">
     <constructor-arg ref="windowsArgumentConverter"/>
@@ -48,7 +52,7 @@
     <constructor-arg ref="windowsAccessControlResource"/>
     <constructor-arg ref="windowsSettingsGenerator"/>
     <constructor-arg ref="cmdGenerator"/>
-    <constructor-arg ref="windowsFileAccessService"/>
+    <constructor-arg ref="windowsCachingFileAccessService"/>
     <constructor-arg ref="windowsArgumentConverter"/>
     <constructor-arg type="java.lang.String" value=".cmd"/>
   </bean>
@@ -56,8 +60,11 @@
   <!-- Linux -->
   <bean class="jetbrains.buildServer.runAs.agent.LinuxArgumentConverter" id="linuxArgumentConverter"/>
   <bean class="jetbrains.buildServer.runAs.agent.LinuxFileAccessService" id="linuxFileAccessService"/>
-  <bean class="jetbrains.buildServer.runAs.agent.AccessControlResourceImpl" id="linuxAccessControlResource" scope="prototype">
+  <bean class="jetbrains.buildServer.runAs.agent.CachingFileAccessService" id="linuxCachingFileAccessService">
     <constructor-arg ref="linuxFileAccessService"/>
+  </bean>
+  <bean class="jetbrains.buildServer.runAs.agent.AccessControlResourceImpl" id="linuxAccessControlResource" scope="prototype">
+    <constructor-arg ref="linuxCachingFileAccessService"/>
   </bean>
   <bean class="jetbrains.buildServer.runAs.agent.ShGenerator" id="shGenerator">
     <constructor-arg ref="linuxArgumentConverter"/>
@@ -68,7 +75,7 @@
     <constructor-arg ref="linuxAccessControlResource"/>
     <constructor-arg ref="linuxSettingsGenerator"/>
     <constructor-arg ref="shGenerator"/>
-    <constructor-arg ref="linuxFileAccessService"/>
+    <constructor-arg ref="linuxCachingFileAccessService"/>
     <constructor-arg ref="noModificationArgumentConverter"/>
     <constructor-arg type="java.lang.String" value=".sh"/>
   </bean>

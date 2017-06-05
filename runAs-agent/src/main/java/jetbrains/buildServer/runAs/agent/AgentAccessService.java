@@ -3,9 +3,7 @@ package jetbrains.buildServer.runAs.agent;
 import com.intellij.openapi.diagnostic.Logger;
 import java.io.File;
 import java.util.Map;
-import jetbrains.buildServer.agent.AgentLifeCycleAdapter;
-import jetbrains.buildServer.agent.AgentLifeCycleListener;
-import jetbrains.buildServer.agent.BuildAgent;
+import jetbrains.buildServer.agent.*;
 import jetbrains.buildServer.runAs.common.*;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.EventDispatcher;
@@ -21,17 +19,20 @@ public class AgentAccessService extends AgentLifeCycleAdapter implements Positio
   private final RunAsAccessService myRunAsAccessService;
   private final FileAccessService myWindowsFileAccessService;
   private final FileAccessService myLinuxFileAccessService;
+  private final FileAccessCacheManager myFileAccessCacheManager;
 
   public AgentAccessService(
     @NotNull final EventDispatcher<AgentLifeCycleListener> agentDispatcher,
     @NotNull final AccessControlListProvider accessControlListProvider,
     @NotNull final RunAsAccessService runAsAccessService,
     @NotNull final FileAccessService windowsFileAccessService,
-    @NotNull final FileAccessService linuxFileAccessService) {
+    @NotNull final FileAccessService linuxFileAccessService,
+    @NotNull final FileAccessCacheManager fileAccessCacheManager) {
     myAccessControlListProvider = accessControlListProvider;
     myRunAsAccessService = runAsAccessService;
     myWindowsFileAccessService = windowsFileAccessService;
     myLinuxFileAccessService = linuxFileAccessService;
+    myFileAccessCacheManager = fileAccessCacheManager;
     agentDispatcher.addListener(this);
   }
 
@@ -73,5 +74,11 @@ public class AgentAccessService extends AgentLifeCycleAdapter implements Positio
     }
 
     currentFileAccessService.setAccess(acl);
+  }
+
+  @Override
+  public void buildFinished(@NotNull final AgentRunningBuild build, @NotNull final BuildFinishedStatus buildStatus) {
+    super.buildFinished(build, buildStatus);
+    myFileAccessCacheManager.reset();
   }
 }

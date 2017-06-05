@@ -155,6 +155,7 @@ public class WindowsFileAccessServiceTest {
     }});
 
     // When
+    myCtx.assertIsSatisfied();
     instance.setAccess(accessControlList);
 
     // Then

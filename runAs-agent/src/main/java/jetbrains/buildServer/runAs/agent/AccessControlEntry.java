@@ -1,17 +1,15 @@
 package jetbrains.buildServer.runAs.agent;
 
-import com.intellij.openapi.util.text.StringUtil;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.HashMap;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 class AccessControlEntry {
   @NotNull private final File myFile;
   private final AccessControlAccount myAccount;
   private final EnumSet<AccessPermissions> myPermissions;
+  private boolean myIsCachingAllowed;
 
   AccessControlEntry(
     @NotNull final File file,
@@ -45,7 +43,6 @@ class AccessControlEntry {
     if (!myFile.equals(that.myFile)) return false;
     if (!myAccount.equals(that.myAccount)) return false;
     return myPermissions.equals(that.myPermissions);
-
   }
 
   @Override
@@ -61,9 +58,18 @@ class AccessControlEntry {
     return LogUtils.toString(
       "ACE",
       new HashMap<String, Object>() {{
-      this.put("File", myFile);
-      this.put("Account", myAccount);
-      this.put("Permissions", LogUtils.toString(myPermissions));
+        this.put("File", myFile);
+        this.put("Account", myAccount);
+        this.put("Permissions", LogUtils.toString(myPermissions));
+        this.put("IsCachingAllowed", isCachingAllowed());
     }});
+  }
+
+  public boolean isCachingAllowed() {
+    return myIsCachingAllowed;
+  }
+
+  public void setCachingAllowed(final boolean isCachingAllowed) {
+    myIsCachingAllowed = isCachingAllowed;
   }
 }

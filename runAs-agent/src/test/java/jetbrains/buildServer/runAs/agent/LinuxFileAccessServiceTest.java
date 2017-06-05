@@ -107,6 +107,7 @@ public class LinuxFileAccessServiceTest {
     instance.setAccess(accessControlList);
 
     // Then
+    myCtx.assertIsSatisfied();
     then(actualCommandLineSetups).isEqualTo(expectedCommandLineSetups);
   }
 

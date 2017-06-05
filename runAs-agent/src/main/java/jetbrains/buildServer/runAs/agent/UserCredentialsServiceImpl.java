@@ -36,8 +36,8 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
   @Nullable
   @Override
   public UserCredentials tryGetUserCredentials() {
-    final boolean allowCustomCredentials = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_CUSTOM_CREDENTIALS), true);
-    final boolean allowProfileIdFromServer = parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), false);
+    final boolean allowCustomCredentials = ParameterUtils.parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_CUSTOM_CREDENTIALS), true);
+    final boolean allowProfileIdFromServer = ParameterUtils.parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), false);
     if(allowCustomCredentials && allowProfileIdFromServer) {
       String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
       final boolean profileWasDefined = !StringUtil.isEmptyOrSpaces(credentialsRef);
@@ -100,22 +100,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     LOG.debug("tryGetUserCredentials returns null");
     return null;
-  }
-
-  private boolean parseBoolean(@Nullable final String boolStr, final boolean defaultValue) {
-    if(StringUtil.isEmptyOrSpaces(boolStr)) {
-      return defaultValue;
-    }
-
-    if(Boolean.toString(true).equalsIgnoreCase(boolStr)) {
-      return true;
-    }
-
-    if(Boolean.toString(false).equalsIgnoreCase(boolStr)) {
-      return false;
-    }
-
-    return defaultValue;
   }
 
   @Nullable

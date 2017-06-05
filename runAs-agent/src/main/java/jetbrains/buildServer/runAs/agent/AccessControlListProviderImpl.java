@@ -51,6 +51,8 @@ public class AccessControlListProviderImpl implements AccessControlListProvider 
   @Override
   public AccessControlList getBeforeBuildStepAcl(@NotNull final UserCredentials userCredentials) {
     final String username = userCredentials.getUser();
+    final AccessControlEntry checkoutAce = new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Checkout), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive));
+    checkoutAce.setCachingAllowed(true);
     final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>(
       Arrays.asList(
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Config), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
@@ -59,7 +61,7 @@ public class AccessControlListProviderImpl implements AccessControlListProvider 
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.AgentTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.BuildTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
         new AccessControlEntry(myPathsService.getPath(WellKnownPaths.GlobalTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Checkout), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)))
+        checkoutAce)
     );
 
     for (AccessControlEntry ace: userCredentials.getBeforeStepAcl()) {
