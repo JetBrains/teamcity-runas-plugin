@@ -5,6 +5,7 @@ import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.serverSide.BuildFeature;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
+import jetbrains.buildServer.util.CollectionsUtil;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static com.intellij.openapi.util.text.StringUtil.isEmpty;
 
 public class RunAsBuildFeature extends BuildFeature {
+  private static final Map<String, String> OurDefaultRunnerProperties = CollectionsUtil.asMap(
+    RunAsBean.Shared.getAdditionalCommandLineParametersKey(), null,
+    RunAsBean.Shared.getWindowsIntegrityLevelKey(), RunAsBean.Shared.getWindowsIntegrityLevels().get(0).getValue(),
+    RunAsBean.Shared.getWindowsLoggingLevelKey(), RunAsBean.Shared.getLoggingLevels().get(0).getValue()
+  );
   private final String myEditUrl;
   private final RunAsBean myBean;
 
@@ -72,5 +78,11 @@ public class RunAsBuildFeature extends BuildFeature {
         return result;
       }
     };
+  }
+
+  @Nullable
+  @Override
+  public Map<String, String> getDefaultParameters() {
+    return OurDefaultRunnerProperties;
   }
 }

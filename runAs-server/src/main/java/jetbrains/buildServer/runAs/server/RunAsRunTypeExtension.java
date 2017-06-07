@@ -19,6 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 
 public class RunAsRunTypeExtension extends RunTypeExtension implements PositionAware {
+  private static final Map<String, String> OurDefaultRunnerProperties = CollectionsUtil.asMap(
+      RunAsBean.Shared.getRunAsUserKey(), null,
+      RunAsBean.Shared.getRunAsPasswordKey(), null,
+      RunAsBean.Shared.getAdditionalCommandLineParametersKey(), null,
+      RunAsBean.Shared.getWindowsIntegrityLevelKey(), RunAsBean.Shared.getWindowsIntegrityLevels().get(0).getValue(),
+      RunAsBean.Shared.getWindowsLoggingLevelKey(), RunAsBean.Shared.getLoggingLevels().get(0).getValue()
+    );
+
   private final String myViewUrl;
   private final String myEditUrl;
 
@@ -154,7 +162,7 @@ public class RunAsRunTypeExtension extends RunTypeExtension implements PositionA
   @Nullable
   @Override
   public Map<String, String> getDefaultRunnerProperties() {
-    return CollectionsUtil.asMap(RunAsBean.Shared.getRunAsUserKey(), null, RunAsBean.Shared.getRunAsPasswordKey(), null);
+    return OurDefaultRunnerProperties;
   }
 
   private String registerView(@NotNull final PluginDescriptor description,

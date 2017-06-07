@@ -2,6 +2,7 @@ package jetbrains.buildServer.runAs.server;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
@@ -31,7 +32,7 @@ public class RunAsBean {
   }
 
   @NotNull
-  public Collection<WindowsIntegrityLevel> getWindowsIntegrityLevels() {
+  public List<WindowsIntegrityLevel> getWindowsIntegrityLevels() {
     return Arrays.asList(WindowsIntegrityLevel.values());
   }
 
@@ -41,7 +42,7 @@ public class RunAsBean {
   }
 
   @NotNull
-  public Collection<LoggingLevel> getLoggingLevels() {
+  public List<LoggingLevel> getLoggingLevels() {
     return Arrays.asList(LoggingLevel.values());
   }
 }
