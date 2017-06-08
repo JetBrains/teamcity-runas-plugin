@@ -1,6 +1,11 @@
 SET root=%~dp0
 SET zip=%root%tools\7z.exe
 
+set Version=1.0.61
+call %root%tools\nuget.exe install JetBrains.runAs -Version %Version% -o win32
+copy %root%win32\JetBrains.runAs.%Version%\tools\x64\JetBrains.runAs.exe win32\x64 /Y
+copy %root%win32\JetBrains.runAs.%Version%\tools\x86\JetBrains.runAs.exe win32\x86 /Y
+
 del %root%runAs.zip /F /Q
 rd %root%plugin /s /q
 
