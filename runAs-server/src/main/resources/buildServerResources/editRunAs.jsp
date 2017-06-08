@@ -1,5 +1,6 @@
 <%@ include file="/include-internal.jsp"%>
 <%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
+<%@ taglib prefix="l" tagdir="/WEB-INF/tags/layout" %>
 <jsp:useBean id="buildForm" type="jetbrains.buildServer.controllers.admin.projects.BuildTypeForm" scope="request"/>
 <jsp:useBean id="bean" class="jetbrains.buildServer.runAs.server.RunAsBean"/>
 
@@ -25,7 +26,8 @@
   }
 </script>
 
-<l:settingsGroup title="Run as <a class='helpIcon' onclick='BS.RunAs.showHomePage()' title='View help'><i class='icon icon16 tc-icon_help_small'></i></a>">
+<l:settingsGroup className="advancedSetting" title="Run as <a class='helpIcon' onclick='BS.RunAs.showHomePage()' title='View help'><i class='icon icon16 tc-icon_help_small'></i></a>">
+
   <tr class="advancedSetting">
     <th><label for="${bean.runAsUserKey}">Username:</label></th>
     <td>
