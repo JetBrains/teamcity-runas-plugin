@@ -26,7 +26,7 @@
 </script>
 
 <tr>
-  <td colspan="2"><em>This build feature allows running build steps under the specified user account <i class='icon-external-link' title='Open in new window' onclick='BS.RunAsFeature.showHomePage()'/></em></td>
+  <td colspan="2"><em>This build feature allows running build steps under the specified user account <a class='helpIcon' onclick='BS.RunAsFeature.showHomePage()' title='View help'><i class='icon icon16 tc-icon_help_small'></i></a></em></td>
 </tr>
 
 <tr>

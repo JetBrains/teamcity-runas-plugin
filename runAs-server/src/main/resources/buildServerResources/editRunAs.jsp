@@ -25,7 +25,7 @@
   }
 </script>
 
-<l:settingsGroup title="Run as <i class='icon-external-link' title='Open in new window' onclick='BS.RunAs.showHomePage()'/i>">
+<l:settingsGroup title="Run as <a class='helpIcon' onclick='BS.RunAs.showHomePage()' title='View help'><i class='icon icon16 tc-icon_help_small'></i></a>">
   <tr class="advancedSetting">
     <th><label for="${bean.runAsUserKey}">Username:</label></th>
     <td>
