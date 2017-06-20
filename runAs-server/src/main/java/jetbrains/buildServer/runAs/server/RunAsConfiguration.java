@@ -7,4 +7,8 @@ public class RunAsConfiguration {
   public boolean getIsUiSupported() {
     return TeamCityProperties.getBooleanOrTrue(Constants.RUN_AS_UI_ENABLED);
   }
+
+  public boolean getIsUiForBuildStepsSupported() {
+    return TeamCityProperties.getBoolean(Constants.RUN_AS_UI_STEPS_ENABLED);
+  }
 }

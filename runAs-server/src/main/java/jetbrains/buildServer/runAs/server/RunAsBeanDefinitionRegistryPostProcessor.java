@@ -18,7 +18,9 @@ public class RunAsBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
   public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
     if(myRunAsConfiguration.getIsUiSupported()) {
       registerBeanDefinition(beanDefinitionRegistry, RunAsBuildFeature.class.getName());
-      registerBeanDefinition(beanDefinitionRegistry, RunAsRunTypeExtension.class.getName());
+      if(myRunAsConfiguration.getIsUiForBuildStepsSupported()) {
+        registerBeanDefinition(beanDefinitionRegistry, RunAsRunTypeExtension.class.getName());
+      }
     }
   }
 

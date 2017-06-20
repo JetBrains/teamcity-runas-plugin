@@ -18,6 +18,7 @@ public class Constants {
     public static final String ALLOW_PROFILE_ID_FROM_SERVER = "teamcity.runAs.allowProfileIdFromServer";
     public static final String CREDENTIALS_DIRECTORY = "teamcity.runAs.configDir";
     public static final String RUN_AS_UI_ENABLED = "teamcity.runAs.ui.enabled";
+    public static final String RUN_AS_UI_STEPS_ENABLED = "teamcity.runAs.ui.steps.enabled";
     public static final String RUN_AS_LOG_ENABLED = "teamcity.runAs.log.enabled";
     public static final String RUN_AS_BEFORE_STEP_ACL = "teamcity.runAs.before.step.acl";
     public static final String RUN_AS_AGENT_INITIALIZE_ACL = "teamcity.runAs.agent.initialize.acl";
