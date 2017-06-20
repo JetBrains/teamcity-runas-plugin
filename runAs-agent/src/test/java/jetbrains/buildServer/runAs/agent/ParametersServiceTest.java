@@ -120,7 +120,7 @@ public class ParametersServiceTest{
         new HashMap<String, String>() {{ put(Constants.USER, "user2"); put(Constants.PASSWORD, "password2"); }},
         new HashMap<String, String>() {{ put(Constants.USER, "user3"); put(Constants.PASSWORD, "password3"); }},
         Constants.USER,
-        "user3"
+        "user1"
       },
     };
   }
