@@ -5,7 +5,7 @@
       <class name="jetbrains.buildServer.runAs.agent.AccessControlEntryTest"/>
       <class name="jetbrains.buildServer.runAs.agent.AccessControlListProviderTest"/>
       <class name="jetbrains.buildServer.runAs.agent.AccessControlResourceTest"/>
-      <class name="jetbrains.buildServer.runAs.agent.CachingFileAccessServiceTest"/>
+      <class name="jetbrains.buildServer.runAs.agent.ScopedAccessServiceTest"/>
       <class name="jetbrains.buildServer.runAs.agent.CmdGeneratorTest"/>
       <class name="jetbrains.buildServer.runAs.agent.ConfigurationImplTest"/>
       <class name="jetbrains.buildServer.runAs.agent.FileAccessCacheImplTest"/>

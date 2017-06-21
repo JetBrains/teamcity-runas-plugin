@@ -7,24 +7,22 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import jetbrains.buildServer.dotNet.buildRunner.agent.FileService;
-import jetbrains.buildServer.dotNet.buildRunner.agent.RunnerParametersService;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PropertiesServiceImpl implements PropertiesService {
-  private static final Logger LOG = Logger.getInstance(PropertiesServiceImpl.class.getName());
-  private final Map<String, Configuration> myPropertySets = new HashMap<String, Configuration>();
+public class ProfileParametersServiceImpl implements ProfileParametersService {
+  private static final Logger LOG = Logger.getInstance(ProfileParametersServiceImpl.class.getName());
+  private final Map<String, Configuration> myProfiles = new HashMap<String, Configuration>();
   private final AgentParametersService myAgentParametersService;
   private final PathsService myPathsService;
   private final FileService myFileService;
   private final CryptographicService myCryptographicService;
 
-  public PropertiesServiceImpl(
+  public ProfileParametersServiceImpl(
     @NotNull final AgentParametersService runnerParametersService,
     @NotNull final PathsService pathsService,
     @NotNull final FileService fileService,
@@ -37,7 +35,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
   @Override
   public void load() {
-    myPropertySets.clear();
+    myProfiles.clear();
     final String credentialsDirectoryStr = myAgentParametersService.tryGetConfigParameter(jetbrains.buildServer.runAs.common.Constants.CREDENTIALS_DIRECTORY);
     if(StringUtil.isEmptyOrSpaces(credentialsDirectoryStr)) {
       LOG.error("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined");
@@ -70,15 +68,15 @@ public class PropertiesServiceImpl implements PropertiesService {
 
   @NotNull
   @Override
-  public Set<String> getPropertySets() {
-    return myPropertySets.keySet();
+  public Set<String> getProfiles() {
+    return myProfiles.keySet();
   }
 
   @Nullable
-  public String tryGetProperty(@NotNull final String propertySet, @NotNull final String key) {
-    Configuration properties = myPropertySets.get(propertySet);
+  public String tryGetProperty(@NotNull final String profile, @NotNull final String key) {
+    Configuration properties = myProfiles.get(profile);
     if(properties == null) {
-      properties = myPropertySets.get(propertySet + ".properties");
+      properties = myProfiles.get(profile + ".properties");
       if(properties == null) {
         return null;
       }
@@ -87,7 +85,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     return properties.getProperty(key);
   }
 
-  protected Configuration CreateConfiguration()
+  private Configuration CreateConfiguration()
   {
     return new ConfigurationImpl();
   }
@@ -121,6 +119,6 @@ public class PropertiesServiceImpl implements PropertiesService {
       LOG.error("Error occurred during loading property file \"" + propertyFile + "\"", ex);
     }
 
-    myPropertySets.put(propertyFile.getName(), properties);
+    myProfiles.put(propertyFile.getName(), properties);
   }
 }

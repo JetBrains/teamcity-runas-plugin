@@ -6,73 +6,78 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
+import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AccessControlListProviderImpl implements AccessControlListProvider {
-  private static final Logger LOG = Logger.getInstance(AccessControlListProviderImpl.class.getName());
-  private final PathsService myPathsService;
-  private final TextParser<AccessControlList> myFileAccessParser;
+  @NotNull private static final Logger LOG = Logger.getInstance(AccessControlListProviderImpl.class.getName());
+  @NotNull private final PathsService myPathsService;
+  @NotNull private final TextParser<AccessControlList> myFileAccessParser;
+  @NotNull private final AgentParametersService myAgentParametersService;
+  @NotNull private final ProfileParametersService myProfileParametersService;
+  @Nullable private List<AccessControlEntry> myDefaultAcl;
 
   public AccessControlListProviderImpl(
     @NotNull final PathsService pathsService,
-    @NotNull final TextParser<AccessControlList> fileAccessParser) {
+    @NotNull final TextParser<AccessControlList> fileAccessParser,
+    @NotNull final AgentParametersService agentParametersService,
+    @NotNull final ProfileParametersService profileParametersService) {
     myPathsService = pathsService;
     myFileAccessParser = fileAccessParser;
+    myAgentParametersService = agentParametersService;
+    myProfileParametersService = profileParametersService;
   }
 
   @NotNull
   @Override
-  public AccessControlList getAfterAgentInitializedAcl(@Nullable final String additionalAcl) {
-    final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>(
-      Arrays.asList(
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Work), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Tools), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Plugins), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Lib), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)))
-    );
+  public AccessControlList getAcl(@NotNull final UserCredentials userCredentials) {
+    final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
 
-    if(!StringUtil.isEmptyOrSpaces(additionalAcl)) {
-      for (AccessControlEntry ace : myFileAccessParser.parse(additionalAcl)) {
+    final boolean isAclDefaultsEnabled = ParameterUtils.parseBoolean(myAgentParametersService.tryGetConfigParameter(Constants.RUN_AS_ACL_DEFAULTS_ENABLED), false);
+    if(isAclDefaultsEnabled) {
+      for (AccessControlEntry ace : getDefaultAcl(userCredentials.getUser())) {
         aceList.add(ace);
       }
     }
 
+    appendAcl(aceList, myAgentParametersService.tryGetConfigParameter(Constants.RUN_AS_ACL));
+    appendAcl(aceList, myProfileParametersService.tryGetProperty(userCredentials.getProfile(), Constants.RUN_AS_ACL));
+
     final AccessControlList acl = new AccessControlList(aceList);
     if(LOG.isDebugEnabled()) {
-      LOG.debug("getAfterAgentInitializedAcl: " + acl);
+      LOG.debug("getAcl: " + acl);
     }
 
     return acl;
   }
 
-  @NotNull
-  @Override
-  public AccessControlList getBeforeBuildStepAcl(@NotNull final UserCredentials userCredentials) {
-    final String username = userCredentials.getUser();
-    final AccessControlEntry checkoutAce = new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Checkout), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive));
-    checkoutAce.setCachingAllowed(true);
-    final List<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>(
-      Arrays.asList(
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Config), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Log), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.System), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.AgentTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.BuildTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.GlobalTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-        checkoutAce)
-    );
+  private void appendAcl(final List<AccessControlEntry> aceList, final String agentAclStr) {
+    if (!StringUtil.isEmptyOrSpaces(agentAclStr)) {
+      for (AccessControlEntry ace : myFileAccessParser.parse(agentAclStr)) {
+        aceList.add(ace);
+      }
+    }
+  }
 
-    for (AccessControlEntry ace: userCredentials.getBeforeStepAcl()) {
-      aceList.add(ace);
+  private List<AccessControlEntry> getDefaultAcl(@NotNull final String username)
+  {
+    if(myDefaultAcl == null) {
+      myDefaultAcl = Arrays.asList(
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Work), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead), AccessControlScope.Global),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Tools), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Global),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Plugins), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Global),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Lib), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Global),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Config), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive), AccessControlScope.Build),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Checkout), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Build),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.Log), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive), AccessControlScope.Step),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.System), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.AgentTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.BuildTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step),
+        new AccessControlEntry(myPathsService.getPath(WellKnownPaths.GlobalTemp), AccessControlAccount.forUser(username), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step));
     }
 
-    final AccessControlList acl = new AccessControlList(aceList);
-    if(LOG.isDebugEnabled()) {
-      LOG.debug("getBeforeBuildStepAcl: " + acl);
-    }
-
-    return acl;
+    return myDefaultAcl;
   }
 }

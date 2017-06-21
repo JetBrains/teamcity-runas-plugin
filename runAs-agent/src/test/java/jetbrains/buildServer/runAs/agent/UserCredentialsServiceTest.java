@@ -25,20 +25,22 @@ public class UserCredentialsServiceTest {
   private final AccessControlList myAccessControlList;
   private Mockery myCtx;
   private ParametersService myParametersService;
-  private PropertiesService myPropertiesService;
+  private ProfileParametersService myProfileParametersService;
   private CommandLineArgumentsService myCommandLineArgumentsService;
   private TextParser<AccessControlList> myFileAccessParser;
+  private AgentParametersService myAgentParametersService;
 
   public UserCredentialsServiceTest() {
-    myAccessControlList = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive))));
+    myAccessControlList = new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive), AccessControlScope.Step)));
   }
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
+    myAgentParametersService = myCtx.mock(AgentParametersService.class);
     myParametersService = myCtx.mock(ParametersService.class);
-    myPropertiesService = myCtx.mock(PropertiesService.class);
+    myProfileParametersService = myCtx.mock(ProfileParametersService.class);
     myCommandLineArgumentsService = myCtx.mock(CommandLineArgumentsService.class);
     //noinspection unchecked
     myFileAccessParser = (TextParser<AccessControlList>)myCtx.mock(TextParser.class);
@@ -65,7 +67,7 @@ public class UserCredentialsServiceTest {
         }},
         new HashMap<String, HashMap<String, String>>(),
         null,
-        "RunAs user must be defined for \"" + UserCredentialsServiceImpl.DEFAULT_CREDENTIALS + "\""
+        "RunAs user must be defined for \"" + UserCredentialsServiceImpl.DEFAULT_PROFILE + "\""
       },
 
       // Predefined credentials
@@ -85,7 +87,7 @@ public class UserCredentialsServiceTest {
             put(Constants.CONFIG_PASSWORD, "password2");
           }});
         }},
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("user2cred", "user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -106,7 +108,7 @@ public class UserCredentialsServiceTest {
             put(Constants.PASSWORD, "password2");
           }});
         }},
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("user2cred", "user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -127,7 +129,7 @@ public class UserCredentialsServiceTest {
             put(Constants.CONFIG_PASSWORD, "password2");
           }});
         }},
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("user2cred", "user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -138,12 +140,12 @@ public class UserCredentialsServiceTest {
           put(Constants.ALLOW_PROFILE_ID_FROM_SERVER, "true");
         }},
         new HashMap<String, HashMap<String, String>>() {{
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
             put(Constants.USER, "user3");
             put(Constants.PASSWORD, "password3");
           }});
         }},
-        new UserCredentials("user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("default", "user3", "password3", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -240,12 +242,12 @@ public class UserCredentialsServiceTest {
           put(Constants.ALLOW_CUSTOM_CREDENTIALS, "false");
         }},
         new HashMap<String, HashMap<String, String>>() {{
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
             put(Constants.USER, "user4");
             put(Constants.CONFIG_PASSWORD, "password4");
           }});
         }},
-        new UserCredentials("user4", "password4", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("default", "user4", "password4", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -256,7 +258,7 @@ public class UserCredentialsServiceTest {
           put(Constants.PASSWORD, "password1"); }},
         new HashMap<String, String>(),
         new HashMap<String, HashMap<String, String>>(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("", "user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -270,7 +272,7 @@ public class UserCredentialsServiceTest {
           put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
           }},
         new HashMap<String, HashMap<String, String>>(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("", "user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -288,7 +290,7 @@ public class UserCredentialsServiceTest {
             put(Constants.PASSWORD, "password2");
           }});
         }},
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("user2cred", "user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -325,7 +327,7 @@ public class UserCredentialsServiceTest {
             put(Constants.PASSWORD, "password2");
           }});
         }},
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("user2cred", "user2", "password2", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -380,7 +382,7 @@ public class UserCredentialsServiceTest {
           put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
         }},
         new HashMap<String, HashMap<String, String>>(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("", "user1", "password1", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
         null
       },
 
@@ -401,7 +403,7 @@ public class UserCredentialsServiceTest {
           put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
           }});
         }},
-        new UserCredentials("user2", "password2", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("user2cred", "user2", "password2", WindowsIntegrityLevel.High, LoggingLevel.Debug, Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
         null
       },
 
@@ -413,22 +415,22 @@ public class UserCredentialsServiceTest {
           put(Constants.ALLOW_CUSTOM_CREDENTIALS, "true");
         }},
         new HashMap<String, HashMap<String, String>>() {{
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
           put(Constants.USER, "user78");
           put(Constants.PASSWORD, "password78");
           put(Constants.ADDITIONAL_ARGS, "arg1 arg2");
           put(Constants.WINDOWS_INTEGRITY_LEVEL, WindowsIntegrityLevel.High.getValue());
           put(Constants.LOGGING_LEVEL, LoggingLevel.Debug.getValue());
-          put(Constants.RUN_AS_BEFORE_STEP_ACL, "acl");
+          put(Constants.RUN_AS_ACL, "acl");
           }});
         }},
         new UserCredentials(
+          "default",
           "user78",
           "password78",
           WindowsIntegrityLevel.High,
           LoggingLevel.Debug,
-          Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER)),
-          new AccessControlList(Arrays.asList(new AccessControlEntry(new File("file"), AccessControlAccount.forUser("user78"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.Recursive))))),
+          Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER))),
         null
       },
 
@@ -437,7 +439,7 @@ public class UserCredentialsServiceTest {
         new HashMap<String, String>(),
         new HashMap<String, String>(),
         new HashMap<String, HashMap<String, String>>() {{
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
             put(Constants.USER, "user3");
             put(Constants.PASSWORD, "password3");
           }});
@@ -453,7 +455,7 @@ public class UserCredentialsServiceTest {
           put(Constants.PASSWORD, "password1"); }},
         new HashMap<String, String>(),
         new HashMap<String, HashMap<String, String>>(),
-        new UserCredentials("user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList(), new AccessControlList(Collections.<AccessControlEntry>emptyList())),
+        new UserCredentials("", "user1", "password1", WindowsIntegrityLevel.Auto, LoggingLevel.Off, Arrays.<CommandLineArgument>asList()),
         null
       },
 
@@ -489,7 +491,7 @@ public class UserCredentialsServiceTest {
         }},
         new HashMap<String, HashMap<String, String>>() {{
           // default
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
             put(Constants.USER, "user3");
             put(Constants.PASSWORD, "password3");
           }});
@@ -509,7 +511,7 @@ public class UserCredentialsServiceTest {
         }},
         new HashMap<String, HashMap<String, String>>() {{
           // default
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
             put(Constants.USER, "user3");
             put(Constants.PASSWORD, "password3");
           }});
@@ -536,7 +538,7 @@ public class UserCredentialsServiceTest {
           }});
 
           // default
-          put(UserCredentialsServiceImpl.DEFAULT_CREDENTIALS, new HashMap<String, String>() {{
+          put(UserCredentialsServiceImpl.DEFAULT_PROFILE, new HashMap<String, String>() {{
             put(Constants.USER, "user3");
             put(Constants.PASSWORD, "password3");
           }});
@@ -557,6 +559,9 @@ public class UserCredentialsServiceTest {
 
     // Given
     myCtx.checking(new Expectations() {{
+      allowing(myAgentParametersService).tryGetConfigParameter(with(any(String.class)));
+      will(returnValue(null));
+
       allowing(myParametersService).tryGetParameter(with(any(String.class)));
       will(new CustomAction("tryGetParameter") {
         @Override
@@ -575,7 +580,7 @@ public class UserCredentialsServiceTest {
         }
       });
 
-      allowing(myPropertiesService).tryGetProperty(with(any(String.class)), with(any(String.class)));
+      allowing(myProfileParametersService).tryGetProperty(with(any(String.class)), with(any(String.class)));
       will(new CustomAction("tryGetProperty") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
@@ -633,8 +638,7 @@ public class UserCredentialsServiceTest {
   {
     return new UserCredentialsServiceImpl(
       myParametersService,
-      myPropertiesService,
-      myCommandLineArgumentsService,
-      myFileAccessParser);
+      myProfileParametersService,
+      myCommandLineArgumentsService);
   }
 }

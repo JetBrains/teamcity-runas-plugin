@@ -87,17 +87,21 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
     final File commandFile = myFileService.getTempFileName(myCommandFileExtension);
     resources.add(new CommandLineFile(myBeforeBuildPublisher, commandFile.getAbsoluteFile(), myRunAsCmdGenerator.create(params)));
     final ArrayList<AccessControlEntry> acl = new ArrayList<AccessControlEntry>();
-    acl.add(new AccessControlEntry(commandFile, AccessControlAccount.forUser(userCredentials.getUser()), EnumSet.of(AccessPermissions.GrantExecute)));
-    final AccessControlList beforeBuildStepAcl = myAccessControlListProvider.getBeforeBuildStepAcl(userCredentials);
-    for (AccessControlEntry ace: beforeBuildStepAcl) {
+    for (AccessControlEntry ace: myAccessControlListProvider.getAcl(userCredentials)) {
       acl.add(ace);
     }
+
+    acl.add(new AccessControlEntry(commandFile, AccessControlAccount.forUser(userCredentials.getUser()), EnumSet.of(AccessPermissions.GrantExecute), AccessControlScope.Step));
+
+    final File runAsToolPath = getTool();
+    final AccessControlEntry runAsToolAce = new AccessControlEntry(runAsToolPath, AccessControlAccount.forUser(userCredentials.getUser()), EnumSet.of(AccessPermissions.GrantExecute), AccessControlScope.Build);
+    acl.add(runAsToolAce);
 
     myAccessControlResource.setAcl(new AccessControlList(acl));
     resources.add(myAccessControlResource);
 
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
-      getTool().getAbsolutePath(),
+      runAsToolPath.getAbsolutePath(),
       Arrays.asList(
         new CommandLineArgument(settingsFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
         new CommandLineArgument(commandFile.getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -112,8 +116,6 @@ public class RunAsPlatformSpecificSetupBuilder implements CommandLineSetupBuilde
   private File getTool() {
     final File path = new File(myRunnerParametersService.getToolPath(Constants.RUN_AS_TOOL_NAME), TOOL_FILE_NAME + myCommandFileExtension);
     myFileService.validatePath(path);
-    final AccessControlList acl = new AccessControlList(Arrays.asList(new AccessControlEntry(path, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantExecute))));
-    myFileAccessService.setAccess(acl);
     return path;
   }
 }

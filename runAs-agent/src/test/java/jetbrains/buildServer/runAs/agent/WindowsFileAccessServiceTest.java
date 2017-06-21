@@ -37,7 +37,7 @@ public class WindowsFileAccessServiceTest {
       // full access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -49,7 +49,7 @@ public class WindowsFileAccessServiceTest {
       // deny full access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -61,7 +61,7 @@ public class WindowsFileAccessServiceTest {
       // grant & deny access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.DenyWrite, AccessPermissions.GrantExecute)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.DenyWrite, AccessPermissions.GrantExecute), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -75,7 +75,7 @@ public class WindowsFileAccessServiceTest {
       // full access recursive
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -87,7 +87,7 @@ public class WindowsFileAccessServiceTest {
       // read access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -99,7 +99,7 @@ public class WindowsFileAccessServiceTest {
       // write access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantWrite)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantWrite), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -111,7 +111,7 @@ public class WindowsFileAccessServiceTest {
       // read/write access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),
@@ -123,7 +123,7 @@ public class WindowsFileAccessServiceTest {
       // replace by read/write access
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.GrantRead, AccessPermissions.GrantWrite)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.GrantRead, AccessPermissions.GrantWrite), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(ICACLS_TOOL_NAME, Arrays.asList(
             new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER),

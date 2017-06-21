@@ -35,7 +35,8 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
   private final ToolProvidersRegistry myToolProvidersRegistry;
   private final BuildRunnerContextProvider myBuildRunnerContextProvider;
   private final CommandLineExecutor myCommandLineExecutor;
-  private final PropertiesService myPropertiesService;
+  private final ProfileParametersService myProfileParametersService;
+  private final FileAccessCacheManager myBuildFileAccessCacheManager;
   private boolean myIsRunAsEnabled;
   private boolean myIsHidingOfPropertyIsNotSupported;
 
@@ -44,11 +45,13 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
     @NotNull final ToolProvidersRegistry toolProvidersRegistry,
     @NotNull final BuildRunnerContextProvider buildRunnerContextProvider,
     @NotNull final CommandLineExecutor commandLineExecutor,
-    @NotNull final PropertiesService propertiesService) {
+    @NotNull final ProfileParametersService profileParametersService,
+    @NotNull final FileAccessCacheManager buildFileAccessCacheManager) {
     myToolProvidersRegistry = toolProvidersRegistry;
     myBuildRunnerContextProvider = buildRunnerContextProvider;
     myCommandLineExecutor = commandLineExecutor;
-    myPropertiesService = propertiesService;
+    myProfileParametersService = profileParametersService;
+    myBuildFileAccessCacheManager = buildFileAccessCacheManager;
     events.addListener(this);
   }
 
@@ -80,6 +83,12 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
     myBuildRunnerContextProvider.initialize(((AgentRunningBuildEx)runningBuild).getCurrentRunnerContext());
     protectProperties(runningBuild);
     super.buildStarted(runningBuild);
+  }
+
+  @Override
+  public void buildFinished(@NotNull final AgentRunningBuild build, @NotNull final BuildFinishedStatus buildStatus) {
+    super.buildFinished(build, buildStatus);
+    myBuildFileAccessCacheManager.reset();
   }
 
   private void updateIsRunAsEnabled(final @NotNull BuildAgentConfiguration config) {
@@ -157,12 +166,12 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
   }
 
   private void protectProperties(final @NotNull AgentRunningBuild runningBuild) {
-    myPropertiesService.load();
-    final Set<String> propertySets = myPropertiesService.getPropertySets();
+    myProfileParametersService.load();
+    final Set<String> propertySets = myProfileParametersService.getProfiles();
     for (final String protectedPropertyName: OurProtectedParams) {
       // Properties
       for (String propertySet: propertySets) {
-        final String propertyValue = myPropertiesService.tryGetProperty(propertySet, protectedPropertyName);
+        final String propertyValue = myProfileParametersService.tryGetProperty(propertySet, protectedPropertyName);
         if(StringUtil.isEmptyOrSpaces(propertyValue)) {
           continue;
         }

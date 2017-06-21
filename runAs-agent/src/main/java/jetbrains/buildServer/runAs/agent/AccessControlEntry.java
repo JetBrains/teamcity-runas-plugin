@@ -2,22 +2,24 @@ package jetbrains.buildServer.runAs.agent;
 
 import java.io.File;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import org.jetbrains.annotations.NotNull;
 
 class AccessControlEntry {
   @NotNull private final File myFile;
-  private final AccessControlAccount myAccount;
-  private final EnumSet<AccessPermissions> myPermissions;
-  private boolean myIsCachingAllowed;
+  @NotNull private final AccessControlAccount myAccount;
+  @NotNull private final EnumSet<AccessPermissions> myPermissions;
+  @NotNull private final AccessControlScope myScope;
 
   AccessControlEntry(
     @NotNull final File file,
     @NotNull final AccessControlAccount account,
-    @NotNull final EnumSet<AccessPermissions> permissions) {
+    @NotNull final EnumSet<AccessPermissions> permissions,
+    @NotNull final AccessControlScope scope) {
     myFile = file;
     myAccount = account;
     myPermissions = permissions;
+    myScope = scope;
   }
 
   @NotNull
@@ -25,31 +27,35 @@ class AccessControlEntry {
     return myFile;
   }
 
-  @NotNull  AccessControlAccount getAccount() {
+  @NotNull AccessControlAccount getAccount() {
     return myAccount;
   }
 
-  public EnumSet<AccessPermissions> getPermissions() {
+  @NotNull EnumSet<AccessPermissions> getPermissions() {
     return myPermissions;
+  }
+
+  @NotNull AccessControlScope getScope() {
+    return myScope;
   }
 
   @Override
   public boolean equals(final Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof AccessControlEntry)) return false;
 
     final AccessControlEntry that = (AccessControlEntry)o;
 
-    if (!myFile.equals(that.myFile)) return false;
-    if (!myAccount.equals(that.myAccount)) return false;
-    return myPermissions.equals(that.myPermissions);
+    if (!getFile().equals(that.getFile())) return false;
+    if (!getAccount().equals(that.getAccount())) return false;
+    return getPermissions().equals(that.getPermissions());
   }
 
   @Override
   public int hashCode() {
-    int result = myFile.hashCode();
-    result = 31 * result + myAccount.hashCode();
-    result = 31 * result + myPermissions.hashCode();
+    int result = getFile().hashCode();
+    result = 31 * result + getAccount().hashCode();
+    result = 31 * result + getPermissions().hashCode();
     return result;
   }
 
@@ -57,19 +63,11 @@ class AccessControlEntry {
   public String toString() {
     return LogUtils.toString(
       "ACE",
-      new HashMap<String, Object>() {{
+      new LinkedHashMap<String, Object>() {{
         this.put("File", myFile);
         this.put("Account", myAccount);
         this.put("Permissions", LogUtils.toString(myPermissions));
-        this.put("IsCachingAllowed", isCachingAllowed());
+        this.put("Scope", myScope);
     }});
-  }
-
-  public boolean isCachingAllowed() {
-    return myIsCachingAllowed;
-  }
-
-  public void setCachingAllowed(final boolean isCachingAllowed) {
-    myIsCachingAllowed = isCachingAllowed;
   }
 }

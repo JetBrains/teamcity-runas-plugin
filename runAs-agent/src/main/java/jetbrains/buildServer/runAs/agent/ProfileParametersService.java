@@ -1,16 +1,15 @@
 package jetbrains.buildServer.runAs.agent;
 
-import java.io.File;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface PropertiesService {
+public interface ProfileParametersService {
   void load();
 
   @NotNull
-  Set<String> getPropertySets();
+  Set<String> getProfiles();
 
   @Nullable
-  String tryGetProperty(@NotNull final String propertySet, @NotNull final String key);
+  String tryGetProperty(@NotNull final String profile, @NotNull final String key);
 }

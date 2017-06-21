@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class FileAccessParser implements TextParser<AccessControlList> {
   private static final Logger LOG = Logger.getInstance(FileAccessParser.class.getName());
-  private static final Pattern OutAccessPattern = Pattern.compile("\\s*([rcua\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern OutAccessPattern = Pattern.compile("\\s*([gbsrcua\\s]+)\\s*([\\+\\-rwx\\s]+)\\s*,(.+)", Pattern.CASE_INSENSITIVE);
 
   @NotNull
   @Override
@@ -35,10 +35,23 @@ public class FileAccessParser implements TextParser<AccessControlList> {
       final String antPatternsStr = aclMatch.group(3).trim();
 
       final EnumSet<AccessPermissions> permissions = EnumSet.noneOf(AccessPermissions.class);
+      AccessControlScope scope = AccessControlScope.Step;
       AccessControlAccount account = null;
       for(char targetChar: targetStr.toCharArray()) {
         switch (targetChar) {
           case ' ':
+            break;
+
+          case 'g':
+            scope = AccessControlScope.Global;
+            break;
+
+          case 'b':
+            scope = AccessControlScope.Build;
+            break;
+
+          case 's':
+            scope = AccessControlScope.Step;
             break;
 
           case 'r':
@@ -108,7 +121,7 @@ public class FileAccessParser implements TextParser<AccessControlList> {
 
       for (String pathItem: antPatternsStr.split(",")) {
           final File path = new File(pathItem.trim());
-          accessControlEntries.add(new AccessControlEntry(path, account, permissions));
+          accessControlEntries.add(new AccessControlEntry(path, account, permissions, scope));
         }
     }
 

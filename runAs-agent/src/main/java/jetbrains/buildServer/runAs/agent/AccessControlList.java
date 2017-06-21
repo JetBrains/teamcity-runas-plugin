@@ -1,11 +1,12 @@
 package jetbrains.buildServer.runAs.agent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 public class AccessControlList implements Iterable<AccessControlEntry> {
-  private final LinkedHashSet<AccessControlEntry> myAccessControlEntries = new LinkedHashSet<AccessControlEntry>();
+  private final ArrayList<AccessControlEntry> myAccessControlEntries = new ArrayList<AccessControlEntry>();
 
   AccessControlList(final Iterable<AccessControlEntry> accessControlEntries) {
     for (AccessControlEntry entry: accessControlEntries) {

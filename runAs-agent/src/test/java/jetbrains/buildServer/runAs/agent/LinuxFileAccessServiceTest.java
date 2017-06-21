@@ -37,21 +37,21 @@ public class LinuxFileAccessServiceTest {
       // grant
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rXwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // deny
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.DenyRead, AccessPermissions.DenyWrite, AccessPermissions.DenyExecute, AccessPermissions.Recursive), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("go-rwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       // grant & deny
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.DenyWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.DenyWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rXwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()),
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("go-w", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
@@ -59,27 +59,27 @@ public class LinuxFileAccessServiceTest {
       // grant & deny all
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.DenyWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.DenyWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rXwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()),
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a-w", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive)),
-          new AccessControlEntry(new File("my_file2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantExecute)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step),
+          new AccessControlEntry(new File("my_file2"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantExecute), AccessControlScope.Step))),
         Arrays.asList(
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("-R", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("a+rXwx", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()),
           new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("a+x", CommandLineArgument.Type.PARAMETER), new CommandLineArgument(new File("my_file2").getAbsolutePath(), CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList()))},
 
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Recursive)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.Recursive), AccessControlScope.Step))),
         Arrays.asList()},
 
       {
         new AccessControlList(Arrays.asList(
-          new AccessControlEntry(new File("my_file"), AccessControlAccount.forAll(), EnumSet.noneOf(AccessPermissions.class)))),
+          new AccessControlEntry(new File("my_file"), AccessControlAccount.forAll(), EnumSet.noneOf(AccessPermissions.class), AccessControlScope.Step))),
         Arrays.asList()},
     };
   }

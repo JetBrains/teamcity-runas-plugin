@@ -1,6 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import org.jetbrains.annotations.NotNull;
 
 class AccessControlAccount {
@@ -55,7 +55,7 @@ class AccessControlAccount {
   public String toString() {
     return LogUtils.toString(
       "Account",
-      new HashMap<String, Object>() {{
+      new LinkedHashMap<String, Object>() {{
       this.put("Type", myTargetType);
       this.put("UserName", myUserName);
     }});

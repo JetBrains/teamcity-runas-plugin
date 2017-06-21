@@ -8,26 +8,31 @@ import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
 import org.jetbrains.annotations.NotNull;
 
 public class UserCredentials {
-  private final String myUser;
-  private final String myPassword;
-  private final WindowsIntegrityLevel myWindowsIntegrityLevel;
-  private final LoggingLevel myLoggingLevel;
-  private final List<CommandLineArgument> myAdditionalArgs;
-  private final AccessControlList myBeforeStepAcl;
+  @NotNull private final String myProfile;
+  @NotNull private final String myUser;
+  @NotNull private final String myPassword;
+  @NotNull private final WindowsIntegrityLevel myWindowsIntegrityLevel;
+  @NotNull private final LoggingLevel myLoggingLevel;
+  @NotNull private final List<CommandLineArgument> myAdditionalArgs;
 
   public UserCredentials(
+    @NotNull final String profile,
     @NotNull final String user,
     @NotNull final String password,
     @NotNull final WindowsIntegrityLevel windowsIntegrityLevel,
     @NotNull final LoggingLevel loggingLevel,
-    @NotNull final List<CommandLineArgument> additionalArgs,
-    @NotNull final AccessControlList beforeStepAcl) {
+    @NotNull final List<CommandLineArgument> additionalArgs) {
+    myProfile = profile;
     myUser = user;
     myPassword = password;
     myWindowsIntegrityLevel = windowsIntegrityLevel;
     myLoggingLevel = loggingLevel;
     myAdditionalArgs = additionalArgs;
-    myBeforeStepAcl = beforeStepAcl;
+  }
+
+  @NotNull
+  String getProfile() {
+    return myProfile;
   }
 
   @NotNull
@@ -53,35 +58,30 @@ public class UserCredentials {
     return myAdditionalArgs;
   }
 
-  @NotNull
-  public AccessControlList getBeforeStepAcl() {
-    return myBeforeStepAcl;
-  }
-
   @Override
   public boolean equals(final Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof UserCredentials)) return false;
 
     final UserCredentials that = (UserCredentials)o;
 
-    if (!myUser.equals(that.myUser)) return false;
-    if (!myPassword.equals(that.myPassword)) return false;
-    if (myWindowsIntegrityLevel != that.myWindowsIntegrityLevel) return false;
-    if (myLoggingLevel != that.myLoggingLevel) return false;
-    if (!myAdditionalArgs.equals(that.myAdditionalArgs)) return false;
-    return myBeforeStepAcl.equals(that.myBeforeStepAcl);
+    if (!myProfile.equals(that.myProfile)) return false;
+    if (!getUser().equals(that.getUser())) return false;
+    if (!getPassword().equals(that.getPassword())) return false;
+    if (getWindowsIntegrityLevel() != that.getWindowsIntegrityLevel()) return false;
+    if (getLoggingLevel() != that.getLoggingLevel()) return false;
+    return getAdditionalArgs().equals(that.getAdditionalArgs());
 
   }
 
   @Override
   public int hashCode() {
-    int result = myUser.hashCode();
-    result = 31 * result + myPassword.hashCode();
-    result = 31 * result + myWindowsIntegrityLevel.hashCode();
-    result = 31 * result + myLoggingLevel.hashCode();
-    result = 31 * result + myAdditionalArgs.hashCode();
-    result = 31 * result + myBeforeStepAcl.hashCode();
+    int result = myProfile.hashCode();
+    result = 31 * result + getUser().hashCode();
+    result = 31 * result + getPassword().hashCode();
+    result = 31 * result + getWindowsIntegrityLevel().hashCode();
+    result = 31 * result + getLoggingLevel().hashCode();
+    result = 31 * result + getAdditionalArgs().hashCode();
     return result;
   }
 
@@ -90,11 +90,11 @@ public class UserCredentials {
     return LogUtils.toString(
       "UserCredentials",
       new HashMap<String, Object>() {{
+        this.put("Profile", myProfile);
         this.put("User", myUser);
         this.put("WindowsIntegrityLevel", myWindowsIntegrityLevel);
         this.put("LoggingLevel", myLoggingLevel);
         this.put("AdditionalArgs", LogUtils.toString(myAdditionalArgs));
-        this.put("BeforeStepAcl", LogUtils.toString(myBeforeStepAcl));
       }});
   }
 }

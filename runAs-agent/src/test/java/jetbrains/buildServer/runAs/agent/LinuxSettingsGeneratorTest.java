@@ -1,7 +1,6 @@
 package jetbrains.buildServer.runAs.agent;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
@@ -15,7 +14,6 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class LinuxSettingsGeneratorTest {
-  private static final String OurLineSeparator = System.getProperty("line.separator");
   private Mockery myCtx;
 
   @BeforeMethod
@@ -33,7 +31,7 @@ public class LinuxSettingsGeneratorTest {
     final ResourceGenerator<UserCredentials> instance = createInstance();
 
     // When
-    final String content = instance.create(new UserCredentials("nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList())));
+    final String content = instance.create(new UserCredentials("", "nik", "aaa", WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs));
 
     // Then
     myCtx.assertIsSatisfied();

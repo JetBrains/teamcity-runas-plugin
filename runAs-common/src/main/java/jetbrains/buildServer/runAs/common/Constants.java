@@ -20,7 +20,6 @@ public class Constants {
     public static final String RUN_AS_UI_ENABLED = "teamcity.runAs.ui.enabled";
     public static final String RUN_AS_UI_STEPS_ENABLED = "teamcity.runAs.ui.steps.enabled";
     public static final String RUN_AS_LOG_ENABLED = "teamcity.runAs.log.enabled";
-    public static final String RUN_AS_BEFORE_STEP_ACL = "teamcity.runAs.before.step.acl";
-    public static final String RUN_AS_AGENT_INITIALIZE_ACL = "teamcity.runAs.agent.initialize.acl";
-    public static final String RUN_AS_ACL_CACHING_ENABLED = "teamcity.runAs.acl.caching.enabled";
+    public static final String RUN_AS_ACL = "teamcity.runAs.acl";
+    public static final String RUN_AS_ACL_DEFAULTS_ENABLED = "teamcity.runAs.acl.defaults.enabled";
 }

@@ -3,15 +3,9 @@ package jetbrains.buildServer.runAs.agent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
-import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
-import jetbrains.buildServer.dotNet.buildRunner.agent.ResourceGenerator;
 import org.jetbrains.annotations.NotNull;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.api.Invocation;
-import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -153,6 +147,6 @@ public class FileAccessCacheImplTest {
   }
 
   private AccessControlEntry createAce(@NotNull final String file) {
-    return new AccessControlEntry(new File(file), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.GrantRead, AccessPermissions.GrantWrite));
+    return new AccessControlEntry(new File(file), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.Recursive, AccessPermissions.GrantRead, AccessPermissions.GrantWrite), AccessControlScope.Step);
   }
 }

@@ -1,11 +1,8 @@
 package jetbrains.buildServer.runAs.agent;
 
 import com.intellij.openapi.diagnostic.Logger;
-import java.util.ArrayList;
-import java.util.Collections;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildStartException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgumentsService;
-import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.runAs.common.LoggingLevel;
 import jetbrains.buildServer.runAs.common.WindowsIntegrityLevel;
@@ -14,23 +11,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class UserCredentialsServiceImpl implements UserCredentialsService {
-  static final String DEFAULT_CREDENTIALS = "default";
+  static final String DEFAULT_PROFILE = "default";
   private static final Logger LOG = Logger.getInstance(UserCredentialsServiceImpl.class.getName());
-  private static final AccessControlList OurBeforeStepDefaultAcl = new AccessControlList(Collections.<AccessControlEntry>emptyList());
   private final ParametersService myParametersService;
-  private final PropertiesService myPropertiesService;
+  private final ProfileParametersService myProfileParametersService;
   private final CommandLineArgumentsService myCommandLineArgumentsService;
-  private final TextParser<AccessControlList> myFileAccessParser;
 
   public UserCredentialsServiceImpl(
     @NotNull final ParametersService parametersService,
-    @NotNull final PropertiesService propertiesService,
-    @NotNull final CommandLineArgumentsService commandLineArgumentsService,
-    @NotNull final TextParser<AccessControlList> fileAccessParser) {
+    @NotNull final ProfileParametersService profileParametersService,
+    @NotNull final CommandLineArgumentsService commandLineArgumentsService) {
     myParametersService = parametersService;
-    myPropertiesService = propertiesService;
+    myProfileParametersService = profileParametersService;
     myCommandLineArgumentsService = commandLineArgumentsService;
-    myFileAccessParser = fileAccessParser;
   }
 
   @Nullable
@@ -39,11 +32,11 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     final boolean allowCustomCredentials = ParameterUtils.parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_CUSTOM_CREDENTIALS), true);
     final boolean allowProfileIdFromServer = ParameterUtils.parseBoolean(myParametersService.tryGetConfigParameter(Constants.ALLOW_PROFILE_ID_FROM_SERVER), false);
     if(allowCustomCredentials && allowProfileIdFromServer) {
-      String credentialsRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
-      final boolean profileWasDefined = !StringUtil.isEmptyOrSpaces(credentialsRef);
+      String profileRef = myParametersService.tryGetParameter(Constants.CREDENTIALS_PROFILE_ID);
+      final boolean profileWasDefined = !StringUtil.isEmptyOrSpaces(profileRef);
       UserCredentials profileCredentials = null;
       if(!profileWasDefined) {
-        profileCredentials = getPredefinedCredentials(DEFAULT_CREDENTIALS, false);
+        profileCredentials = getPredefinedProfile(DEFAULT_PROFILE, false);
         if(LOG.isDebugEnabled()) {
           LOG.debug("tryGetUserCredentials predefined \"" + Constants.CREDENTIALS_PROFILE_ID + "\": " + profileCredentials);
         }
@@ -67,9 +60,9 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         return profileCredentials;
       }
 
-      profileCredentials = getPredefinedCredentials(credentialsRef, true);
+      profileCredentials = getPredefinedProfile(profileRef, true);
       if(LOG.isDebugEnabled()) {
-        LOG.debug("tryGetUserCredentials predefined \"" + credentialsRef + "\": " + profileCredentials);
+        LOG.debug("tryGetUserCredentials predefined \"" + profileRef + "\": " + profileCredentials);
       }
 
       return profileCredentials;
@@ -87,10 +80,10 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     if(allowProfileIdFromServer) {
       String credentialsRef = myParametersService.tryGetConfigParameter(Constants.CREDENTIALS_PROFILE_ID);
       if (StringUtil.isEmptyOrSpaces(credentialsRef)) {
-        credentialsRef = DEFAULT_CREDENTIALS;
+        credentialsRef = DEFAULT_PROFILE;
       }
 
-      UserCredentials profileCredentials = getPredefinedCredentials(credentialsRef, true);
+      UserCredentials profileCredentials = getPredefinedProfile(credentialsRef, true);
       if(LOG.isDebugEnabled()) {
         LOG.debug("tryGetUserCredentials predefined \"" + credentialsRef + "\": " + profileCredentials);
       }
@@ -111,78 +104,62 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
       return null;
     }
 
-    return createCredentials(null, userName, password, false, false);
+    return createCredentials("", userName, password, false);
   }
 
   @Nullable
-  private UserCredentials getPredefinedCredentials(@NotNull final String credentials, final boolean trowException) {
+  private UserCredentials getPredefinedProfile(@NotNull final String profileName, final boolean trowException) {
     final String userName;
     final String password;
 
-    userName = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(credentials, Constants.USER));
+    userName = tryGetFirstNotEmpty(myProfileParametersService.tryGetProperty(profileName, Constants.USER));
     if(StringUtil.isEmptyOrSpaces(userName)) {
       if(trowException) {
-        throw new BuildStartException("RunAs user must be defined for \"" + credentials + "\"");
+        throw new BuildStartException("RunAs user must be defined for \"" + profileName + "\"");
       }
       else {
         return null;
       }
     }
 
-    password = tryGetFirstNotEmpty(myPropertiesService.tryGetProperty(credentials, Constants.PASSWORD), myPropertiesService.tryGetProperty(credentials, Constants.CONFIG_PASSWORD));
+    password = tryGetFirstNotEmpty(myProfileParametersService.tryGetProperty(profileName, Constants.PASSWORD), myProfileParametersService.tryGetProperty(profileName, Constants.CONFIG_PASSWORD));
     if(StringUtil.isEmptyOrSpaces(password)) {
       if(trowException) {
-        throw new BuildStartException("RunAs password must be defined for \"" + credentials + "\"");
+        throw new BuildStartException("RunAs password must be defined for \"" + profileName + "\"");
       }
       else {
         return null;
       }
     }
 
-    return createCredentials(credentials, userName, password, true, trowException);
+    return createCredentials(profileName, userName, password, true);
   }
 
   @NotNull
-  private UserCredentials createCredentials(@Nullable final String credentials, @NotNull final String userName, @NotNull final String password, boolean isPredefined, final boolean trowException)
+  private UserCredentials createCredentials(@NotNull final String profileName, @NotNull final String userName, @NotNull final String password, boolean isPredefined)
   {
     // Get parameters
-    final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(credentials, Constants.WINDOWS_INTEGRITY_LEVEL, isPredefined));
-    final LoggingLevel loggingLevel = LoggingLevel.tryParse(getParam(credentials, Constants.LOGGING_LEVEL, isPredefined));
+    final WindowsIntegrityLevel windowsIntegrityLevel = WindowsIntegrityLevel.tryParse(getParam(profileName, Constants.WINDOWS_INTEGRITY_LEVEL, isPredefined));
+    final LoggingLevel loggingLevel = LoggingLevel.tryParse(getParam(profileName, Constants.LOGGING_LEVEL, isPredefined));
 
-    String additionalArgs = tryGetFirstNotEmpty(getParam(credentials, Constants.ADDITIONAL_ARGS, isPredefined));
+    String additionalArgs = tryGetFirstNotEmpty(getParam(profileName, Constants.ADDITIONAL_ARGS, isPredefined));
     if(StringUtil.isEmptyOrSpaces(additionalArgs)) {
       additionalArgs = "";
     }
 
-    AccessControlList beforeStepAcl = OurBeforeStepDefaultAcl;
-    if(isPredefined && credentials != null) {
-      final String beforeStepAclStr = myPropertiesService.tryGetProperty(credentials, Constants.RUN_AS_BEFORE_STEP_ACL);
-      if (!StringUtil.isEmptyOrSpaces(beforeStepAclStr)) {
-        final ArrayList<AccessControlEntry> aceList = new ArrayList<AccessControlEntry>();
-        for (AccessControlEntry ace : myFileAccessParser.parse(beforeStepAclStr)) {
-          if (ace.getAccount().getTargetType() == AccessControlAccountType.User) {
-            ace = new AccessControlEntry(ace.getFile(), AccessControlAccount.forUser(userName), ace.getPermissions());
-          }
-          aceList.add(ace);
-        }
-
-        beforeStepAcl = new AccessControlList(aceList);
-      }
-    }
-
     return new UserCredentials(
+      profileName,
       userName,
       password,
       windowsIntegrityLevel,
       loggingLevel,
-      myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs),
-      beforeStepAcl);
+      myCommandLineArgumentsService.parseCommandLineArguments(additionalArgs));
   }
 
   @Nullable
   private String getParam(@Nullable final String credentials, @NotNull final String paramName, boolean isPredefined) {
     if(isPredefined && credentials != null) {
-      return myPropertiesService.tryGetProperty(credentials, paramName);
+      return myProfileParametersService.tryGetProperty(credentials, paramName);
     }
 
     return myParametersService.tryGetParameter(paramName);

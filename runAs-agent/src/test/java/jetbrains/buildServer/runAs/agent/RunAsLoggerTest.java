@@ -74,7 +74,7 @@ public class RunAsLoggerTest {
   public void shouldLogRunAs(@Nullable final String isLogEnabledConfigParamValue, @NotNull final String[] expectedLogLines) {
     // Given
     final String password = "abc";
-    final UserCredentials userCredentials = new UserCredentials("username", password, WindowsIntegrityLevel.Auto, LoggingLevel.Normal, Collections.<CommandLineArgument>emptyList(), new AccessControlList(Collections.<AccessControlEntry>emptyList()));
+    final UserCredentials userCredentials = new UserCredentials("", "username", password, WindowsIntegrityLevel.Auto, LoggingLevel.Normal, Collections.<CommandLineArgument>emptyList());
     final File checkoutDirectory = new File("CheckoutDirectory");
     final ArrayList<String> logMessages = new ArrayList<String>();
     final CommandLineSetup baseCommandLineSetup = new CommandLineSetup(

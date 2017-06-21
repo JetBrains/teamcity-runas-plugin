@@ -25,7 +25,7 @@ public class AccessControlResourceTest {
   @Test()
   public void shouldSetAccess() throws IOException {
     // Given
-    final AccessControlEntry ace = new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive));
+    final AccessControlEntry ace = new AccessControlEntry(new File("file"), AccessControlAccount.forUser(""), EnumSet.of(AccessPermissions.GrantWrite, AccessPermissions.GrantExecute, AccessPermissions.Recursive), AccessControlScope.Step);
     final AccessControlList acl = new AccessControlList(Arrays.asList(ace));
     final CommandLineExecutionContext executionContext = new CommandLineExecutionContext(0);
     myCtx.checking(new Expectations() {{

@@ -71,9 +71,9 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String toolName = "my tool";
     final String runAsToolPath = "runAsPath";
     final File runAsTool = new File(runAsToolPath, RunAsPlatformSpecificSetupBuilder.TOOL_FILE_NAME + ".abc");
-    final AccessControlList runAsToolAcl = new AccessControlList(Arrays.asList(new AccessControlEntry(runAsTool, AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantExecute))));
     final String user = "nik";
     final String password = "abc";
+    final AccessControlEntry someAce = new AccessControlEntry(new File("tools"), AccessControlAccount.forAll(), EnumSet.of(AccessPermissions.GrantExecute), AccessControlScope.Step);
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
     final String credentialsContent = "credentials content";
@@ -83,9 +83,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     runAsParamsArgs.add(0, new CommandLineArgument(toolName, CommandLineArgument.Type.PARAMETER));
     final RunAsParams params = new RunAsParams(runAsParamsArgs);
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg 2", CommandLineArgument.Type.PARAMETER));
-    final UserCredentials userCredentials = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList()));
-    final AccessControlEntry beforeBuildStepAce = new AccessControlEntry(new File("tools"), AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute));
-    final AccessControlList beforeBuildStepAcl = new AccessControlList(Arrays.asList(beforeBuildStepAce));
+    final UserCredentials userCredentials = new UserCredentials("profile", user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
+    final AccessControlList stepAcl = new AccessControlList(Arrays.asList(someAce));
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup(
       runAsTool.getAbsolutePath(),
       Arrays.asList(
@@ -107,8 +106,8 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       oneOf(myUserCredentialsService).tryGetUserCredentials();
       will(returnValue(userCredentials));
 
-      oneOf(myAccessControlListProvider).getBeforeBuildStepAcl(userCredentials);
-      will(returnValue(beforeBuildStepAcl));
+      oneOf(myAccessControlListProvider).getAcl(userCredentials);
+      will(returnValue(stepAcl));
 
       oneOf(myFileService).getTempFileName(RunAsPlatformSpecificSetupBuilder.ARGS_EXT);
       will(returnValue(credentialsFile));
@@ -129,9 +128,14 @@ public class RunAsPlatformSpecificSetupBuilderTest {
       will(returnValue(runAsToolPath));
 
       oneOf(myFileService).validatePath(runAsTool);
-      oneOf(myFileAccessService).setAccess(runAsToolAcl);
 
-      oneOf(myAccessControlResource).setAcl(new AccessControlList(Arrays.asList(new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute)), beforeBuildStepAce)));
+      never(myFileAccessService).setAccess(with(any(AccessControlList.class)));
+
+      oneOf(myAccessControlResource).setAcl(
+        new AccessControlList(Arrays.asList(
+          someAce,
+          new AccessControlEntry(cmdFile, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute), AccessControlScope.Step),
+          new AccessControlEntry(runAsTool, AccessControlAccount.forUser(user), EnumSet.of(AccessPermissions.GrantExecute), AccessControlScope.Build))));
 
       oneOf(myRunAsLogger).LogRunAs(userCredentials, commandLineSetup, runAsCommandLineSetup);
 
@@ -183,11 +187,10 @@ public class RunAsPlatformSpecificSetupBuilderTest {
     final String user = "nik";
     final String password = "abc";
     final List<CommandLineArgument> additionalArgs = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER));
-    final UserCredentials userCredentials = new UserCredentials(user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs, new AccessControlList(Collections.<AccessControlEntry>emptyList()));
+    final UserCredentials userCredentials = new UserCredentials("profile", user, password, WindowsIntegrityLevel.Auto, LoggingLevel.Off, additionalArgs);
     final String toolName = "tool";
     final List<CommandLineArgument> args = Arrays.asList(new CommandLineArgument("arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("arg2", CommandLineArgument.Type.PARAMETER));
     final List<CommandLineResource> resources = Arrays.asList(myCommandLineResource1, myCommandLineResource2);
-    final CommandLineSetup baseSetup = new CommandLineSetup(toolName, args, resources);
     myCtx.checking(new Expectations() {{
       oneOf(myUserCredentialsService).tryGetUserCredentials();
       will(returnValue(userCredentials));
