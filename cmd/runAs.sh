@@ -3,7 +3,7 @@
 # runAs (settings_file_name, command, bitness, password)
 if [ $# -eq 4 ];
 then
-	# unqote args
+	# unquote args
 	eval "argsFile="$1""
 	args=$(cat "$argsFile")
 	eval "command="$2""
@@ -38,8 +38,8 @@ then
 				rm "$tmpScriptFile" &>/dev/null
 				userdel "$tmpuser" &>/dev/null
 				if [ "$authCode" != "0" ];
-    				then
-				    exit $exitCode
+					then
+					exit $exitCode
 				fi
 			else
 				echo "Authentication failure" >&2
@@ -49,6 +49,35 @@ then
 	fi
 
 	# if not root
+	# Check an agent will be able to remove temporary files
+	tmpScriptFile=$(tempfile)
+	tmpFile=$tmpScriptFile.tmp
+
+	cp -f "${0}" "$tmpScriptFile"
+	chmod a+rwx "$tmpScriptFile"
+	chmod a+rwx "$TMPDIR"
+	echo "#!/bin/bash" > "$tmpScriptFile"
+	echo "echo . > \"$tmpFile\"" >> "$tmpScriptFile"
+
+	# create temp file
+	"${0}" runAs "$args" "$tmpScriptFile" "$password" arg5
+
+	# try remove
+	rm "$tmpFile" &>/dev/null
+
+	if [ -f "$tmpFile" ]; then
+	  rm "$tmpScriptFile" &>/dev/null
+	  echo ##teamcity[message text='Incorrect runAs configuration: agent won't be able to remove temporary files created by the build step, see teamcity-agent.log for details .' status='ERROR']
+	  exit 1
+	else
+	  # forcible remove tmp file
+	  echo "#!/bin/bash" > "$tmpScriptFile"
+	  echo "rm \"$tmpFile\" &>/dev/null" >> "$tmpScriptFile"
+	  "${0}" runAs "$args" "$tmpScriptFile" "$password" arg5
+	  rm "$tmpScriptFile" &>/dev/null
+	fi
+
+	# Run as user
 	"${0}" runAs "$args" "$command" "$password" arg5
 	exit $?
 fi
@@ -188,13 +217,13 @@ echo Invalid arguments. >&2
 echo Usage: runAs.sh settings_file_name command_file_name bitness password >&2
 if [[ "$EUID" -eq 0 ]];
 then
-    exit 0
-else
-    # check installed socat
-    socat -h &>/dev/null
-    if [ "$?" = "0" ];
-    then
 	exit 0
-    fi
+else
+	# check installed socat
+	socat -h &>/dev/null
+	if [ "$?" = "0" ];
+	then
+	exit 0
+	fi
 fi
 exit 255
