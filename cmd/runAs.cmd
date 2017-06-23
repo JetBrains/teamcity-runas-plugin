@@ -26,16 +26,35 @@ EXIT /B %EXIT_CODE%
 
 :RUN_AS
 IF %EXIT_CODE% EQU 64 (
+	SET RUN_AS_PATH="%~dp0x64\JetBrains.runAs.exe"
 	IF %3 EQU 64 (
-		"%~dp0x64\JetBrains.runAs.exe" -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 cmd.exe /C "%~2"
+		SET CMD_PATH="cmd.exe"		
 	) ELSE (
-		"%~dp0x64\JetBrains.runAs.exe" -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 "%windir%\SysWOW64\cmd.exe" /C "%~2"
+		SET CMD_PATH="%windir%\SysWOW64\cmd.exe"
 	)
 ) ELSE (
-	"%~dp0x86\JetBrains.runAs.exe" -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 cmd.exe /C "%~2"
+	SET RUN_AS_PATH="%~dp0x86\JetBrains.runAs.exe"
+	SET CMD_PATH="cmd.exe"
 )
 
-REM Run command line
+REM Check an agent will be able to remove temporary files
+SET RUNAS_TMP_FILE=runAs-%RANDOM%-%RANDOM%.tmp
+PUSHD %TMP%
+%RUN_AS_PATH% -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 %CMD_PATH% /C "type nul > %RUNAS_TMP_FILE%"
+del %RUNAS_TMP_FILE% 2>nul
+
+IF EXIST %RUNAS_TMP_FILE% (
+	%RUN_AS_PATH% -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 %CMD_PATH% /C "del %RUNAS_TMP_FILE% > nul"
+    ECHO ##teamcity[message text='Incorrect runAs configuration: agent won't be able to remove temporary files created by the build step, see teamcity-agent.log for details .' status='ERROR']
+	@EXIT -1
+)
+
+set RUNAS_TMP_FILE=
+POPD
+
+REM Run as user
+%RUN_AS_PATH% -i:auto -l:errors "-p:%~4" "-c:%~1" -b:-10000 %CMD_PATH% /C "%~2"
+
 SET "EXIT_CODE=%ERRORLEVEL%"
 
 ECHO.
