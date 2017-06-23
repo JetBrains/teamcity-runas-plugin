@@ -3,6 +3,12 @@ package jetbrains.buildServer.runAs.agent;
 import com.intellij.execution.ExecutionException;
 import java.io.File;
 import java.util.*;
+import jetbrains.buildServer.dotNet.buildRunner.agent.LoggerService;
+import jetbrains.buildServer.messages.serviceMessages.Message;
+import jetbrains.buildServer.messages.serviceMessages.ServiceMessage;
+import org.assertj.core.util.Lists;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -14,19 +20,23 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class ScopedAccessServiceTest {
+public class ScopedFileAccessServiceTest {
   private Mockery myCtx;
   private FileAccessService myFileAccessService;
   private MyFileAccessCache myGlobalFileAccessCache;
   private MyFileAccessCache myBuildFileAccessCache;
+  private LoggerService myLoggerService;
+  private AccessControlEntry myAce;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
     myFileAccessService = myCtx.mock(FileAccessService.class);
+    myLoggerService = myCtx.mock(LoggerService.class);
     myGlobalFileAccessCache = new MyFileAccessCache();
     myBuildFileAccessCache = new MyFileAccessCache();
+    myAce = new AccessControlEntry(new File("file1"), AccessControlAccount.forUser("user1"), EnumSet.of(AccessPermissions.GrantRead, AccessPermissions.GrantWrite), AccessControlScope.Step);
   }
 
   @DataProvider(name = "getSetPermissionsCases")
@@ -243,12 +253,14 @@ public class ScopedAccessServiceTest {
     final FileAccessService instance = createInstance();
 
     myCtx.checking(new Expectations() {{
+      allowing(myLoggerService).onMessage(with(any(ServiceMessage.class)));
+
       allowing(myFileAccessService).setAccess(with(any(AccessControlList.class)));
       will(new CustomAction("setAccess") {
         @Override
         public Object invoke(final Invocation invocation) throws Throwable {
           actualAccessControlLists.add((AccessControlList)invocation.getParameter(0));
-          return null;
+          return Lists.emptyList();
         }
       });
     }});
@@ -265,11 +277,82 @@ public class ScopedAccessServiceTest {
     then(myBuildFileAccessCache.size()).isEqualTo(expectedBuildCacheSize);
   }
 
+  @Test
+  public void shouldShowGrantingPermMessage() throws ExecutionException {
+    // Given
+    final FileAccessService instance = createInstance();
+
+    myCtx.checking(new Expectations() {{
+      oneOf(myLoggerService).onMessage(with(new BaseMatcher<Message>() {
+                                              @Override
+                                              public boolean matches(final Object o) {
+                                                return "INFO".equals(((Message)o).getStatus()) && ScopedFileAccessService.MESSAGE_GRANTING_PERMISSIONS.equals(((Message)o).getText());
+                                              }
+
+                                              @Override
+                                              public void describeTo(final Description description) {
+                                              }
+                                            }));
+
+      allowing(myFileAccessService).setAccess(with(any(AccessControlList.class)));
+      will(returnValue(Lists.emptyList()));
+    }});
+
+    // When
+    instance.setAccess(new AccessControlList(Arrays.asList(createAce("my_file", AccessControlScope.Build))));
+
+    // Then
+    myCtx.assertIsSatisfied();
+  }
+
+  @SuppressWarnings("unchecked")
+  @DataProvider(name = "warnCases")
+  public Object[][] getWarnCases() {
+    return new Object[][] {
+      { Arrays.asList(new Result<AccessControlEntry, Boolean>(myAce, false)) },
+      { Arrays.asList(new Result<AccessControlEntry, Boolean>(myAce, new Exception("aa"))) },
+      { Arrays.asList(new Result<AccessControlEntry, Boolean>(myAce, true), new Result<AccessControlEntry, Boolean>(myAce, false)) },
+      { Arrays.asList(new Result<AccessControlEntry, Boolean>(myAce, new Exception("aa")), new Result<AccessControlEntry, Boolean>(myAce, true), new Result<AccessControlEntry, Boolean>(myAce, false)) },
+    };
+  }
+
+  @Test(dataProvider = "warnCases")
+  public void shouldShowWarningMessage(
+    @NotNull final List<Result<AccessControlEntry, Boolean>> results) throws ExecutionException {
+    // Given
+    final FileAccessService instance = createInstance();
+
+    myCtx.checking(new Expectations() {{
+      one(myLoggerService).onMessage(with(any(Message.class)));
+
+      oneOf(myLoggerService).onMessage(with(new BaseMatcher<Message>() {
+        @Override
+        public boolean matches(final Object o) {
+          return "WARNING".equals(((Message)o).getStatus()) && ScopedFileAccessService.WARNING_PERMISSIONS_ERRORS.equals(((Message)o).getText());
+        }
+
+        @Override
+        public void describeTo(final Description description) {
+        }
+      }));
+
+      allowing(myFileAccessService).setAccess(with(any(AccessControlList.class)));
+      will(returnValue(results));
+    }});
+
+    // When
+    instance.setAccess(new AccessControlList(Arrays.asList(createAce("my_file", AccessControlScope.Build))));
+
+    // Then
+    myCtx.assertIsSatisfied();
+  }
+
   @NotNull
   private FileAccessService createInstance()
   {
     return new ScopedFileAccessService(
       myFileAccessService,
+      myLoggerService,
       myGlobalFileAccessCache,
       myBuildFileAccessCache);
   }

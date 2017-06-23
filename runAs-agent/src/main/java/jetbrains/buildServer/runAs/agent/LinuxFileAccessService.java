@@ -5,12 +5,14 @@ import com.intellij.openapi.diagnostic.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import jetbrains.buildServer.ExecResult;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineArgument;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineResource;
 import jetbrains.buildServer.dotNet.buildRunner.agent.CommandLineSetup;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static jetbrains.buildServer.runAs.agent.Constants.CHMOD_TOOL_NAME;
 
@@ -23,16 +25,23 @@ public class LinuxFileAccessService implements FileAccessService {
     myCommandLineExecutor = commandLineExecutor;
   }
 
-  public void setAccess(@NotNull final AccessControlList accessControlList) {
-    for (AccessControlEntry entry : accessControlList) {
-      applyAccessControlEntryForLinux(entry);
+  public Iterable<Result<AccessControlEntry, Boolean>> setAccess(@NotNull final AccessControlList accessControlList) {
+    List<Result<AccessControlEntry, Boolean>> results = new ArrayList<Result<AccessControlEntry, Boolean>>();
+    for (AccessControlEntry ace: accessControlList) {
+      for (Result<AccessControlEntry, Boolean> result: tryApplyAccess(ace)) {
+        results.add(result);
+      }
     }
+
+    return results;
   }
 
-  private void applyAccessControlEntryForLinux(final AccessControlEntry entry) {
+  @NotNull
+  private Iterable<Result<AccessControlEntry, Boolean>> tryApplyAccess(final AccessControlEntry entry) {
+    List<Result<AccessControlEntry, Boolean>> results = new ArrayList<Result<AccessControlEntry, Boolean>>();
     final EnumSet<AccessPermissions> permissions = entry.getPermissions();
     if(permissions.size() == 0) {
-      return;
+      return results;
     }
 
     final AccessControlAccount account = entry.getAccount();
@@ -59,9 +68,16 @@ public class LinuxFileAccessService implements FileAccessService {
         case All:
           permissionsList.add(0, "a+");
           break;
+
+        default:
+          throw new IllegalStateException("Unknown AccessControlAccountType: " + account.getTargetType());
       }
 
-      execChmod(entry, permissionsList);
+      final Result<AccessControlEntry, Boolean> result = tryExecChmod(entry, permissionsList);
+      if(result != null) {
+        results.add(result);
+      }
+
       permissionsList.clear();
     }
 
@@ -89,15 +105,21 @@ public class LinuxFileAccessService implements FileAccessService {
           break;
       }
 
-      execChmod(entry, permissionsList);
+      final Result<AccessControlEntry, Boolean> result = tryExecChmod(entry, permissionsList);
+      if(result != null) {
+        results.add(result);
+      }
     }
+
+    return results;
   }
 
-  private void execChmod(@NotNull AccessControlEntry entry, @NotNull Iterable<String> chmodPermissions)
+  @Nullable
+  private Result<AccessControlEntry, Boolean> tryExecChmod(@NotNull final AccessControlEntry entry, @NotNull final Iterable<String> chmodPermissions)
   {
     final String chmodPermissionsStr = StringUtil.join("", chmodPermissions);
     if(StringUtil.isEmptyOrSpaces(chmodPermissionsStr)) {
-      return;
+      return null;
     }
 
     final ArrayList<CommandLineArgument> args = new ArrayList<CommandLineArgument>();
@@ -109,26 +131,25 @@ public class LinuxFileAccessService implements FileAccessService {
     final CommandLineSetup chmodCommandLineSetup = new CommandLineSetup(CHMOD_TOOL_NAME, args, Collections.<CommandLineResource>emptyList());
     try {
       final ExecResult result = myCommandLineExecutor.runProcess(chmodCommandLineSetup, EXECUTION_TIMEOUT_SECONDS);
-      processResult(result);
+      if(result == null) {
+        return null;
+      }
+
+      return processResult(entry, result);
     }
     catch (ExecutionException e) {
       LOG.error(e);
+      return new Result<AccessControlEntry, Boolean>(entry, e);
     }
   }
 
-  private void processResult(final ExecResult result) {
-    if(result != null && result.getExitCode() != 0) {
-      final String[] outLines = result.getOutLines();
-      if(outLines != null && outLines.length > 0) {
-        for (String line: outLines) {
-          LOG.warn(line);
-        }
-      }
-
-      final String stderr = result.getStderr();
-      if(stderr.length() > 0) {
-        LOG.warn(stderr);
-      }
+  private Result<AccessControlEntry, Boolean> processResult(@NotNull final AccessControlEntry entry, @NotNull final ExecResult result) {
+    if(result.getExitCode() != 0) {
+      final String resultStr = result.toString();
+      LOG.warn(resultStr);
+      return new Result<AccessControlEntry, Boolean>(entry, false);
     }
+
+    return new Result<AccessControlEntry, Boolean>(entry, true);
   }
 }
