@@ -10,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ScopedFileAccessService implements FileAccessService {
   private static final Logger LOG = Logger.getInstance(ScopedFileAccessService.class.getName());
-  static final String WARNING_PERMISSIONS_ERRORS = "Errors occurred during the granting of permissions";
-  static final String MESSAGE_GRANTING_PERMISSIONS = "Granting of necessary permissions";
+  static final String WARNING_PERMISSIONS_ERRORS = "Errors occurred while granting permissions";
+  static final String MESSAGE_GRANTING_PERMISSIONS = "Granting necessary permissions";
   private final FileAccessService myFileAccessService;
   private final LoggerService myLoggerService;
   private final FileAccessCache myGlobalFileAccessCache;
