@@ -286,7 +286,7 @@ public class ScopedFileAccessServiceTest {
       oneOf(myLoggerService).onMessage(with(new BaseMatcher<Message>() {
                                               @Override
                                               public boolean matches(final Object o) {
-                                                return "INFO".equals(((Message)o).getStatus()) && ScopedFileAccessService.MESSAGE_GRANTING_PERMISSIONS.equals(((Message)o).getText());
+                                                return "NORMAL".equals(((Message)o).getStatus()) && ScopedFileAccessService.MESSAGE_GRANTING_PERMISSIONS.equals(((Message)o).getText());
                                               }
 
                                               @Override
