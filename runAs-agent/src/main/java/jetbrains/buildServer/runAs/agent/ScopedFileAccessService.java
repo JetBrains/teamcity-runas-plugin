@@ -57,7 +57,7 @@ public class ScopedFileAccessService implements FileAccessService {
       return Collections.emptyList();
     }
 
-    myLoggerService.onMessage(new Message(MESSAGE_GRANTING_PERMISSIONS, "INFO", null));
+    myLoggerService.onMessage(new Message(MESSAGE_GRANTING_PERMISSIONS, "NORMAL", null));
     List<Result<AccessControlEntry, Boolean>> results = new ArrayList<Result<AccessControlEntry, Boolean>>();
     boolean hasError = false;
     for (Result<AccessControlEntry, Boolean> result: myFileAccessService.setAccess(new AccessControlList(newAcl))) {
