@@ -1,14 +1,14 @@
 # runAs plugin for [TeamCity](https://www.jetbrains.com/teamcity/)
 
-__*This plugin is in an experimental state and may change significantly in the future. The plugin is provided without any warranty and JetBrains accepts no responsibility for the compatibility, functionality, bugs, possible data loss, etc.*__
+When building, testing, and deploying an application with TeamCity, you may need to run a build under a specific user account, different from the one used to run the build agent.
 
-This open-source plugin provides an ability to run builds under the specified windows user account. See [Wiki](https://github.com/JetBrains/teamcity-runas-plugin/wiki) for more information.
+The teamcity-runas plugin can be used to run TeamCity build steps under a specified user account on Windows or Linux. See [Wiki](https://github.com/JetBrains/teamcity-runas-plugin/wiki) for more information.
 
 <img src="https://github.com/JetBrains/teamcity-runas-plugin/blob/master/docs/RunAs.png" width="70%" height="70%"/>
 
 ## Supported [TeamCity](https://www.jetbrains.com/teamcity/):
 
-TeamCity 10.0 and higher
+The plugin is compatible with TeamCity 10.0 and later.
 
 ## Build Status on Public TeamCity Server
 
