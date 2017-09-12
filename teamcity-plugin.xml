@@ -8,7 +8,7 @@
     <download-url>https://github.com/JetBrains/teamcity-runas-plugin</download-url>
     <email>Nikolay.Pianikov@jetbrains.com</email>
     <vendor>
-      <name>JetBrains</name>
+      <name>JetBrains, s.r.o.</name>
       <url>https://www.jetbrains.com/</url>
       <logo>https://www.jetbrains.com/company/docs/logo_jetbrains.png</logo>
     </vendor>
