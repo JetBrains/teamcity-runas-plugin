@@ -4,6 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
        default-autowire="constructor">
 
+  <bean class="jetbrains.buildServer.runAs.agent.EnvironmentImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.PathsServiceImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.AccessControlListProviderImpl" />
   <bean class="jetbrains.buildServer.runAs.agent.CryptographicServiceImpl" />
@@ -27,6 +28,7 @@
   <bean class="jetbrains.buildServer.runAs.agent.RunAsSetupBuilder" id="runAsSetupBuilder">
     <constructor-arg ref="runAsWindowsSetupBuilder"/>
     <constructor-arg ref="runAsLinuxSetupBuilder"/>
+    <constructor-arg ref="runAsMacSetupBuilder"/>
   </bean>
 
   <bean class="jetbrains.buildServer.runAs.agent.RunAsBuildCommandLineProcessorAdapter" id="runAsBuildCommandLineProcessorAdapter">
@@ -81,6 +83,15 @@
     <constructor-arg ref="linuxScopedFileAccessService"/>
     <constructor-arg ref="noModificationArgumentConverter"/>
     <constructor-arg type="java.lang.String" value=".sh"/>
+  </bean>
+  <bean class="jetbrains.buildServer.runAs.agent.RunAsPlatformSpecificSetupBuilder" id="runAsMacSetupBuilder">
+    <constructor-arg ref="beforeBuildPublisher"/>
+    <constructor-arg ref="linuxAccessControlResource"/>
+    <constructor-arg ref="linuxSettingsGenerator"/>
+    <constructor-arg ref="shGenerator"/>
+    <constructor-arg ref="linuxScopedFileAccessService"/>
+    <constructor-arg ref="noModificationArgumentConverter"/>
+    <constructor-arg type="java.lang.String" value="_mac.sh"/>
   </bean>
 
 </beans>

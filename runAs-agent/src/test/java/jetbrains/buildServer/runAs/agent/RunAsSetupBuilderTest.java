@@ -13,17 +13,19 @@ import static org.assertj.core.api.BDDAssertions.then;
 public class RunAsSetupBuilderTest {
 
   private Mockery myCtx;
-  private RunnerParametersService myRunnerParametersService;
+  private Environment myEnvironment;
   private CommandLineSetupBuilder myRunAsWindowsSetupBuilder;
   private CommandLineSetupBuilder myRunAsUnixSetupBuilder;
+  private CommandLineSetupBuilder myRunAsMacSetupBuilder;
 
   @BeforeMethod
   public void setUp()
   {
     myCtx = new Mockery();
-    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
+    myEnvironment = myCtx.mock(Environment.class);
     myRunAsWindowsSetupBuilder = myCtx.mock(CommandLineSetupBuilder.class, "RunAsPlatformSpecificSetupBuilder");
     myRunAsUnixSetupBuilder = myCtx.mock(CommandLineSetupBuilder.class, "RunAsUnixSetupBuilder");
+    myRunAsMacSetupBuilder = myCtx.mock(CommandLineSetupBuilder.class, "RunAsMacSetupBuilder");
   }
 
   @Test()
@@ -34,13 +36,14 @@ public class RunAsSetupBuilderTest {
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup("aa", new ArrayList<CommandLineArgument>(), new ArrayList<CommandLineResource>());
 
     myCtx.checking(new Expectations() {{
-        oneOf(myRunnerParametersService).isRunningUnderWindows();
-        will(returnValue(true));
+        oneOf(myEnvironment).getOperationSystem();
+        will(returnValue(OperationSystem.Windows));
 
         oneOf(myRunAsWindowsSetupBuilder).build(commandLineSetup);
         will(returnValue(Arrays.asList(runAsCommandLineSetup)));
 
         never(myRunAsUnixSetupBuilder).build(commandLineSetup);
+      never(myRunAsMacSetupBuilder).build(commandLineSetup);
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -61,13 +64,42 @@ public class RunAsSetupBuilderTest {
     final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup("aa", new ArrayList<CommandLineArgument>(), new ArrayList<CommandLineResource>());
 
     myCtx.checking(new Expectations() {{
-      oneOf(myRunnerParametersService).isRunningUnderWindows();
-      will(returnValue(false));
+      oneOf(myEnvironment).getOperationSystem();
+      will(returnValue(OperationSystem.Other));
 
       oneOf(myRunAsUnixSetupBuilder).build(commandLineSetup);
       will(returnValue(Arrays.asList(runAsCommandLineSetup)));
 
       never(myRunAsWindowsSetupBuilder).build(commandLineSetup);
+      never(myRunAsMacSetupBuilder).build(commandLineSetup);
+    }});
+
+    final CommandLineSetupBuilder instance = createInstance();
+
+    // When
+    final CommandLineSetup setup = instance.build(commandLineSetup).iterator().next();
+
+    // Then
+    myCtx.assertIsSatisfied();
+    then(setup).isEqualTo(runAsCommandLineSetup);
+  }
+
+  @Test()
+  public void shouldBuildSetupWhenMac()
+  {
+    // Given
+    final CommandLineSetup commandLineSetup = new CommandLineSetup("aa", new ArrayList<CommandLineArgument>(), new ArrayList<CommandLineResource>());
+    final CommandLineSetup runAsCommandLineSetup = new CommandLineSetup("aa", new ArrayList<CommandLineArgument>(), new ArrayList<CommandLineResource>());
+
+    myCtx.checking(new Expectations() {{
+      oneOf(myEnvironment).getOperationSystem();
+      will(returnValue(OperationSystem.Mac));
+
+      oneOf(myRunAsMacSetupBuilder).build(commandLineSetup);
+      will(returnValue(Arrays.asList(runAsCommandLineSetup)));
+
+      never(myRunAsWindowsSetupBuilder).build(commandLineSetup);
+      never(myRunAsUnixSetupBuilder).build(commandLineSetup);
     }});
 
     final CommandLineSetupBuilder instance = createInstance();
@@ -83,9 +115,10 @@ public class RunAsSetupBuilderTest {
   private CommandLineSetupBuilder createInstance()
   {
     return new RunAsSetupBuilder(
-        myRunnerParametersService,
+        myEnvironment,
         myRunAsWindowsSetupBuilder,
-        myRunAsUnixSetupBuilder
+        myRunAsUnixSetupBuilder,
+        myRunAsMacSetupBuilder
       );
   }
 }

@@ -4,7 +4,8 @@
     <layout>
       <executable-files>
         <include name='bin/runAs.cmd'/>
-		<include name='bin/runAs.sh'/>
+        <include name='bin/runAs.sh'/>
+        <include name='bin/runAs_mac.sh'/>
         <include name='bin/x64/JetBrains.runAs.exe'/>
         <include name='bin/x86/JetBrains.runAs.exe'/>
       </executable-files>
