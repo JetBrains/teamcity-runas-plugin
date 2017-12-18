@@ -2,7 +2,7 @@
 
 When building, testing, and deploying an application with TeamCity, you may need to run a build under a specific user account, different from the one used to run the build agent.
 
-The teamcity-runas plugin can be used to run TeamCity build steps under a specified user account on Windows or Linux. See [Wiki](https://github.com/JetBrains/teamcity-runas-plugin/wiki) for more information:
+The teamcity-runas plugin can be used to run TeamCity build steps under a specified user account on Windows, Mac or Linux. See [Wiki](https://github.com/JetBrains/teamcity-runas-plugin/wiki) for more information:
 
 * [How to Install](https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install)
 

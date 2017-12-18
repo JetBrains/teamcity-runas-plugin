@@ -2,7 +2,6 @@ package jetbrains.buildServer.runAs.agent;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.util.SystemInfo;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -27,16 +26,18 @@ import static jetbrains.buildServer.runAs.common.Constants.RUN_AS_TOOL_NAME;
 @SuppressWarnings("deprecation")
 public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements RunAsAccessService, PositionAware {
   private static final String TOOL_FILE_NAME_LINUX = "runAs.sh";
+  private static final String TOOL_FILE_NAME_MAC = "runAs_mac.sh";
   private static final Logger LOG = Logger.getInstance(RunAsPropertiesExtension.class.getName());
   private static final String[] OurProtectedParams = new String[] { Constants.PASSWORD, Constants.CONFIG_PASSWORD };
   private static final CommandLineSetup OurIcaclsCmdLineSetup = new CommandLineSetup(ICACLS_TOOL_NAME, Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
   private static final CommandLineSetup OurChmodHelpCmdLineSetup = new CommandLineSetup(CHMOD_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
   private static final CommandLineSetup OurSuCmdLineSetup = new CommandLineSetup(SU_TOOL_NAME, Arrays.asList(new CommandLineArgument("--help", CommandLineArgument.Type.PARAMETER)), Collections.<CommandLineResource>emptyList());
-  private final ToolProvidersRegistry myToolProvidersRegistry;
-  private final BuildRunnerContextProvider myBuildRunnerContextProvider;
-  private final CommandLineExecutor myCommandLineExecutor;
-  private final ProfileParametersService myProfileParametersService;
-  private final FileAccessCacheManager myBuildFileAccessCacheManager;
+  @NotNull private final ToolProvidersRegistry myToolProvidersRegistry;
+  @NotNull private final BuildRunnerContextProvider myBuildRunnerContextProvider;
+  @NotNull private final CommandLineExecutor myCommandLineExecutor;
+  @NotNull private final ProfileParametersService myProfileParametersService;
+  @NotNull private final FileAccessCacheManager myBuildFileAccessCacheManager;
+  @NotNull private final Environment myEnvironment;
   private boolean myIsRunAsEnabled;
   private boolean myIsHidingOfPropertyIsNotSupported;
 
@@ -46,12 +47,14 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
     @NotNull final BuildRunnerContextProvider buildRunnerContextProvider,
     @NotNull final CommandLineExecutor commandLineExecutor,
     @NotNull final ProfileParametersService profileParametersService,
-    @NotNull final FileAccessCacheManager buildFileAccessCacheManager) {
+    @NotNull final FileAccessCacheManager buildFileAccessCacheManager,
+    @NotNull final Environment environment) {
     myToolProvidersRegistry = toolProvidersRegistry;
     myBuildRunnerContextProvider = buildRunnerContextProvider;
     myCommandLineExecutor = commandLineExecutor;
     myProfileParametersService = profileParametersService;
     myBuildFileAccessCacheManager = buildFileAccessCacheManager;
+    myEnvironment = environment;
     events.addListener(this);
   }
 
@@ -100,68 +103,82 @@ public class RunAsPropertiesExtension extends AgentLifeCycleAdapter implements R
       return;
     }
 
-    if(SystemInfo.isWindows) {
-      try {
-        myCommandLineExecutor.runProcess(OurIcaclsCmdLineSetup, 600);
-      } catch (ExecutionException e) {
-        LOG.warn(ICACLS_TOOL_NAME + " is not supported");
-        return;
-      }
+    switch (myEnvironment.getOperationSystem()) {
+      case Windows:
+        onWindows(config, toolProvider);
+        break;
 
-      final String pathToRunAsPlugin = toolProvider.getPath(RUN_AS_TOOL_NAME);
-      final String runAsToolPath = new File("x86", RUN_AS_WIN32_TOOL_NAME).getPath();
-      final CommandLineSetup cmdLineSetup = new CommandLineSetup(
-        new File(pathToRunAsPlugin, runAsToolPath).getAbsolutePath(),
-        Arrays.asList(new CommandLineArgument("-t", CommandLineArgument.Type.PARAMETER)),
-        Collections.<CommandLineResource>emptyList());
+      case Mac:
+        onLinuxBased(config, toolProvider, TOOL_FILE_NAME_MAC);
+        break;
 
-      try {
-        final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 600);
-        if (result != null) {
-          LOG.info(RUN_AS_WIN32_TOOL_NAME + " self-test exit code: " + result.getExitCode());
-          final int bitness = result.getExitCode();
-          if (bitness == 32 || bitness == 64) {
-            myIsRunAsEnabled = true;
-            config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
-          } else {
-            LOG.warn("Invalid " + RUN_AS_WIN32_TOOL_NAME + " exit code: " + bitness);
-          }
-        }
-      } catch (ExecutionException e) {
-        LOG.warn(RUN_AS_WIN32_TOOL_NAME + " is not supported");
-      }
+      case Other:
+        onLinuxBased(config, toolProvider, TOOL_FILE_NAME_LINUX);
+        break;
     }
-    else
-    {
-      try {
-        myCommandLineExecutor.runProcess(OurChmodHelpCmdLineSetup, 600);
-      } catch (ExecutionException e) {
-        LOG.warn(CHMOD_TOOL_NAME + " is not supported");
+  }
+
+  private void onLinuxBased(final @NotNull BuildAgentConfiguration config, final ToolProvider toolProvider, final String script) {
+    try {
+      myCommandLineExecutor.runProcess(OurChmodHelpCmdLineSetup, 600);
+    } catch (ExecutionException e) {
+      LOG.warn(CHMOD_TOOL_NAME + " is not supported");
+      return;
+    }
+
+    try {
+      myCommandLineExecutor.runProcess(OurSuCmdLineSetup, 600);
+    } catch (ExecutionException e) {
+      LOG.warn(SU_TOOL_NAME + " is not supported");
+      return;
+    }
+
+    final File pathToRunAsScript = new File(toolProvider.getPath(RUN_AS_TOOL_NAME), script);
+    final CommandLineSetup scriptCmd = new CommandLineSetup(pathToRunAsScript.getAbsolutePath(), Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
+    try {
+      final ExecResult res = myCommandLineExecutor.runProcess(scriptCmd, 600);
+      if(res.getExitCode() != 0) {
+        LOG.warn("RunAs is not supported");
         return;
       }
+    } catch (ExecutionException e) {
+      LOG.warn(CHMOD_TOOL_NAME + " is not supported");
+      return;
+    }
 
-      try {
-        myCommandLineExecutor.runProcess(OurSuCmdLineSetup, 600);
-      } catch (ExecutionException e) {
-        LOG.warn(SU_TOOL_NAME + " is not supported");
-        return;
-      }
+    myIsRunAsEnabled = true;
+    config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
+  }
 
-      final File pathToRunAsScript = new File(toolProvider.getPath(RUN_AS_TOOL_NAME), TOOL_FILE_NAME_LINUX);
-      final CommandLineSetup scriptCmd = new CommandLineSetup(pathToRunAsScript.getAbsolutePath(), Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
-      try {
-        final ExecResult res = myCommandLineExecutor.runProcess(scriptCmd, 600);
-        if(res.getExitCode() != 0) {
-          LOG.warn("RunAs is not supported");
-          return;
+  private void onWindows(final @NotNull BuildAgentConfiguration config, final ToolProvider toolProvider) {
+    try {
+      myCommandLineExecutor.runProcess(OurIcaclsCmdLineSetup, 600);
+    } catch (ExecutionException e) {
+      LOG.warn(ICACLS_TOOL_NAME + " is not supported");
+      return;
+    }
+
+    final String pathToRunAsPlugin = toolProvider.getPath(RUN_AS_TOOL_NAME);
+    final String runAsToolPath = new File("x86", RUN_AS_WIN32_TOOL_NAME).getPath();
+    final CommandLineSetup cmdLineSetup = new CommandLineSetup(
+      new File(pathToRunAsPlugin, runAsToolPath).getAbsolutePath(),
+      Arrays.asList(new CommandLineArgument("-t", CommandLineArgument.Type.PARAMETER)),
+      Collections.<CommandLineResource>emptyList());
+
+    try {
+      final ExecResult result = myCommandLineExecutor.runProcess(cmdLineSetup, 600);
+      if (result != null) {
+        LOG.info(RUN_AS_WIN32_TOOL_NAME + " self-test exit code: " + result.getExitCode());
+        final int bitness = result.getExitCode();
+        if (bitness == 32 || bitness == 64) {
+          myIsRunAsEnabled = true;
+          config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
+        } else {
+          LOG.warn("Invalid " + RUN_AS_WIN32_TOOL_NAME + " exit code: " + bitness);
         }
-      } catch (ExecutionException e) {
-        LOG.warn(CHMOD_TOOL_NAME + " is not supported");
-        return;
       }
-
-      myIsRunAsEnabled = true;
-      config.addConfigurationParameter(Constants.RUN_AS_ENABLED, Boolean.toString(true));
+    } catch (ExecutionException e) {
+      LOG.warn(RUN_AS_WIN32_TOOL_NAME + " is not supported");
     }
   }
 
