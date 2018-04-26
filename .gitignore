@@ -3,4 +3,3 @@ target/
 win32/
 .idea/
 runAs.zip
-*.iml
