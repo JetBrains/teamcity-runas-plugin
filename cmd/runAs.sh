@@ -213,17 +213,19 @@ then
 	fi
 fi
 
-echo Invalid arguments. >&2
-echo Usage: runAs.sh settings_file_name command_file_name bitness password >&2
 if [[ "$EUID" -eq 0 ]];
 then
-	exit 0
+    exit 0
 else
 	# check installed socat
 	socat -h &>/dev/null
 	if [ "$?" = "0" ];
 	then
-	exit 0
+	  exit 0
 	fi
+
+	echo socat is not installed, see https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install#on-linux >&2
 fi
+
+echo Usage: runAs.sh settings_file_name command_file_name bitness password >&2
 exit 255
