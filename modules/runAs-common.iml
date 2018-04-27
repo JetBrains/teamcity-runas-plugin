@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+<module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="true">
     <content url="file://$MODULE_DIR$/../runAs-common">
       <sourceFolder url="file://$MODULE_DIR$/../runAs-common/src/main/java" isTestSource="false" />
@@ -7,5 +7,18 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../../../lib/annotations" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../../../lib/annotations" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/../../../lib/annotations" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/../../../lib/annotations" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
   </component>
 </module>
