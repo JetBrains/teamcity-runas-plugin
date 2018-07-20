@@ -28,7 +28,7 @@ then
 				tmpuser="U$(date +%s)"
 				adduser --system --no-create-home "$tmpuser" &>/dev/null
 
-				tmpScriptFile=$(tempfile)
+				tmpScriptFile=$(mktemp)
 				cp -f "${0}" "$tmpScriptFile"
 				chmod a+rwx "$tmpScriptFile"
 
@@ -50,7 +50,7 @@ then
 
 	# if not root
 	# Check an agent will be able to remove temporary files
-	tmpScriptFile=$(tempfile)
+	tmpScriptFile=$(mktemp)
 	tmpFile=$tmpScriptFile.tmp
 
 	cp -f "${0}" "$tmpScriptFile"
@@ -149,7 +149,7 @@ then
 		command="$3"
 		password="$4"
 
-		tmpFile=$(tempfile)
+		tmpFile=$(mktemp)
 		chmod a+rw "$tmpFile"
 
 		cmd="'${0}' su '$tmpFile' '$command' '$args' arg5"
