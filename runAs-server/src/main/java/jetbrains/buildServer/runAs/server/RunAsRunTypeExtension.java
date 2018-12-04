@@ -20,9 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 public class RunAsRunTypeExtension extends RunTypeExtension implements PositionAware {
   private static final Map<String, String> OurDefaultRunnerProperties = CollectionsUtil.asMap(
-      RunAsBean.Shared.getRunAsUserKey(), null,
-      RunAsBean.Shared.getRunAsPasswordKey(), null,
-      RunAsBean.Shared.getAdditionalCommandLineParametersKey(), null,
       RunAsBean.Shared.getWindowsIntegrityLevelKey(), RunAsBean.Shared.getWindowsIntegrityLevels().get(0).getValue(),
       RunAsBean.Shared.getWindowsLoggingLevelKey(), RunAsBean.Shared.getLoggingLevels().get(0).getValue()
     );
