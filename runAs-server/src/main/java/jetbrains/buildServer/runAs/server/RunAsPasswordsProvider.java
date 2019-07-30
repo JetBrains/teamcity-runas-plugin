@@ -1,6 +1,8 @@
 package jetbrains.buildServer.runAs.server;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import jetbrains.buildServer.runAs.common.Constants;
 import jetbrains.buildServer.serverSide.*;
 import jetbrains.buildServer.serverSide.parameters.types.PasswordsProvider;
@@ -16,25 +18,22 @@ public class RunAsPasswordsProvider implements PasswordsProvider {
 
   @NotNull
   @Override
-  public Collection<Parameter> getPasswordParameters(@NotNull final SBuild sBuild) {
+  public Collection<Parameter> getPasswordParameters(@NotNull final SBuild build) {
     final ArrayList<Parameter> passwords = new ArrayList<Parameter>();
 
-    final SRunningBuild build = sBuild.getAgent().getRunningBuild();
 
-    if(myRunAsConfiguration.getIsUiSupported()) {
-      if (build != null) {
-        final SBuildType buildType = build.getBuildType();
-        if (buildType != null) {
-          for (SBuildRunnerDescriptor runner : buildType.getBuildRunners()) {
-            final String password = runner.getParameters().get(Constants.PASSWORD);
-            if (!StringUtil.isEmpty(password)) {
-              passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + runner.getId(), password));
-            }
+    if (myRunAsConfiguration.getIsUiSupported()) {
+      final SBuildType buildType = build.getBuildType();
+      if (buildType != null) {
+        for (SBuildRunnerDescriptor runner : buildType.getBuildRunners()) {
+          final String password = runner.getParameters().get(Constants.PASSWORD);
+          if (!StringUtil.isEmpty(password)) {
+            passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + runner.getId(), password));
           }
         }
       }
 
-      for (SBuildFeatureDescriptor buildFeature : sBuild.getBuildFeaturesOfType(Constants.BUILD_FEATURE_TYPE)) {
+      for (SBuildFeatureDescriptor buildFeature : build.getBuildFeaturesOfType(Constants.BUILD_FEATURE_TYPE)) {
         if (!Constants.BUILD_FEATURE_TYPE.equalsIgnoreCase(buildFeature.getType())) {
           continue;
         }
@@ -49,18 +48,15 @@ public class RunAsPasswordsProvider implements PasswordsProvider {
           passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + buildFeature.getId(), password));
         }
       }
-    }
-    else {
-      if (build != null) {
-        final SBuildAgent agent = build.getAgent();
-        final String password = agent.getConfigurationParameters().get(Constants.PASSWORD);
-        if (!StringUtil.isEmpty(password)) {
-          passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + agent.getId(), password));
-        }
+    } else {
+      final SBuildAgent agent = build.getAgent();
+      final String password = agent.getConfigurationParameters().get(Constants.PASSWORD);
+      if (!StringUtil.isEmpty(password)) {
+        passwords.add(new SimpleParameter(Constants.PASSWORD + "_" + agent.getId(), password));
       }
     }
 
-    final Map<String, String> buildParams = sBuild.getBuildOwnParameters();
+    final Map<String, String> buildParams = build.getBuildOwnParameters();
     final String password = buildParams.get(Constants.PASSWORD);
     if(!StringUtil.isEmpty(password)) {
       passwords.add(new SimpleParameter(Constants.PASSWORD, password));
