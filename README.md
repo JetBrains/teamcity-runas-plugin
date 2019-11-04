@@ -10,7 +10,9 @@ The teamcity-runas plugin can be used to run TeamCity build steps under a specif
 
 <img src="https://github.com/JetBrains/teamcity-runas-plugin/blob/master/docs/RunAs.png" width="70%" height="70%"/>
 
-## Supported [TeamCity](https://www.jetbrains.com/teamcity/):
+See also announcement [blog post](https://blog.jetbrains.com/teamcity/2017/09/introducing-teamcity-runas-plugin/).
+
+## Supported TeamCity versions:
 
 The plugin is compatible with TeamCity 10.0 and later.
 
