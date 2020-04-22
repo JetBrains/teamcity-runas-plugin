@@ -29,5 +29,5 @@
       <logo>https://www.jetbrains.com/company/docs/logo_jetbrains.png</logo>
     </vendor>
   </info>
-  <deployment use-separate-classloader="true" />
+  <deployment use-separate-classloader="true" node-responsibilities-aware="true"/>
 </teamcity-plugin>
