@@ -5,7 +5,7 @@
       <configuration />
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="true">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
     <content url="file://$MODULE_DIR$/../runAs-agent">
       <sourceFolder url="file://$MODULE_DIR$/../runAs-agent/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../runAs-agent/src/main/resources" type="java-resource" />
@@ -13,7 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../runAs-agent/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../runAs-agent/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>
