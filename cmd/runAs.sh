@@ -181,7 +181,7 @@ then
 			done
 		) | (
 			# su
-			socat - $'EXEC:"bash -exec +x \'eval $SOCAT_CMD\'",pty,ctty,setsid'
+			socat -lm - $'EXEC:"bash -exec +x \'eval $SOCAT_CMD\'",pty,ctty,setsid'
 		) 2> >(tee > "$tmpFile" >(grep -v "[Pp]assword:" >&2))
 
 		# if exit file is empty
