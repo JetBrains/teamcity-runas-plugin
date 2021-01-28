@@ -293,34 +293,6 @@ public class ScopedFileAccessServiceTest {
     then(myBuildFileAccessCache.size()).isEqualTo(expectedBuildCacheSize);
   }
 
-  @Test
-  public void shouldShowGrantingPermMessage() throws ExecutionException {
-    // Given
-    final FileAccessService instance = createInstance();
-
-    myCtx.checking(new Expectations() {{
-      oneOf(myLoggerService).onMessage(with(new BaseMatcher<Message>() {
-                                              @Override
-                                              public boolean matches(final Object o) {
-                                                return "NORMAL".equals(((Message)o).getStatus()) && ScopedFileAccessService.MESSAGE_GRANTING_PERMISSIONS.equals(((Message)o).getText());
-                                              }
-
-                                              @Override
-                                              public void describeTo(final Description description) {
-                                              }
-                                            }));
-
-      allowing(myFileAccessService).setAccess(with(any(AccessControlList.class)));
-      will(returnValue(Lists.emptyList()));
-    }});
-
-    // When
-    instance.setAccess(new AccessControlList(Arrays.asList(createAce("my_file", AccessControlScope.Build))));
-
-    // Then
-    myCtx.assertIsSatisfied();
-  }
-
   @SuppressWarnings("unchecked")
   @DataProvider(name = "warnCases")
   public Object[][] getWarnCases() {
@@ -339,8 +311,6 @@ public class ScopedFileAccessServiceTest {
     final FileAccessService instance = createInstance();
 
     myCtx.checking(new Expectations() {{
-      one(myLoggerService).onMessage(with(any(Message.class)));
-
       oneOf(myLoggerService).onMessage(with(new BaseMatcher<Message>() {
         @Override
         public boolean matches(final Object o) {

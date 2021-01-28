@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 public class ScopedFileAccessService implements FileAccessService {
   private static final Logger LOG = Logger.getInstance(ScopedFileAccessService.class.getName());
   static final String WARNING_PERMISSIONS_ERRORS = "Errors occurred while granting permissions";
-  static final String MESSAGE_GRANTING_PERMISSIONS = "Granting necessary permissions";
   private final FileAccessService myFileAccessService;
   private final LoggerService myLoggerService;
   private final FileAccessCache myGlobalFileAccessCache;
@@ -73,7 +72,6 @@ public class ScopedFileAccessService implements FileAccessService {
       return Collections.emptyList();
     }
 
-    myLoggerService.onMessage(new Message(MESSAGE_GRANTING_PERMISSIONS, "NORMAL", null));
     List<Result<AccessControlEntry, Boolean>> results = new ArrayList<Result<AccessControlEntry, Boolean>>();
     boolean hasError = false;
     for (Result<AccessControlEntry, Boolean> result: myFileAccessService.setAccess(new AccessControlList(newAcl))) {
