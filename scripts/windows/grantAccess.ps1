@@ -25,7 +25,7 @@ write-host "  * Downloading and installing Carbon - PowerShell module for window
 $carbonZipPath = [io.path]::combine($dist, "carbon.zip")
 $carbonPath = [io.path]::combine($dist, "carbon-extracted")
 $carbonModulePath = [io.path]::combine($carbonPath, "Carbon")
-(New-Object System.Net.WebClient).DownloadFile("https://bitbucket.org/splatteredbits/carbon/downloads/Carbon-2.4.1.zip", $carbonZipPath)
+(New-Object System.Net.WebClient).DownloadFile("https://www.nuget.org/api/v2/package/Carbon/2.4.1", $carbonZipPath)
 [System.IO.Compression.ZipFile]::ExtractToDirectory($carbonZipPath, $carbonPath)
 Import-Module $carbonModulePath
 
