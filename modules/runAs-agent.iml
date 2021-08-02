@@ -51,5 +51,37 @@
     <orderEntry type="module" module-name="idea-obsolete-openapi" />
     <orderEntry type="module" module-name="agent" />
     <orderEntry type="library" scope="TEST" name="jmock-2.5.1" level="project" />
+    <orderEntry type="module" module-name="agent-openapi" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="runtime-util" />
+    <orderEntry type="module" module-name="server-logging" />
+    <orderEntry type="module" module-name="common-runtime" />
+    <orderEntry type="module" module-name="messages" />
+    <orderEntry type="library" name="Spring-Framework" level="project" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="runtime-util" />
+    <orderEntry type="module" module-name="server-logging" />
+    <orderEntry type="module" module-name="common-runtime" />
+    <orderEntry type="module" module-name="messages" />
+    <orderEntry type="library" name="Spring-Framework" level="project" />
+    <orderEntry type="library" name="annotations.jar" level="project" />
+    <orderEntry type="library" name="jdom" level="project" />
+    <orderEntry type="library" name="log4j-1.2.12" level="project" />
+    <orderEntry type="library" name="trove" level="project" />
+    <orderEntry type="module" module-name="agent-openapi" />
+    <orderEntry type="module" module-name="agent-upgrade" />
+    <orderEntry type="module" module-name="common-tools" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="runtime-util" />
+    <orderEntry type="module" module-name="server-logging" />
+    <orderEntry type="module" module-name="common-runtime" />
+    <orderEntry type="module" module-name="messages" />
+    <orderEntry type="module" module-name="agent-upgrade-common" />
+    <orderEntry type="module" module-name="plugin-model-common" />
+    <orderEntry type="module" module-name="agent-launcher-common" />
+    <orderEntry type="module" module-name="common-spring" />
+    <orderEntry type="library" name="Spring-Framework" level="project" />
+    <orderEntry type="library" name="JetLauncher API" level="project" />
+    <orderEntry type="library" name="annotations.jar" level="project" />
   </component>
 </module>
