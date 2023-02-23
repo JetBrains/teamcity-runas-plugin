@@ -29,6 +29,7 @@
     <orderEntry type="module" module-name="runAs-common" />
     <orderEntry type="module" module-name="common" />
     <orderEntry type="module" module-name="server-openapi" />
+    <orderEntry type="module" module-name="migration" />
     <orderEntry type="module" module-name="server-common-api" />
     <orderEntry type="library" name="Spring-Framework" level="project" />
     <orderEntry type="module" module-name="idea-obsolete-openapi" />

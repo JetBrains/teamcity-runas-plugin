@@ -48,6 +48,7 @@
     <orderEntry type="module" module-name="dotNet-buildRunner-agent" />
     <orderEntry type="module" module-name="agent-openapi" />
     <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="migration" />
     <orderEntry type="module" module-name="idea-obsolete-openapi" />
     <orderEntry type="module" module-name="agent" />
     <orderEntry type="library" scope="TEST" name="jmock-2.5.1" level="project" />
