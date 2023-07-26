@@ -34,6 +34,7 @@
     <orderEntry type="library" name="Spring-Framework" level="project" />
     <orderEntry type="module" module-name="idea-obsolete-openapi" />
     <orderEntry type="module" module-name="server" />
+    <orderEntry type="module" module-name="server-core" />
     <orderEntry type="module" module-name="web-openapi" />
   </component>
 </module>
