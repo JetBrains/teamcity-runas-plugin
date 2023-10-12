@@ -33,10 +33,6 @@
     <orderEntry type="library" name="Maven: org.jetbrains.teamcity:agent-api:2017.2" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.teamcity:common-api:2017.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.4" level="project" />
-    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.6" level="project" />
-    <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.ws.xmlrpc:xmlrpc:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.2" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.teamcity:serviceMessages:2017.2" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.teamcity.idea:annotations:132.719" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.teamcity.idea:obsolete-openapi:2017.2" level="project" />
