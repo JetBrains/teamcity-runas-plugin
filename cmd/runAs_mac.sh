@@ -25,7 +25,7 @@ then
 			su "$args" -c "\"$command\""
 			exit $?
 		else
-			echo "##teamcity[message text='Can't run under ROOT user' status='ERROR']"
+			echo "##teamcity[message text='Cannot run under ROOT user' status='ERROR']"
 			exit 255
 		fi
 	fi
@@ -54,7 +54,7 @@ then
 
 	if [ -f "$tmpFile" ]; then
 	  rm "$tmpScriptFile" &>/dev/null
-	  echo ##teamcity[message text='Incorrect runAs configuration: agent won't be able to remove temporary files created by the build step, see teamcity-agent.log for details .' status='ERROR']
+	  echo "##teamcity[message text='Incorrect runAs configuration: agent won't be able to remove temporary files created by the build step, see teamcity-agent.log for details .' status='ERROR']"
 	  exit 1
 	else
 	  # forcible remove tmp file
@@ -82,7 +82,7 @@ then
 		socatExitCode=$?
 		if [ "$socatExitCode" != "0" ];
 		then
-			echo "##teamcity[message text='socat was not installed, see https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install#teamcity-agent-on-linux' status='ERROR']"
+			echo "##teamcity[message text='socat was not installed, see https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install#on-mac' status='ERROR']"
 			exit 255
 		fi
 
@@ -166,8 +166,8 @@ else
 	  exit 0
 	fi
 
-	echo socat is not installed, see https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install#on-linux >&2
+	echo "socat is not installed, see https://github.com/JetBrains/teamcity-runas-plugin/wiki/How-to-install#on-mac" >&2
 fi
 
-echo Usage: runAs.sh settings_file_name command_file_name bitness password >&2
+echo "Usage: runAs.sh settings_file_name command_file_name bitness password" >&2
 exit 255
