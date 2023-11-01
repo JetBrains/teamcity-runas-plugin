@@ -54,7 +54,7 @@ public class ProfileParametersServiceImpl implements ProfileParametersService {
     myProfiles.clear();
     final String credentialsDirectoryStr = myAgentParametersService.tryGetConfigParameter(jetbrains.buildServer.runAs.common.Constants.CREDENTIALS_DIRECTORY);
     if(StringUtil.isEmptyOrSpaces(credentialsDirectoryStr)) {
-      LOG.error("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined");
+      LOG.info("Configuration parameter \"" + Constants.CREDENTIALS_DIRECTORY + "\" was not defined, skipping runAs plugin initialization");
       return;
     }
 
