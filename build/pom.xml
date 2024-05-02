@@ -8,7 +8,7 @@
     <groupId>org.jetbrains.teamcity.plugins</groupId>
     <version>1.0.0</version>
   </parent>
-  <artifactId>build</artifactId>
+  <artifactId>runas-build</artifactId>
   <packaging>pom</packaging>
   <properties>
       <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
